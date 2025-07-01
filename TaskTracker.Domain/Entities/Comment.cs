@@ -13,5 +13,5 @@ public class Comment : BaseEntity
     public string Text { get; set; } = string.Empty;
     public Guid TaskId { get; set; }
     public bool? IsEdited { get; set; } = false;
-    public DateTime? EdietedAt { get; set; }
+    public DateTime? EditedAt { get; set; }
 }
