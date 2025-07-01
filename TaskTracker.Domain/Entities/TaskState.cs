@@ -9,12 +9,7 @@ namespace TaskTracker.Domain.Entities;
 
 public class TaskState : BaseEntity
 {
-    public string Name { get; private set; } = string.Empty;
-    public int Order { get; private set; }
-    public string? Color { get; private set; }
-    public Guid BoardId { get; private set; }
-    public bool IsCompleted { get; private set; } = false;
-
-    public virtual Board Board { get; private set; } = null!;
-    public virtual ICollection<TaskItem> Tasks { get; private set; } = new List<TaskItem>();
+    public string Title { get; set; } = string.Empty;
+    public string? Description { get; set; } = string.Empty;
+    public Guid BoardId { get; set; }
 }

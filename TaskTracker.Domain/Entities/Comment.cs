@@ -7,17 +7,11 @@ using TaskTracker.Domain.Common;
 
 namespace TaskTracker.Domain.Entities;
 
-public class Comment : BaseEntity, IAuditableEntity
+public class Comment : BaseEntity
 {
-    public string Content { get; private set; } = string.Empty;
-    public bool IsEdited { get; private set; } = false;
-    public DateTime? EditedAt { get; private set; }
-
-    public Guid TaskId { get; private set; }
-    public Guid AuthorId { get; private set; }
-    public string? CreatedBy { get; set; }
-    public string? LastModifiedBy { get; set; }
-
-    public virtual TaskItem Task { get; private set; } = null!;
-    public virtual User Author { get; private set; } = null!;
+    public Guid AuthorId { get; set; }
+    public string Text { get; set; } = string.Empty;
+    public Guid TaskId { get; set; }
+    public bool? IsEdited { get; set; } = false;
+    public DateTime? EdietedAt { get; set; }
 }
