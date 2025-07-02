@@ -8,12 +8,8 @@ using TaskTracker.Domain.Enums;
 
 namespace TaskTracker.Domain.Entities;
 
-public class Board : BaseEntity
+public class Board : ArchivableEntity
 {
     public string Title { get; set; } = string.Empty;
     public string? Description { get; set; }
-    public Visibility Visibility { get; set; } = Visibility.Public;
-    public Guid OwnerId { get; set; }
-    public DateTime? StartDate { get; set; }
-    public DateTime? EndDate { get; set; }
 }

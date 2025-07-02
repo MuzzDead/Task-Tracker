@@ -4,12 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TaskTracker.Domain.Common;
+using TaskTracker.Domain.Enums;
 
 namespace TaskTracker.Domain.Entities;
 
-public class TaskState : BaseEntity
+public class Card : BaseAuditableEntity
 {
     public string Title { get; set; } = string.Empty;
-    public string? Description { get; set; } = string.Empty;
-    public Guid BoardId { get; set; }
+    public Guid ColumnId {  get; set; }
+    public int RowIndex {  get; set; }
 }

@@ -7,11 +7,9 @@ using TaskTracker.Domain.Common;
 
 namespace TaskTracker.Domain.Entities;
 
-public class Comment : BaseEntity
+public class Comment : BaseAuditableEntity
 {
-    public Guid AuthorId { get; set; }
     public string Text { get; set; } = string.Empty;
-    public Guid TaskId { get; set; }
-    public bool? IsEdited { get; set; } = false;
-    public DateTime? EditedAt { get; set; }
+    public Guid CardId { get; set; }
+    public Guid UserId { get; set; }
 }

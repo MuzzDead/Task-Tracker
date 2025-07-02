@@ -8,10 +8,9 @@ using TaskTracker.Domain.Enums;
 
 namespace TaskTracker.Domain.Entities;
 
-public class BoardMember : BaseEntity
+public class BoardRole : BaseEntity
 {
-    public Guid BoardId { get; set; }
     public Guid UserId { get; set; }
-    public Role Role  { get; set; } = Role.Member;
-    public DateTime JoinedAt { get; set; } = DateTime.UtcNow;
+    public Guid BoardId { get; set; }
+    public UserRole Role { get; set; }
 }

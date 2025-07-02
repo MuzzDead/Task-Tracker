@@ -8,14 +8,9 @@ using TaskTracker.Domain.Enums;
 
 namespace TaskTracker.Domain.Entities;
 
-public class TaskItem : BaseEntity
+public class Column : BaseAuditableEntity
 {
     public string Title { get; set; } = string.Empty;
-    public string? Description { get; set; }
-    public TaskPriority Priority { get; set; } = TaskPriority.Medium;
-    public Guid StateId { get; set; }
+    public int ColumnIndex { get; set; }
     public Guid BoardId { get; set; }
-    public Guid AssigneeId { get; set; }
-    public DateTime? StartDate { get; set; }
-    public DateTime? EndDate { get; set; }
 }
