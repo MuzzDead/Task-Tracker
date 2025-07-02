@@ -6,9 +6,10 @@ using System.Threading.Tasks;
 
 namespace TaskTracker.Domain.Enums;
 
-public enum BoardVisibility
+public enum Priority
 {
-    Private = 1,
-    Team = 2,
-    Public = 3
+    Low = 1,
+    Medium = 2,
+    High = 3,
+    Critical = 4
 }

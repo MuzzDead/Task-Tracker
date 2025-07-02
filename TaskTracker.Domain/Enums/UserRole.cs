@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 
 namespace TaskTracker.Domain.Enums;
 
-public enum TaskPriority
+public enum UserRole
 {
-    Low = 1,
-    Medium = 2,
-    High = 3,
-    Critical = 4
+    Admin,
+    Manager,
+    Member,
+    Viewer
 }

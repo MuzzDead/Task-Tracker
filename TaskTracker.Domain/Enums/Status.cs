@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace TaskTracker.Domain.Enums;
 
-public enum Role
+public enum Status
 {
-    Member = 0,
-    Admin = 1,
-    Owner = 2
+    Pending,
+    InProgress,
+    Done
 }
