@@ -13,6 +13,6 @@ public interface IUserRepository : IRepository<User, Guid>
 {
     Task<User> GetByEmailAsync(string email);
     Task<bool> IsEmailUniqueAsync(string email);
-    Task<IEnumerable<UserRole>> GetUserRolesAsync(Guid userId);
+    Task<UserRole> GetUserRoleAsync(Guid userId, Guid boarId);
 }
 
