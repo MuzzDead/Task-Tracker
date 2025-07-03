@@ -10,5 +10,5 @@ namespace TaskTracker.Application.Common.Interfaces;
 
 public interface IStateRepository : IRepository<State, Guid>
 {
-    Task<State> GetByCardIdAsync(Guid cardId);
+    Task<State?> GetByCardIdAsync(Guid cardId);
 }
