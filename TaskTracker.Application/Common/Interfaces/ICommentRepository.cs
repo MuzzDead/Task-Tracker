@@ -8,7 +8,7 @@ using TaskTracker.Domain.Entities;
 
 namespace TaskTracker.Application.Common.Interfaces;
 
-public interface ICommentRepository : IRepository<Comment>
+public interface ICommentRepository : IRepository<Comment, Guid>
 {
-    Task<IEnumerable<Comment>> GetCommentsByCardId(Guid cardId);
+    Task<IEnumerable<Comment>> GetByCardId(Guid cardId);
 }
