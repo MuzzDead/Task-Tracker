@@ -6,6 +6,6 @@ namespace TaskTracker.Application.Common.Interfaces;
 
 public interface ICardRepository : IRepository<Card>
 {
-    Task<IEnumerable<CardDto>> GetCardsByColumnIdAsync(Guid columnId);
+    Task<IEnumerable<Card>> GetCardsByColumnIdAsync(Guid columnId);
     Task AddStateToCard(State card);
 }
