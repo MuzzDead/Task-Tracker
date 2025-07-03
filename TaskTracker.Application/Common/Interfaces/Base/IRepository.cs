@@ -6,12 +6,12 @@ using System.Threading.Tasks;
 
 namespace TaskTracker.Application.Common.Interfaces.Base;
 
-public interface IRepository<TEntity> where TEntity : class
+public interface IRepository<TEntity, TId> where TEntity : class
 {
-    Task<TEntity?> GetByIdAsync(Guid Id);
+    Task<TEntity?> GetByIdAsync(TId Id);
     Task<IEnumerable<TEntity>> GetAllAsync();
 
     Task AddAsync(TEntity entity);
     Task UpdateAsync(TEntity entity);
-    Task DeleteAsync(Guid Id);
+    Task DeleteAsync(TId Id);
 }
