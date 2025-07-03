@@ -10,4 +10,5 @@ namespace TaskTracker.Application.Common.Interfaces;
 
 public interface IColumnRepository : IRepository<Column>
 {
+    Task<IEnumerable<Column>> GetColumnsByBoardIdAsync(Guid boardId);
 }
