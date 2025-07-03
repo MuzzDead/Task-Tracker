@@ -10,4 +10,5 @@ namespace TaskTracker.Application.Common.Interfaces;
 
 public interface ICommentRepository : IRepository<Comment>
 {
+    Task<IEnumerable<Comment>> GetCommentsByCardId(Guid cardId);
 }
