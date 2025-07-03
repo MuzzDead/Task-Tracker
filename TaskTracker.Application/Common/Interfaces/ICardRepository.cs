@@ -4,7 +4,7 @@ using TaskTracker.Domain.Entities;
 
 namespace TaskTracker.Application.Common.Interfaces;
 
-public interface ICardRepository : IRepository<Card>
+public interface ICardRepository : IRepository<Card, Guid>
 {
-    Task<IEnumerable<Card>> GetCardsByColumnIdAsync(Guid columnId);
+    Task<IEnumerable<Card>> GetByColumnIdAsync(Guid columnId);
 }
