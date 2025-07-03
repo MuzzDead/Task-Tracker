@@ -9,9 +9,9 @@ using TaskTracker.Domain.Enums;
 
 namespace TaskTracker.Application.Common.Interfaces;
 
-public interface IBoardRepository : IRepository<Board>
+public interface IBoardRepository : IRepository<Board, Guid>
 {
-    Task CreateBoardAsync(Board board, Guid userId, UserRole userRole);
-    Task RemoveUserFromBoardAsync(Guid boardId,Guid userId);
+    Task CreateAsync(Board board, Guid userId, UserRole userRole);
+    Task RemoveUserAsync(Guid boardId,Guid userId);
     Task ArchiveAsync(Guid boardId);
 }
