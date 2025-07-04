@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TaskTracker.Domain.Enums;
+﻿using TaskTracker.Domain.Enums;
 
 namespace TaskTracker.Application.DTOs;
 
