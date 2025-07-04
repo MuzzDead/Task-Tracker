@@ -43,8 +43,9 @@ public class BaseRepository<TEntity, TId> : IRepository<TEntity, TId>
         return await _dbSet.FindAsync(Id);
     }
 
-    public virtual async Task UpdateAsync(TEntity entity)
+    public virtual Task UpdateAsync(TEntity entity)
     {
         _dbSet.Update(entity);
+        return Task.CompletedTask;
     }
 }
