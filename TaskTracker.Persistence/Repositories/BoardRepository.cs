@@ -22,33 +22,21 @@ public class BoardRepository : BaseRepository<Board, Guid>, IBoardRepository
         {
             board.IsArchived = true;
             board.ArchivedAt = DateTimeOffset.UtcNow;
-            await _context.SaveChangesAsync();
         }
     }
 
     public async Task CreateAsync(Board board, Guid userId, UserRole userRole)
     {
-        using var transaction = await _context.Database.BeginTransactionAsync();
-        try
-        {
-            await _dbSet.AddAsync(board);
+        await _dbSet.AddAsync(board);
 
-            var boardRole = new BoardRole
-            {
-                BoardId = board.Id,
-                UserId = userId,
-                Role = userRole
-            };
-
-            await _context.BoardRoles.AddAsync(boardRole);
-            await _context.SaveChangesAsync();
-            await transaction.CommitAsync();
-        }
-        catch
+        var boardRole = new BoardRole
         {
-            await transaction.RollbackAsync();
-            throw;
-        }
+            BoardId = board.Id,
+            UserId = userId,
+            Role = userRole
+        };
+
+        await _context.BoardRoles.AddAsync(boardRole);
     }
 
     public async Task RemoveUserAsync(Guid boardId, Guid userId)
@@ -59,7 +47,6 @@ public class BoardRepository : BaseRepository<Board, Guid>, IBoardRepository
         if (boardRole != null)
         {
             _context.BoardRoles.Remove(boardRole);
-            await _context.SaveChangesAsync();
         }
     }
 }
