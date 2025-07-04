@@ -1,8 +1,4 @@
-﻿using AutoMapper;
-using MediatR;
-using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Reflection;
+﻿using Microsoft.Extensions.DependencyInjection;
 
 namespace TaskTracker.Application.Extensions;
 

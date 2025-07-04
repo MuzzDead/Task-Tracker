@@ -1,12 +1,5 @@
-﻿using AutoMapper;
-using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using MediatR;
 using TaskTracker.Application.Common.Interfaces.UnitOfWork;
-using TaskTracker.Domain.Entities;
 
 namespace TaskTracker.Application.Features.Board.Commands.Create;
 
