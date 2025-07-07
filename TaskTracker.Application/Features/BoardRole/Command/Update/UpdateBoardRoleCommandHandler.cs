@@ -4,15 +4,15 @@ using TaskTracker.Application.Exceptions;
 
 namespace TaskTracker.Application.Features.BoardRole.Command.Update;
 
-public class UpdateBoardRoleQueryHandler : IRequestHandler<UpdateBoardRoleQuery>
+public class UpdateBoardRoleCommandHandler : IRequestHandler<UpdateBoardRoleCommand>
 {
     private readonly IUnitOfWorkFactory _unitOfWorkFactory;
-    public UpdateBoardRoleQueryHandler(IUnitOfWorkFactory unitOfWorkFactory)
+    public UpdateBoardRoleCommandHandler(IUnitOfWorkFactory unitOfWorkFactory)
     {
         _unitOfWorkFactory = unitOfWorkFactory;
     }
 
-    public async Task Handle(UpdateBoardRoleQuery request, CancellationToken cancellationToken)
+    public async Task Handle(UpdateBoardRoleCommand request, CancellationToken cancellationToken)
     {
         using var uow = _unitOfWorkFactory.CreateUnitOfWork();
 
