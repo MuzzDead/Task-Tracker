@@ -6,7 +6,7 @@ namespace TaskTracker.Application.Common.Interfaces;
 
 public interface IBoardRepository : IRepository<Board, Guid>
 {
-    Task CreateAsync(Board board, Guid userId, UserRole userRole);
+    Task CreateAsync(Guid boardId, Guid userId, UserRole userRole);
     Task RemoveUserAsync(Guid boardId,Guid userId);
     Task ArchiveAsync(Guid boardId);
 }
