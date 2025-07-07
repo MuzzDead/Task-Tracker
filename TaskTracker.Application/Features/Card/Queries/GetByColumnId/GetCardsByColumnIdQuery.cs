@@ -6,9 +6,4 @@ namespace TaskTracker.Application.Features.Card.Queries.GetByColumnId;
 public class GetCardsByColumnIdQuery : IRequest<IEnumerable<CardDto>>
 {
     public Guid ColumnId { get; set; }
-
-    public GetCardsByColumnIdQuery(Guid columnId)
-    {
-        ColumnId = columnId;
-    }
 }
