@@ -22,6 +22,8 @@ public class UpdateBoardRoleCommandHandler : IRequestHandler<UpdateBoardRoleComm
             throw new NotFoundException($"BoardRole with ID {request.Id} was not found.");
         }
 
+        role.Role = request.Role;
+
         await uow.BoardRoles.UpdateAsync(role);
         await uow.SaveChangesAsync();
     }
