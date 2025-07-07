@@ -18,7 +18,7 @@ public class UpdateStateCommandHandler : IRequestHandler<UpdateStateCommand>
 
         var state = await uow.States.GetByIdAsync(request.Id);
         if (state == null)
-            throw new NotFoundException($"User with ID {request.Id} was not found.");
+            throw new NotFoundException($"State with ID {request.Id} was not found.");
 
         state.Description = request.Description;
         state.Status = request.Status;
