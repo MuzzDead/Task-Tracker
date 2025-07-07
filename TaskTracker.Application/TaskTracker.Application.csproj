@@ -7,7 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Features\Comment\Queries\" />
     <Folder Include="UseCases\" />
     <Folder Include="Validators\" />
   </ItemGroup>
