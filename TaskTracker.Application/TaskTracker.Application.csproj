@@ -7,8 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="UseCases\" />
-    <Folder Include="Validators\" />
+    <Compile Remove="UseCases\**" />
+    <Compile Remove="Validators\**" />
+    <EmbeddedResource Remove="UseCases\**" />
+    <EmbeddedResource Remove="Validators\**" />
+    <None Remove="UseCases\**" />
+    <None Remove="Validators\**" />
   </ItemGroup>
 
   <ItemGroup>
