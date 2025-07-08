@@ -2,7 +2,7 @@
 
 namespace TaskTracker.Application.Features.User.Command.LoginUser;
 
-public class LoginUserCommandValidator : AbstractValidator<LoginUserComand>
+public class LoginUserCommandValidator : AbstractValidator<LoginUserCommand>
 {
     public LoginUserCommandValidator()
     {

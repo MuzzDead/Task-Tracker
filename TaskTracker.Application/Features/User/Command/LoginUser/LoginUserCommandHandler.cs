@@ -1,10 +1,5 @@
 ﻿using AutoMapper;
 using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using TaskTracker.Application.Common.Interfaces.Auth;
 using TaskTracker.Application.Common.Interfaces.UnitOfWork;
 using TaskTracker.Application.DTOs;
@@ -12,13 +7,13 @@ using TaskTracker.Application.Exceptions;
 
 namespace TaskTracker.Application.Features.User.Command.LoginUser;
 
-public class LoginUserComandHandler : IRequestHandler<LoginUserComand, AuthResponse>
+public class LoginUserCommandHandler : IRequestHandler<LoginUserCommand, AuthResponse>
 {
     private readonly IUnitOfWorkFactory _unitOfWorkFactory;
     private readonly IPasswordHasher _passwordHasher;
     private readonly IJwtTokenProvider _jwtTokenProvider;
     private readonly IMapper _mapper;
-    public LoginUserComandHandler(
+    public LoginUserCommandHandler(
         IUnitOfWorkFactory unitOfWorkFactory,
         IPasswordHasher passwordHasher,
         IJwtTokenProvider jwtTokenProvider,
@@ -30,7 +25,7 @@ public class LoginUserComandHandler : IRequestHandler<LoginUserComand, AuthRespo
         _mapper = mapper;
     }
 
-    public async Task<AuthResponse> Handle(LoginUserComand request, CancellationToken cancellationToken)
+    public async Task<AuthResponse> Handle(LoginUserCommand request, CancellationToken cancellationToken)
     {
         using var uow = _unitOfWorkFactory.CreateUnitOfWork();
 
