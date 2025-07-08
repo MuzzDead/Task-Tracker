@@ -5,8 +5,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using TaskTracker.Application.Common.Interfaces.Auth;
+using TaskTracker.Application.Common.Interfaces.Services;
 using TaskTracker.Domain.Options;
 using TaskTracker.Infrastructure.Auth;
+using TaskTracker.Infrastructure.Services;
 
 namespace TaskTracker.Infrastructure.Extensions;
 
@@ -51,6 +53,8 @@ public static class ServiceCollectionExtensions
 
         services.AddScoped<IJwtTokenProvider, JwtTokenProvider>();
         services.AddScoped<IPasswordHasher, PasswordHasher>();
+        services.AddScoped<ICurrentUserService, CurrentUserService>();
+        services.AddHttpContextAccessor();
 
         return services;
     }
