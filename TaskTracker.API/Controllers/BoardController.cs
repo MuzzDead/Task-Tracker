@@ -9,7 +9,7 @@ using TaskTracker.Application.Features.Board.Commands.Update;
 using TaskTracker.Application.Features.Board.Queries.GetById;
 using TaskTracker.Domain.Entities;
 
-namespace TaskTracker.API.Controllers.Controllers;
+namespace TaskTracker.API.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
@@ -22,7 +22,7 @@ public class BoardController : ControllerBase
     }
 
     [HttpGet("{id:guid}")]
-    public async Task<BoardDto> GetBoardByUserId([FromQuery] GetBoardByIdQuery query)
+    public async Task<BoardDto> GetBoardById([FromQuery] GetBoardByIdQuery query)
     {
         var baord = await _mediator.Send(query);
 
