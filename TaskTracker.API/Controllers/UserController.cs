@@ -1,7 +1,7 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using TaskTracker.Application.DTOs;
-using TaskTracker.Application.Features.User.Command.Create;
+using TaskTracker.Application.Features.User.Command.RegisterUser;
 using TaskTracker.Application.Features.User.Command.Delete;
 using TaskTracker.Application.Features.User.Command.Update;
 using TaskTracker.Application.Features.User.Queries.GetByEmail;
@@ -31,14 +31,6 @@ public class UserController : ControllerBase
     public async Task<ActionResult<UserDto>> GetByEmailAsync([FromQuery] string email)
     {
         var user = await _mediator.Send(new GetUserByEmailQuery { Email = email });
-        
-        return Ok(user);
-    }
-
-    [HttpPost]
-    public async Task<ActionResult<UserDto>> CreateAsync([FromBody] CreateUserCommand command)
-    {
-        var user = await _mediator.Send(command);
         
         return Ok(user);
     }
