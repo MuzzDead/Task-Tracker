@@ -16,21 +16,20 @@ namespace TaskTracker.API.Controllers;
 public class BoardController : ControllerBase
 {
     private readonly IMediator _mediator;
-    public BoardController(IMediator mediator)
-    {
-        _mediator = mediator;
-    }
+    public BoardController(IMediator mediator) => _mediator = mediator;
 
     [HttpGet("{id:guid}")]
-    public async Task<BoardDto> GetBoardById([FromQuery] GetBoardByIdQuery query)
+    public async Task<ActionResult<BoardDto>> GetBoardById(Guid id)
     {
-        var baord = await _mediator.Send(query);
+        var query = new GetBoardByIdQuery { Id = id };
 
-        return baord;
+        var board = await _mediator.Send(query);
+
+        return Ok(board);
     }
 
     [HttpPost]
-    public async Task<ActionResult<Board>> Create([FromBody] CreateBoardCommand command)
+    public async Task<ActionResult<BoardDto>> Create([FromBody] CreateBoardCommand command)
     {
         var board = await _mediator.Send(command);
 
@@ -38,12 +37,10 @@ public class BoardController : ControllerBase
     }
 
     [HttpPut("{id:guid}")]
-    public async Task<ActionResult> Update(Guid id, UpdateBoardCommand command)
+    public async Task<IActionResult> Update(Guid id, [FromBody] UpdateBoardCommand command)
     {
         if (id != command.Id)
-        {
-            return BadRequest();
-        }
+            return BadRequest("Route ID does not match body ID.");
 
         await _mediator.Send(command);
 
@@ -51,31 +48,25 @@ public class BoardController : ControllerBase
     }
 
     [HttpDelete("{id:guid}")]
-    public async Task<ActionResult> Delete(Guid id)
+    public async Task<IActionResult> Delete(Guid id)
     {
-        var command = new DeleteBoardCommand(id);
-
-        await _mediator.Send(command);
+        await _mediator.Send(new DeleteBoardCommand(id));
 
         return NoContent();
     }
 
     [HttpPut("{id:guid}/archive")]
-    public async Task<ActionResult> Archive(Guid id)
+    public async Task<IActionResult> Archive(Guid id)
     {
-        var command = new ArchiveBoardCommand(id);
-
-        await _mediator.Send(command);
+        await _mediator.Send(new ArchiveBoardCommand(id));
 
         return NoContent();
     }
 
-    [HttpDelete("{userId:guid}/remove-user")]
-    public async Task<ActionResult> RemoveUserFromBoard(Guid boardId, Guid userId)
+    [HttpDelete("{boardId:guid}/users/{userId:guid}")]
+    public async Task<IActionResult> RemoveUserFromBoard(Guid boardId, Guid userId)
     {
-        var command = new RemoveUserFromBoardCommand(boardId, userId);
-
-        await _mediator.Send(command);
+        await _mediator.Send(new RemoveUserFromBoardCommand(boardId, userId));
 
         return NoContent();
     }
