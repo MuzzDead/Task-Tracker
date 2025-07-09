@@ -35,7 +35,7 @@ public class AuthController : ControllerBase
     }
 
     [HttpGet("me")]
-    public async Task<ActionResult<UserDto>> GetCurrentUser()
+    public async Task<ActionResult<UserDto>> GetCurrentUserAsync()
     {
         var response = await _mediator.Send(new GetCurrentUserQuery());
         return Ok(response);
