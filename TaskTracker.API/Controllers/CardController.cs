@@ -14,13 +14,10 @@ namespace TaskTracker.API.Controllers;
 public class CardController : ControllerBase
 {
     private readonly IMediator _mediator;
-    public CardController(IMediator mediator)
-    {
-        _mediator = mediator;
-    }
+    public CardController(IMediator mediator) => _mediator = mediator;
 
     [HttpPost]
-    public async Task<ActionResult> Create([FromBody] CreateCardCommand command)
+    public async Task<ActionResult<CardDto>> Create([FromBody] CreateCardCommand command)
     {
         var card = await _mediator.Send(command);
 
@@ -28,12 +25,10 @@ public class CardController : ControllerBase
     }
 
     [HttpPut("{id:guid}")]
-    public async Task<ActionResult> Update(Guid id, UpdateCardCommand command)
+    public async Task<IActionResult> Update(Guid id, [FromBody] UpdateCardCommand command)
     {
         if (id != command.Id)
-        {
-            return BadRequest();
-        }
+            return BadRequest("Route ID does not match body ID.");
 
         await _mediator.Send(command);
 
@@ -41,28 +36,30 @@ public class CardController : ControllerBase
     }
 
     [HttpDelete("{id:guid}")]
-    public async Task<ActionResult> Delete(Guid id)
+    public async Task<IActionResult> Delete(Guid id)
     {
-        var command = new DeleteCardCommand { Id = id };
-
-        await _mediator.Send(command);
+        await _mediator.Send(new DeleteCardCommand { Id = id });
 
         return NoContent();
     }
 
     [HttpGet("{id:guid}")]
-    public async Task<CardDto> GetCardById([FromQuery] GetCardByIdQuery query)
+    public async Task<ActionResult<CardDto>> GetCardById(Guid id)
     {
+        var query = new GetCardByIdQuery { Id = id };
+
         var card = await _mediator.Send(query);
 
-        return card;
+        return Ok(card);
     }
 
-    [HttpGet("{columnId:guid}")]
-    public async Task<IEnumerable<CardDto>> GetCardByColumnId([FromQuery] GetCardsByColumnIdQuery query)
+    [HttpGet("column/{columnId:guid}")]
+    public async Task<ActionResult<IEnumerable<CardDto>>> GetCardsByColumnId(Guid columnId)
     {
+        var query = new GetCardsByColumnIdQuery { ColumnId = columnId };
+
         var cards = await _mediator.Send(query);
 
-        return cards;
+        return Ok(cards);
     }
 }
