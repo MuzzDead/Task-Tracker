@@ -20,7 +20,7 @@ public class StateController : ControllerBase
     }
 
     [HttpGet("{id:guid}")]
-    public async Task<ActionResult<StateDto>> GetStateById(Guid id)
+    public async Task<ActionResult<StateDto>> GetByIdAsync(Guid id)
     {
         var query = new GetStateByIdQuery { Id = id };
 
@@ -30,7 +30,7 @@ public class StateController : ControllerBase
     }
 
     [HttpGet("card/{cardId:guid}")]
-    public async Task<ActionResult<StateDto>> GetStateByCardId(Guid cardId)
+    public async Task<ActionResult<StateDto>> GetByCardIdAsync(Guid cardId)
     {
         var query = new GetStateByCardIdQuery { CardId = cardId };
         
@@ -40,7 +40,7 @@ public class StateController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult> CreateState([FromBody] CreateStateCommand command)
+    public async Task<ActionResult> CreateAsync([FromBody] CreateStateCommand command)
     {
         var state = await _mediator.Send(command);
         
@@ -48,7 +48,7 @@ public class StateController : ControllerBase
     }
 
     [HttpPut("{id:guid}")]
-    public async Task<IActionResult> UpdateState(Guid id, [FromBody] UpdateStateCommand command)
+    public async Task<IActionResult> UpdateAsync(Guid id, [FromBody] UpdateStateCommand command)
     {
         if (id != command.Id)
             return BadRequest("Route ID does not match body ID.");
@@ -59,7 +59,7 @@ public class StateController : ControllerBase
     }
 
     [HttpDelete("{id:guid}")]
-    public async Task<IActionResult> DeleteState(Guid id)
+    public async Task<IActionResult> DeleteAsync(Guid id)
     {
         var command = new DeleteStateCommand { Id = id };
         

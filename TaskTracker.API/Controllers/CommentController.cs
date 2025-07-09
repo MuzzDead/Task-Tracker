@@ -19,7 +19,7 @@ public class CommentController : ControllerBase
     }
 
     [HttpGet("{id:guid}")]
-    public async Task<IActionResult> GetCommentById(Guid id)
+    public async Task<IActionResult> GetByIdAsync(Guid id)
     {
         var query = new GetCommentByIdQuery { Id = id };
 
@@ -29,7 +29,7 @@ public class CommentController : ControllerBase
     }
 
     [HttpGet("card/{cardId}")]
-    public async Task<IActionResult> GetCommentsByCardId(Guid cardId)
+    public async Task<IActionResult> GetByCardIdAsync(Guid cardId)
     {
         var query = new GetCommentsByCardIdQuery { CardId = cardId };
 
@@ -39,7 +39,7 @@ public class CommentController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> CreateComment([FromBody] CreateCommentCommand command)
+    public async Task<IActionResult> CreateAsync([FromBody] CreateCommentCommand command)
     {
         var comment = await _mediator.Send(command);
 
@@ -47,7 +47,7 @@ public class CommentController : ControllerBase
     }
 
     [HttpPut("{id:guid}")]
-    public async Task<IActionResult> UpdateComment(Guid id, [FromBody] UpdateCommentCommand command)
+    public async Task<IActionResult> UpdateAsync(Guid id, [FromBody] UpdateCommentCommand command)
     {
         if (id != command.Id)
             return BadRequest("Route ID does not match body ID.");
@@ -58,7 +58,7 @@ public class CommentController : ControllerBase
     }
 
     [HttpDelete("{id:guid}")]
-    public async Task<IActionResult> DeleteComment(Guid id)
+    public async Task<IActionResult> DeleteAsync(Guid id)
     {
         var command = new DeleteCommentCommand { Id = id };
 

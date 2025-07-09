@@ -19,7 +19,7 @@ public class BoardRoleController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAllBoardRoles()
+    public async Task<IActionResult> GetAllAsync()
     {
         var query = new GetAllBoardRoleQuery();
         
@@ -29,7 +29,7 @@ public class BoardRoleController : ControllerBase
     }
 
     [HttpGet("{id:guid}")]
-    public async Task<IActionResult> GetBoardRoleById(Guid id)
+    public async Task<IActionResult> GetByIdAsync(Guid id)
     {
         var query = new GetBoardRoleByIdQuery { Id = id };
         
@@ -39,7 +39,7 @@ public class BoardRoleController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> CreateBoardRole([FromBody] CreateBoardRoleCommand command)
+    public async Task<IActionResult> CreateAsync([FromBody] CreateBoardRoleCommand command)
     {
         var role = await _mediator.Send(command);
         
@@ -47,7 +47,7 @@ public class BoardRoleController : ControllerBase
     }
 
     [HttpPut("{id:guid}")]
-    public async Task<IActionResult> UpdateBoardRole(Guid id, [FromBody] UpdateBoardRoleCommand command)
+    public async Task<IActionResult> UpdateAsync(Guid id, [FromBody] UpdateBoardRoleCommand command)
     {
         if (id != command.Id)
             return BadRequest("Route ID does not match body ID.");
@@ -58,7 +58,7 @@ public class BoardRoleController : ControllerBase
     }
 
     [HttpDelete("{id:guid}")]
-    public async Task<IActionResult> DeleteBoardRole(Guid id)
+    public async Task<IActionResult> DeleteAsync(Guid id)
     {
         var command = new DeleteBoardRoleCommand { Id = id };
         

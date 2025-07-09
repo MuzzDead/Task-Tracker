@@ -17,7 +17,7 @@ public class CardController : ControllerBase
     public CardController(IMediator mediator) => _mediator = mediator;
 
     [HttpPost]
-    public async Task<ActionResult<CardDto>> Create([FromBody] CreateCardCommand command)
+    public async Task<ActionResult<CardDto>> CreateAsync([FromBody] CreateCardCommand command)
     {
         var card = await _mediator.Send(command);
 
@@ -25,7 +25,7 @@ public class CardController : ControllerBase
     }
 
     [HttpPut("{id:guid}")]
-    public async Task<IActionResult> Update(Guid id, [FromBody] UpdateCardCommand command)
+    public async Task<IActionResult> UpdateAsync(Guid id, [FromBody] UpdateCardCommand command)
     {
         if (id != command.Id)
             return BadRequest("Route ID does not match body ID.");
@@ -36,7 +36,7 @@ public class CardController : ControllerBase
     }
 
     [HttpDelete("{id:guid}")]
-    public async Task<IActionResult> Delete(Guid id)
+    public async Task<IActionResult> DeleteAsync(Guid id)
     {
         await _mediator.Send(new DeleteCardCommand { Id = id });
 
@@ -44,7 +44,7 @@ public class CardController : ControllerBase
     }
 
     [HttpGet("{id:guid}")]
-    public async Task<ActionResult<CardDto>> GetCardById(Guid id)
+    public async Task<ActionResult<CardDto>> GetByIdAsync(Guid id)
     {
         var query = new GetCardByIdQuery { Id = id };
 
@@ -54,7 +54,7 @@ public class CardController : ControllerBase
     }
 
     [HttpGet("column/{columnId:guid}")]
-    public async Task<ActionResult<IEnumerable<CardDto>>> GetCardsByColumnId(Guid columnId)
+    public async Task<ActionResult<IEnumerable<CardDto>>> GetByColumnIdAsync(Guid columnId)
     {
         var query = new GetCardsByColumnIdQuery { ColumnId = columnId };
 

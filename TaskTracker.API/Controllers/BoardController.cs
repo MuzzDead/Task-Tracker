@@ -19,7 +19,7 @@ public class BoardController : ControllerBase
     public BoardController(IMediator mediator) => _mediator = mediator;
 
     [HttpGet("{id:guid}")]
-    public async Task<ActionResult<BoardDto>> GetBoardById(Guid id)
+    public async Task<ActionResult<BoardDto>> GetByIdAsync(Guid id)
     {
         var query = new GetBoardByIdQuery { Id = id };
 
@@ -29,7 +29,7 @@ public class BoardController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<BoardDto>> Create([FromBody] CreateBoardCommand command)
+    public async Task<ActionResult<BoardDto>> CreateAsync([FromBody] CreateBoardCommand command)
     {
         var board = await _mediator.Send(command);
 
@@ -37,7 +37,7 @@ public class BoardController : ControllerBase
     }
 
     [HttpPut("{id:guid}")]
-    public async Task<IActionResult> Update(Guid id, [FromBody] UpdateBoardCommand command)
+    public async Task<IActionResult> UpdateAsync(Guid id, [FromBody] UpdateBoardCommand command)
     {
         if (id != command.Id)
             return BadRequest("Route ID does not match body ID.");
@@ -48,7 +48,7 @@ public class BoardController : ControllerBase
     }
 
     [HttpDelete("{id:guid}")]
-    public async Task<IActionResult> Delete(Guid id)
+    public async Task<IActionResult> DeleteAsync(Guid id)
     {
         await _mediator.Send(new DeleteBoardCommand(id));
 
@@ -56,7 +56,7 @@ public class BoardController : ControllerBase
     }
 
     [HttpPut("{id:guid}/archive")]
-    public async Task<IActionResult> Archive(Guid id)
+    public async Task<IActionResult> ArchiveAsync(Guid id)
     {
         await _mediator.Send(new ArchiveBoardCommand(id));
 
@@ -64,7 +64,7 @@ public class BoardController : ControllerBase
     }
 
     [HttpDelete("{boardId:guid}/users/{userId:guid}")]
-    public async Task<IActionResult> RemoveUserFromBoard(Guid boardId, Guid userId)
+    public async Task<IActionResult> RemoveUserFromBoardAsunc(Guid boardId, Guid userId)
     {
         await _mediator.Send(new RemoveUserFromBoardCommand(boardId, userId));
 

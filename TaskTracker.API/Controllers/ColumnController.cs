@@ -20,28 +20,28 @@ public class ColumnController : ControllerBase
     }
 
     [HttpGet("by-id/{id:guid}")]
-    public async Task<IActionResult> GetColumnById(Guid id)
+    public async Task<IActionResult> GetByIdAsync(Guid id)
     {
         var column = await _mediator.Send(new GetColumnByIdQuery { Id = id });
         return Ok(column);
     }
 
     [HttpGet("by-board/{boardId:guid}")]
-    public async Task<IActionResult> GetColumnsByBoardId(Guid boardId)
+    public async Task<IActionResult> GetByBoardIdAsync(Guid boardId)
     {
         var columns = await _mediator.Send(new GetColumnsByBoardIdQuery { BoardId = boardId });
         return Ok(columns);
     }
 
     [HttpPost]
-    public async Task<ActionResult> Create([FromBody] CreateColumnCommand command)
+    public async Task<ActionResult> CreateAsync([FromBody] CreateColumnCommand command)
     {
         var columnId = await _mediator.Send(command);
         return Ok(columnId);
     }
 
     [HttpPut("{id:guid}")]
-    public async Task<ActionResult> Update(Guid id, [FromBody] UpdateColumnCommand command)
+    public async Task<ActionResult> UpdateAsync(Guid id, [FromBody] UpdateColumnCommand command)
     {
         if (id != command.Id)
             return BadRequest("Route ID does not match body ID.");
@@ -51,7 +51,7 @@ public class ColumnController : ControllerBase
     }
 
     [HttpDelete("{id:guid}")]
-    public async Task<IActionResult> Delete(Guid id)
+    public async Task<IActionResult> DeleteAsync(Guid id)
     {
         await _mediator.Send(new DeleteColumnCommand { Id = id });
         return NoContent();

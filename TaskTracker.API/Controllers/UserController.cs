@@ -20,7 +20,7 @@ public class UserController : ControllerBase
     }
 
     [HttpGet("{id:guid}")]
-    public async Task<ActionResult<UserDto>> GetUserById(Guid id)
+    public async Task<ActionResult<UserDto>> GetByIdAsync(Guid id)
     {
         var user = await _mediator.Send(new GetUserByIdQuery { Id = id });
         
@@ -28,7 +28,7 @@ public class UserController : ControllerBase
     }
 
     [HttpGet("by-email")]
-    public async Task<ActionResult<UserDto>> GetUserByEmail([FromQuery] string email)
+    public async Task<ActionResult<UserDto>> GetByEmailAsync([FromQuery] string email)
     {
         var user = await _mediator.Send(new GetUserByEmailQuery { Email = email });
         
@@ -36,7 +36,7 @@ public class UserController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<UserDto>> CreateUser([FromBody] CreateUserCommand command)
+    public async Task<ActionResult<UserDto>> CreateAsync([FromBody] CreateUserCommand command)
     {
         var user = await _mediator.Send(command);
         
@@ -44,7 +44,7 @@ public class UserController : ControllerBase
     }
 
     [HttpPut("{id:guid}")]
-    public async Task<IActionResult> UpdateUser(Guid id, [FromBody] UpdateUserCommand command)
+    public async Task<IActionResult> UpdateAsync(Guid id, [FromBody] UpdateUserCommand command)
     {
         if (id != command.Id)
             return BadRequest("Route ID does not match body ID.");
@@ -55,7 +55,7 @@ public class UserController : ControllerBase
     }
 
     [HttpDelete("{id:guid}")]
-    public async Task<IActionResult> DeleteUser(Guid id)
+    public async Task<IActionResult> DeleteAsync(Guid id)
     {
         await _mediator.Send(new DeleteUserCommand { Id = id });
         
