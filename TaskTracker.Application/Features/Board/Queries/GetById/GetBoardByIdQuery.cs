@@ -6,9 +6,4 @@ namespace TaskTracker.Application.Features.Board.Queries.GetById;
 public class GetBoardByIdQuery : IRequest<BoardDto?>
 {
     public Guid Id { get; set; }
-
-    public GetBoardByIdQuery(Guid id)
-    {
-        Id = id;
-    }
 }
