@@ -1,0 +1,7 @@
+CREATE TABLE [Users]
+(
+    [Id]           UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWSEQUENTIALID(),
+    [Username]     NVARCHAR(100) UNIQUE NOT NULL,
+    [Email]        NVARCHAR(255) UNIQUE NOT NULL,
+    [PasswordHash] NVARCHAR(255)        NOT NULL
+)

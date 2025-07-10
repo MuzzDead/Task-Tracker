@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TaskTracker.Infrastructure"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TaskTracker.Persistence", "TaskTracker.Persistence\TaskTracker.Persistence.csproj", "{4B6F34A0-9F18-4A4D-9457-51B553857209}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TaskTracker.Database", "TaskTracker.Database\TaskTracker.Database.csproj", "{07556285-D04D-48D2-AB69-459B098BB078}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{4B6F34A0-9F18-4A4D-9457-51B553857209}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4B6F34A0-9F18-4A4D-9457-51B553857209}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4B6F34A0-9F18-4A4D-9457-51B553857209}.Release|Any CPU.Build.0 = Release|Any CPU
+		{07556285-D04D-48D2-AB69-459B098BB078}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{07556285-D04D-48D2-AB69-459B098BB078}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{07556285-D04D-48D2-AB69-459B098BB078}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{07556285-D04D-48D2-AB69-459B098BB078}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
