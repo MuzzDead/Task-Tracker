@@ -4,8 +4,8 @@ CREATE TABLE [Comments]
     [Text]              NVARCHAR(MAX) NOT NULL,
     [CardId]            UNIQUEIDENTIFIER FOREIGN KEY REFERENCES Cards(Id) ON DELETE CASCADE,
     [UserId]            UNIQUEIDENTIFIER FOREIGN KEY REFERENCES Users(Id) ON DELETE CASCADE,
-    [CreatedAtUtc]      DATETIME      NOT NULL       DEFAULT GETUTCDATE(),
+    [CreatedAt]         DATETIME      NOT NULL       DEFAULT GETUTCDATE(),
     [CreatedBy]         NVARCHAR(100) NOT NULL,
-    [LastModifiedAtUtc] DATETIME                     DEFAULT NULL,
-    [LastModifiedBy]    NVARCHAR(100)                DEFAULT NULL
+    [UpdatedAt]         DATETIME                     DEFAULT NULL,
+    [UpdatedBy]         NVARCHAR(100)                DEFAULT NULL
 )
