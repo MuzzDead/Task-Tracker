@@ -20,7 +20,7 @@ public class GetUserByEmailQueryHandler : IRequestHandler<GetUserByEmailQuery, U
     {
         using var uow = _unitOfWorkFactory.CreateUnitOfWork();
 
-        var user = uow.Users.GetByEmailAsync(request.Email);
+        var user = await uow.Users.GetByEmailAsync(request.Email);
         if (user == null)
             throw new NotFoundException($"User with Email {request.Email} was not found.");
 
