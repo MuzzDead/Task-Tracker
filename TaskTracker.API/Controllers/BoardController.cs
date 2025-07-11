@@ -8,7 +8,6 @@ using TaskTracker.Application.Features.Board.Commands.RemoveUser;
 using TaskTracker.Application.Features.Board.Commands.Update;
 using TaskTracker.Application.Features.Board.Queries.GetById;
 using TaskTracker.Application.Features.Board.Queries.GetByUserId;
-using TaskTracker.Domain.Entities;
 
 namespace TaskTracker.API.Controllers;
 
