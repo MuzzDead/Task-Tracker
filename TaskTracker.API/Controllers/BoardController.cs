@@ -7,7 +7,7 @@ using TaskTracker.Application.Features.Board.Commands.Delete;
 using TaskTracker.Application.Features.Board.Commands.RemoveUser;
 using TaskTracker.Application.Features.Board.Commands.Update;
 using TaskTracker.Application.Features.Board.Queries.GetById;
-using TaskTracker.Domain.Entities;
+using TaskTracker.Application.Features.Board.Queries.GetByUserId;
 
 namespace TaskTracker.API.Controllers;
 
@@ -26,6 +26,16 @@ public class BoardController : ControllerBase
         var board = await _mediator.Send(query);
 
         return Ok(board);
+    }
+
+    [HttpGet("by-user/{userId:guid}")]
+    public async Task<ActionResult<IEnumerable<BoardDto>>> GetByUserId(Guid userId)
+    {
+        var query = new GetBoardsByUserIdQuery { UserId = userId };
+
+        var boards = await _mediator.Send(query);
+
+        return Ok(boards);
     }
 
     [HttpPost]

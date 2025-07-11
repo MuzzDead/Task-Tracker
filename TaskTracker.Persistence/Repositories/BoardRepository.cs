@@ -25,6 +25,16 @@ public class BoardRepository : BaseRepository<Board, Guid>, IBoardRepository
         await _dbSet.AddAsync(board);
     }
 
+    public async Task<IEnumerable<Board>> GetByUserId(Guid userId)
+    {
+        var boards = await _dbSet
+            .Where(b => b.CreatedBy == userId.ToString())
+            .OrderBy(b => b.CreatedAt)
+            .ToListAsync();
+
+        return boards;
+    }
+
     public async Task RemoveUserAsync(Guid boardId, Guid userId)
     {
         var boardRole = await _context.BoardRoles
