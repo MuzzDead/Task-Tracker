@@ -1,8 +1,9 @@
-﻿using TaskTracker.Application.Extensions;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.OpenApi.Models;
+using TaskTracker.Application.Extensions;
+using TaskTracker.Database;
 using TaskTracker.Infrastructure.Extensions;
 using TaskTracker.Persistence.Extensions;
-using Microsoft.OpenApi.Models;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -53,6 +54,9 @@ builder.Services.AddSwaggerGen(opt =>
 builder.Services.AddOpenApi();
 
 var app = builder.Build();
+
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+DatabaseMigrator.MigrateDatabase(connectionString);
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

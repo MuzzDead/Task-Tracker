@@ -23,15 +23,6 @@ public class BoardRepository : BaseRepository<Board, Guid>, IBoardRepository
     public async Task CreateAsync(Board board, Guid userId, UserRole userRole)
     {
         await _dbSet.AddAsync(board);
-
-        var boardRole = new BoardRole
-        {
-            BoardId = board.Id,
-            UserId = userId,
-            Role = userRole
-        };
-
-        await _context.BoardRoles.AddAsync(boardRole);
     }
 
     public async Task RemoveUserAsync(Guid boardId, Guid userId)

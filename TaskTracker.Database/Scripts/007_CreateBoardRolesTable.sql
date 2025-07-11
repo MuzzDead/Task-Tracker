@@ -1,0 +1,10 @@
+CREATE TABLE [BoardRoles]
+(
+    [Id]     UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWSEQUENTIALID(),
+    [UserId] UNIQUEIDENTIFIER FOREIGN KEY REFERENCES Users(Id) ON DELETE CASCADE,
+    [BoardId] UNIQUEIDENTIFIER FOREIGN KEY REFERENCES Boards(Id) ON DELETE CASCADE,
+    [Role]   INT NOT NULL, -- 1=Owner, 2=Admin, 3=Member, 4=Viewer
+
+    CONSTRAINT [UQ_BoardRoles_UserId_BoardId] UNIQUE ([UserId], [BoardId]),
+    CONSTRAINT [CK_BoardRoles_Role] CHECK ([Role] IN (1, 2, 3, 4))
+)

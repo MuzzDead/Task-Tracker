@@ -1,0 +1,11 @@
+CREATE TABLE [Comments]
+(
+    [Id]                UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWSEQUENTIALID(),
+    [Text]              NVARCHAR(MAX) NOT NULL,
+    [CardId]            UNIQUEIDENTIFIER FOREIGN KEY REFERENCES Cards(Id) ON DELETE CASCADE,
+    [UserId]            UNIQUEIDENTIFIER FOREIGN KEY REFERENCES Users(Id) ON DELETE CASCADE,
+    [CreatedAt]         DATETIMEOFFSET NOT NULL       DEFAULT SYSDATETIMEOFFSET(),
+    [CreatedBy]         NVARCHAR(100) NOT NULL,
+    [UpdatedAt]         DATETIMEOFFSET                DEFAULT NULL,
+    [UpdatedBy]         NVARCHAR(100)                DEFAULT NULL
+)
