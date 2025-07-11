@@ -5,11 +5,11 @@ CREATE TABLE [States]
     [Status]            INT           NOT NULL       DEFAULT 1, -- 1=Pending, 2=InProgress, 3=Completed, 4=Cancelled
     [Priority]          INT           NOT NULL       DEFAULT 2, -- 1=Low, 2=Medium, 3=High, 4=Critical
     [CardId]            UNIQUEIDENTIFIER FOREIGN KEY REFERENCES Cards(Id) ON DELETE CASCADE,
-    [CreatedAt]         DATETIME      NOT NULL       DEFAULT GETUTCDATE(),
+    [CreatedAt]         DATETIMEOFFSET NOT NULL       DEFAULT SYSDATETIMEOFFSET(),
     [CreatedBy]         NVARCHAR(100) NOT NULL,
-    [UpdatedAt]         DATETIME                     DEFAULT NULL,
+    [UpdatedAt]         DATETIMEOFFSET                DEFAULT NULL,
     [UpdatedBy]         NVARCHAR(100)                DEFAULT NULL,
-    
+
     CONSTRAINT [CK_States_Status] CHECK ([Status] IN (1, 2, 3, 4)),
     CONSTRAINT [CK_States_Priority] CHECK ([Priority] IN (1, 2, 3, 4))
 )

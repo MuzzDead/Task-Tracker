@@ -4,11 +4,11 @@ CREATE TABLE [Cards]
     [Title]             NVARCHAR(255) NOT NULL,
     [ColumnId]          UNIQUEIDENTIFIER,
     [RowIndex]          INT           NOT NULL       DEFAULT 0,
-    [CreatedAt]         DATETIME      NOT NULL       DEFAULT GETUTCDATE(),
+    [CreatedAt]         DATETIMEOFFSET NOT NULL       DEFAULT SYSDATETIMEOFFSET(),
     [CreatedBy]         NVARCHAR(100) NOT NULL,
-    [UpdatedAt]         DATETIME                     DEFAULT NULL,
+    [UpdatedAt]         DATETIMEOFFSET                DEFAULT NULL,
     [UpdatedBy]         NVARCHAR(100)                DEFAULT NULL,
-    
+
     CONSTRAINT [UQ_Cards_ColumnId_RowIndex] UNIQUE ([ColumnId], [RowIndex])
 )
 

@@ -4,10 +4,10 @@ CREATE TABLE [Columns]
     [Title]             NVARCHAR(255) NOT NULL,
     [ColumnIndex]       INT           NOT NULL,
     [BoardId]           UNIQUEIDENTIFIER NOT NULL FOREIGN KEY REFERENCES Boards(Id) ON DELETE CASCADE,
-    [CreatedAt]         DATETIME      NOT NULL       DEFAULT GETUTCDATE(),
+    [CreatedAt]         DATETIMEOFFSET NOT NULL       DEFAULT SYSDATETIMEOFFSET(),
     [CreatedBy]         NVARCHAR(100) NOT NULL,
-    [UpdatedAt]         DATETIME                     DEFAULT NULL,
+    [UpdatedAt]         DATETIMEOFFSET                DEFAULT NULL,
     [UpdatedBy]         NVARCHAR(100)                DEFAULT NULL,
-    
+
     CONSTRAINT [UQ_Columns_BoardId_ColumnIndex] UNIQUE ([BoardId], [ColumnIndex])
 )
