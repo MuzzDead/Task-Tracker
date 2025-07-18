@@ -7,6 +7,23 @@ using TaskTracker.Persistence.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Add CORS
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: "AllowBlazorClient",
+        policy =>
+        {
+            policy
+                .WithOrigins(
+                    "http://localhost:5064",
+                    "https://localhost:5064"
+                )
+                .AllowAnyHeader()
+                .AllowAnyMethod()
+                .AllowCredentials();
+        });
+});
+
 // Add services to the container.
 builder.Services.AddControllers();
 
@@ -67,6 +84,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseCors("AllowBlazorClient");
 
 app.UseAuthentication();
 app.UseAuthorization();
