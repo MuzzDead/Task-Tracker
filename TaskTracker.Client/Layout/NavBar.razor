@@ -1,0 +1,239 @@
+﻿@using AntDesign
+@inject NavigationManager Navigation
+
+<div class="navbar-container">
+    <div class="navbar-header">
+        <div class="logo-section">
+            <Icon Type="project" class="logo-icon" />
+            <TypographyText Class="logo-text">TaskTracker</TypographyText>
+        </div>
+    </div>
+    
+    <div class="navbar-menu">
+        <div class="menu-item @(IsActive("/boards") ? "active" : "")" @onclick="@(() => NavigateTo("/boards"))">
+            <Icon Type="dashboard" class="menu-icon" />
+            <TypographyText Class="menu-text">Boards</TypographyText>
+        </div>
+        
+        <div class="menu-item @(IsActive("/profile") ? "active" : "")" @onclick="@(() => NavigateTo("/profile"))">
+            <Icon Type="user" class="menu-icon" />
+            <div class="menu-text-container">
+                <TypographyText Class="menu-text">Profile</TypographyText>
+                @if (!isAuthenticated)
+                {
+                    <TypographyText Class="login-hint">Sign In</TypographyText>
+                }
+            </div>
+        </div>
+    </div>
+    
+    <div class="navbar-footer">
+        <div class="user-section">
+            @if (isAuthenticated)
+            {
+                <Avatar Size="@AvatarSize.Small" Icon="user" />
+                <TypographyText Class="user-name">@userDisplayName</TypographyText>
+            }
+            else
+            {
+                <Button Type="@ButtonType.Text" Size="@ButtonSize.Small" Class="login-button" @onclick="@(() => NavigateTo("/login"))">
+                    <Icon Type="login" />
+                    Sign In
+                </Button>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    private bool isAuthenticated = true; // Тестовий режим
+    private string userDisplayName = "Test User";
+
+    private void NavigateTo(string path)
+    {
+        Navigation.NavigateTo(path);
+    }
+
+    private bool IsActive(string path)
+    {
+        var currentPath = Navigation.Uri.Replace(Navigation.BaseUri, "/");
+        return currentPath.StartsWith(path, StringComparison.OrdinalIgnoreCase);
+    }
+}
+
+<style>
+    .navbar-container {
+        width: 280px;
+        height: 100vh;
+        background: linear-gradient(180deg, #f8fafc 0%, #e2e8f0 100%);
+        border-right: 1px solid #e5e7eb;
+        display: flex;
+        flex-direction: column;
+        position: fixed;
+        left: 0;
+        top: 0;
+        z-index: 100;
+        box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .navbar-header {
+        padding: 1.5rem;
+        border-bottom: 1px solid #e5e7eb;
+        background: white;
+    }
+
+    .logo-section {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .logo-icon {
+        font-size: 1.5rem;
+        color: #667eea;
+    }
+
+    .logo-text {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #1f2937;
+    }
+
+    .navbar-menu {
+        flex: 1;
+        padding: 1rem 0;
+    }
+
+    .menu-item {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.75rem 1.5rem;
+        margin: 0.25rem 0.75rem;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        color: #4b5563;
+    }
+
+    .menu-item:hover {
+        background: rgba(102, 126, 234, 0.1);
+        color: #667eea;
+        transform: translateX(4px);
+    }
+
+    .menu-item.active {
+        background: #667eea;
+        color: white;
+        box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
+    }
+
+    .menu-item.active:hover {
+        background: #5a67d8;
+        transform: translateX(4px);
+    }
+
+    .menu-icon {
+        font-size: 1.1rem;
+        min-width: 1.1rem;
+    }
+
+    .menu-text {
+        font-weight: 500;
+        font-size: 0.95rem;
+    }
+
+    .menu-text-container {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+
+    .login-hint {
+        font-size: 0.75rem;
+        color: #9ca3af;
+        font-weight: 400;
+    }
+
+    .menu-item.active .login-hint {
+        color: rgba(255, 255, 255, 0.7);
+    }
+
+    .navbar-footer {
+        padding: 1rem;
+        border-top: 1px solid #e5e7eb;
+        background: white;
+    }
+
+    .user-section {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.5rem;
+    }
+
+    .user-name {
+        font-size: 0.9rem;
+        color: #4b5563;
+        font-weight: 500;
+    }
+
+    .login-button {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: #667eea;
+        font-weight: 500;
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        transition: all 0.2s ease;
+        width: 100%;
+        justify-content: center;
+    }
+
+    .login-button:hover {
+        background: rgba(102, 126, 234, 0.1);
+        color: #5a67d8;
+    }
+
+    /* Responsive design */
+    @@media (max-width: 768px) {
+        .navbar-container {
+            width: 100%;
+            height: auto;
+            position: relative;
+            flex-direction: row;
+            border-right: none;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .navbar-header {
+            flex-shrink: 0;
+            border-bottom: none;
+            border-right: 1px solid #e5e7eb;
+        }
+
+        .navbar-menu {
+            display: flex;
+            flex-direction: row;
+            padding: 0;
+            flex: 1;
+        }
+
+        .menu-item {
+            margin: 0.5rem 0.25rem;
+            flex: 1;
+            justify-content: center;
+        }
+
+        .menu-text-container {
+            display: none;
+        }
+
+        .navbar-footer {
+            border-top: none;
+            border-left: 1px solid #e5e7eb;
+            padding: 0.5rem;
+        }
+    }
+</style>

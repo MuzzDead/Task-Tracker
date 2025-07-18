@@ -1,0 +1,135 @@
+﻿@page "/boards/{boardId:guid}"
+@using AntDesign
+@using TaskTracker.Client.DTOs.Board
+@using TaskTracker.Client.DTOs.Column
+@using TaskTracker.Client.DTOs.Card
+@using TaskTracker.Client.Components.Columns
+@using Microsoft.AspNetCore.Components.Web
+@using TaskTracker.Client.Services.Interfaces
+@inject IBoardService BoardService
+
+<h3>@(board?.Title ?? "Loading…")</h3>
+
+@if (isLoading)
+{
+    <Spin Tip="Loading board…" />
+}
+else
+{
+    <div class="board-toolbar">
+        @if (isAddingColumn)
+        {
+            <Input TValue="string"
+                   @bind-Value="newColumnTitle"
+                   Placeholder="New column title…"
+                   @onkeypress="HandleColumnKeyPress" />
+
+            <Button Type="@ButtonType.Primary"
+                    Disabled="@string.IsNullOrWhiteSpace(newColumnTitle)"
+                    @onclick="SaveColumn">
+                Save
+            </Button>
+            <Button Type="@ButtonType.Text"
+                    Icon="close"
+                    @onclick="CancelAddColumn" />
+        }
+        else
+        {
+            <Button Type="@ButtonType.Primary"
+                    Icon="plus"
+                    @onclick="StartAddColumn">
+                Add Column
+            </Button>
+        }
+    </div>
+
+    <ColumnList Columns="columns"
+                CardsByColumn="cardsByColumn"
+                IsLoading="false"
+                OnAddColumn="OnAddColumn" />
+}
+
+@code {
+    [Parameter] public Guid boardId { get; set; }
+
+    private bool isLoading = true;
+    private bool isAddingColumn;
+    private string newColumnTitle = string.Empty;
+
+    private BoardDto? board;
+    private List<ColumnDto> columns = new();
+    private Dictionary<Guid, List<CardDto>> cardsByColumn = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        board = new BoardDto { Id = boardId, Title = "My Test Board" };
+        columns = new List<ColumnDto>
+    {
+      new ColumnDto { Id = Guid.NewGuid(), Title = "To Do" },
+      new ColumnDto { Id = Guid.NewGuid(), Title = "In Progress" },
+      new ColumnDto { Id = Guid.NewGuid(), Title = "Done" }
+    };
+        cardsByColumn = new Dictionary<Guid, List<CardDto>>
+        {
+            [columns[0].Id] = new List<CardDto>
+            {
+                new CardDto { Id = Guid.NewGuid(), Title = "Fix bug #101",    RowIndex = 0 },
+                new CardDto { Id = Guid.NewGuid(), Title = "Write unit tests", RowIndex = 1 }
+            },
+            [columns[1].Id] = new List<CardDto>
+            {
+                new CardDto { Id = Guid.NewGuid(), Title = "Implement login", RowIndex = 0 }
+            },
+            [columns[2].Id] = new List<CardDto>
+            {
+                new CardDto { Id = Guid.NewGuid(), Title = "Setup CI/CD",             RowIndex = 0 },
+                new CardDto { Id = Guid.NewGuid(), Title = "Initial project structure", RowIndex = 1 }
+            }
+        };
+
+        isLoading = false;
+    }
+
+    private void StartAddColumn()
+    {
+        isAddingColumn = true;
+        newColumnTitle = string.Empty;
+    }
+
+    private Task CancelAddColumn()
+    {
+        isAddingColumn = false;
+        newColumnTitle = string.Empty;
+        return Task.CompletedTask;
+    }
+
+    private void SaveColumn()
+    {
+        if (string.IsNullOrWhiteSpace(newColumnTitle))
+            return;
+
+        var newCol = new ColumnDto
+        {
+            Id = Guid.NewGuid(),
+            Title = newColumnTitle.Trim()
+        };
+        columns.Add(newCol);
+        cardsByColumn[newCol.Id] = new List<CardDto>();
+        CancelAddColumn();
+    }
+
+    private Task HandleColumnKeyPress(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+            SaveColumn();
+        else if (e.Key == "Escape")
+            CancelAddColumn();
+        return Task.CompletedTask;
+    }
+
+    private Task OnAddColumn(string title)
+    {
+        SaveColumn();
+        return Task.CompletedTask;
+    }
+}

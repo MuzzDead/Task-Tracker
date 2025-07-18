@@ -1,0 +1,58 @@
+﻿@using AntDesign
+@using TaskTracker.Client.DTOs.Column
+@using TaskTracker.Client.DTOs.Card
+@using TaskTracker.Client.Components.Cards
+
+<div class="column-card">
+  <div class="column-header">
+    <TypographyTitle Level="5" Class="column-title">
+      @Column.Title
+    </TypographyTitle>
+  </div>
+
+  <div class="column-content">
+        <TaskCardList Cards="Cards"
+                      OnCardClick="OnCardClick"
+                      OnAddCard="HandleAddCard" />
+  </div>
+</div>
+
+@code {
+    [Parameter, EditorRequired] public ColumnDto Column { get; set; } = default!;
+    [Parameter] public List<CardDto> Cards { get; set; } = new();
+    [Parameter] public bool IsLoading { get; set; }
+    [Parameter] public EventCallback<CardDto> OnCardClick { get; set; }
+    [Parameter] public EventCallback<(string title, Guid columnId)> OnAddCard { get; set; }
+
+    private async Task HandleAddCard(string title)
+    {
+        await OnAddCard.InvokeAsync((title, Column.Id));
+    }
+}
+
+<style>
+    .column-card {
+        background: #f5f5f5;
+        border-radius: 8px;
+        padding: 12px;
+        width: 280px;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .column-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+    }
+
+    .column-title {
+        margin: 0 !important;
+    }
+
+    .column-content {
+        flex: 1;
+        overflow-y: auto;
+    }
+</style>
