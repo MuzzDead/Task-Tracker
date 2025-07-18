@@ -1,0 +1,184 @@
+﻿@page "/boards"
+@using System
+@using System.Linq
+@using TaskTracker.Client.DTOs.Board
+@using TaskTracker.Client.Components.Boards
+@using AntDesign
+@using TaskTracker.Client.Services.Interfaces
+@inject NavigationManager NavigationManager
+@inject IBoardService BoardService
+
+<div class="boards-container">
+    <div class="boards-header">
+        <div class="header-left">
+            <TypographyTitle Level="2" Class="boards-title">
+                My Boards
+            </TypographyTitle>
+        </div>
+        <div class="header-right">
+            <Input TValue="string"
+                   @bind-Value="searchTerm"
+                   Placeholder="Search boards..."
+                   PrefixIcon="search"
+                   Size="@InputSize.Default"
+                   Class="search-input"
+                   OnChangeValue="OnSearchChangedValue" />
+            <Button Type="@ButtonType.Primary"
+                    Size="@ButtonSize.Large"
+                    Icon="plus"
+                    @onclick="CreateBoard">
+                Add Board
+            </Button>
+        </div>
+    </div>
+
+    <BoardList CurrentPageBoards="currentPageBoards"
+               IsLoading="isLoading"
+               CurrentPage="currentPage"
+               PageSize="pageSize"
+               TotalBoards="totalBoards"
+               OnBoardClick="OpenBoard"
+               OnPageChange="OnPageChange" />
+</div>
+
+@code {
+    private string searchTerm = string.Empty;
+
+    private bool isLoading = true;
+    private int currentPage = 1;
+    private int pageSize = 6;
+    private int totalBoards;
+    private List<BoardDto> allBoards = new();
+    private List<BoardDto> currentPageBoards = new();
+
+    private List<BoardDto> boards = new();
+    private Guid currentUserId = new("c7dc3069-4e5e-f011-8d15-f09e4af2796a");
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadBoardsAsync();
+    }
+
+    private async Task LoadBoardsAsync()
+    {
+        isLoading = true;
+        try
+        {
+            allBoards = (await BoardService.GetBoardsByUserAsync(currentUserId)).ToList();
+            totalBoards = allBoards.Count;
+            ApplyFilterAndPaging();
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void ApplyFilterAndPaging()
+    {
+        var filtered = string.IsNullOrWhiteSpace(searchTerm)
+          ? allBoards
+          : allBoards.Where(b =>
+              b.Title.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+              (b.Description?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ?? false))
+            .ToList();
+
+        totalBoards = filtered.Count;
+        currentPageBoards = filtered
+          .Skip((currentPage - 1) * pageSize)
+          .Take(pageSize)
+          .ToList();
+    }
+
+    private void OnSearchChangedValue(string newValue)
+    {
+        searchTerm = newValue;
+        currentPage = 1;
+        ApplyFilterAndPaging();
+    }
+
+    private async Task OnPageChange(PaginationEventArgs args)
+    {
+        currentPage = args.Page;
+        ApplyFilterAndPaging();
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private void CreateBoard()
+    {
+        NavigationManager.NavigateTo("/boards/create");
+    }
+
+    private Task OpenBoard(Guid boardId)
+    {
+        NavigationManager.NavigateTo($"/boards/{boardId}");
+        return Task.CompletedTask;
+    }
+}
+
+
+<style>
+    .boards-container {
+        padding: 24px;
+        background-color: #f5f5f5;
+        min-height: 100vh;
+    }
+
+    .boards-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 32px;
+        padding: 20px 24px;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    }
+
+    .header-left {
+        display: flex;
+        align-items: center;
+    }
+
+    .header-right {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+
+    .boards-title {
+        margin: 0 !important;
+        color: #262626;
+        font-weight: 600;
+    }
+
+    .search-input {
+        width: 320px;
+    }
+
+        .search-input ::deep(.ant-input) {
+            border-radius: 20px;
+            border: 1px solid #e0e0e0;
+            padding: 8px 16px;
+            transition: all 0.2s ease;
+        }
+
+            .search-input ::deep(.ant-input):hover {
+                border-color: #1890ff;
+            }
+
+            .search-input ::deep(.ant-input):focus {
+                border-color: #1890ff;
+                box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+            }
+
+        .search-input ::deep(.ant-input-prefix) {
+            color: #8c8c8c;
+            margin-right: 8px;
+        }
+
+    .header-right .ant-btn {
+        border-radius: 6px;
+        font-weight: 500;
+    }
+</style>
