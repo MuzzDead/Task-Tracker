@@ -1,0 +1,104 @@
+﻿@using AntDesign
+@using TaskTracker.Client.DTOs.Board
+@using Microsoft.AspNetCore.Components
+
+<div class="boards-content">
+  @if (IsLoading)
+  {
+    <div class="loading-container">
+      <Spin Size="@SpinSize.Large" />
+      <TypographyText Class="loading-text">
+        Loading boards...
+      </TypographyText>
+    </div>
+  }
+  else
+  {
+    <div class="boards-grid">
+      @foreach (var board in CurrentPageBoards)
+      {
+        <BoardCard 
+          Board="board"
+          TasksCount="@GetBoardTasksCount(board.Id)"
+          MembersCount="@GetBoardMembersCount(board.Id)"
+          Members="@GetBoardMembers(board.Id)"
+          OnBoardClick="OnBoardClick" />
+      }
+    </div>
+
+    @if (TotalBoards > PageSize)
+    {
+      <div class="pagination-container">
+        <Pagination 
+          Current="CurrentPage"
+          Total="TotalBoards"
+          PageSize="PageSize"
+          ShowSizeChanger="false"
+          OnChange="OnPageChange"
+          Class="boards-pagination" />
+      </div>
+    }
+  }
+</div>
+
+@code {
+  [Parameter, EditorRequired]
+  public List<BoardDto> CurrentPageBoards { get; set; } = new();
+
+  [Parameter]
+  public bool IsLoading { get; set; }
+
+  [Parameter]
+  public int CurrentPage { get; set; }
+
+  [Parameter]
+  public int PageSize { get; set; }
+
+  [Parameter]
+  public int TotalBoards { get; set; }
+
+  [Parameter]
+  public EventCallback<Guid> OnBoardClick { get; set; }
+
+  [Parameter]
+  public EventCallback<PaginationEventArgs> OnPageChange { get; set; }
+
+  [Parameter]
+  public Dictionary<Guid, int> TasksCounts { get; set; } = new();
+
+  [Parameter]
+  public Dictionary<Guid, int> MembersCounts { get; set; } = new();
+
+  [Parameter]
+  public Dictionary<Guid, List<string>> BoardMembers { get; set; } = new();
+
+  private int GetBoardTasksCount(Guid boardId) =>
+    TasksCounts.TryGetValue(boardId, out var count) ? count : 0;
+
+  private int GetBoardMembersCount(Guid boardId) =>
+    MembersCounts.TryGetValue(boardId, out var count) ? count : 0;
+
+  private List<string> GetBoardMembers(Guid boardId) =>
+    BoardMembers.TryGetValue(boardId, out var members) 
+      ? members 
+      : new List<string>();
+}
+
+<style>
+  .boards-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.5rem;
+    padding-left: 2.5rem;
+  }
+
+  .boards-grid ::deep .board-card {
+    width: 100%;
+  }
+
+  .pagination-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 1rem;
+  }
+</style>
