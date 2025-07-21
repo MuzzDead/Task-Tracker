@@ -6,7 +6,7 @@ namespace TaskTracker.Client.Services.Interfaces;
 public interface ICardService
 {
     [Post("/card")]
-    Task<CardDto> CreateAsync([Body] CreateCardDto command);
+    Task<Guid> CreateAsync([Body] CreateCardDto command);
 
 
     [Put("/card/{id}")]
