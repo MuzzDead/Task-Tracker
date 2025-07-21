@@ -16,4 +16,13 @@ public class CardRepository : BaseRepository<Card, Guid>, ICardRepository
             .OrderBy(c => c.RowIndex)
             .ToListAsync();
     }
+
+    public async Task<int> GetMaxRowIndexByColumnIdAsync(Guid columnId)
+    {
+        return await _dbSet
+            .Where(c => c.ColumnId == columnId)
+            .Select(c => c.RowIndex)
+            .DefaultIfEmpty(-1)
+            .MaxAsync();
+    }
 }

@@ -15,12 +15,14 @@ public class CreateCardCommandHandler : IRequestHandler<CreateCardCommand, Guid>
     {
         using var uow = _unitOfWorkFactory.CreateUnitOfWork();
 
+        var maxRowIndex = uow.Cards.GetMaxRowIndexByColumnIdAsync(request.ColumnId);
+
         var card = new Domain.Entities.Card
         {
             Title = request.Title,
             ColumnId = request.ColumnId,
-            RowIndex = request.RowIndex,
-            CreatedBy = request.CreatedBy.ToString()
+            RowIndex = maxRowIndex + 1,
+            CreatedBy = request.CreatedBy.ToString() ?? "system"
         };
 
         await uow.Cards.AddAsync(card);
