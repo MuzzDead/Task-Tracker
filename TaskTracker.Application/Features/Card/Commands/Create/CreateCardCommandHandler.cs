@@ -15,7 +15,7 @@ public class CreateCardCommandHandler : IRequestHandler<CreateCardCommand, Guid>
     {
         using var uow = _unitOfWorkFactory.CreateUnitOfWork();
 
-        var maxRowIndex = uow.Cards.GetMaxRowIndexByColumnIdAsync(request.ColumnId);
+        var maxRowIndex = await uow.Cards.GetMaxRowIndexByColumnIdAsync(request.ColumnId);
 
         var card = new Domain.Entities.Card
         {
