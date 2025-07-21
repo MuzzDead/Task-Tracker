@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+using Refit;
 using TaskTracker.Client;
-using TaskTracker.Client.Services;
 using TaskTracker.Client.Services.Interfaces;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
@@ -9,12 +9,22 @@ builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
 builder.Services.AddAntDesign();
-builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 
-builder.Services.AddScoped(sp =>
-    new HttpClient { BaseAddress = new Uri("https://localhost:7045/") }
-);
+var apiBaseUrl = "https://localhost:7045";
 
-builder.Services.AddScoped<IBoardService, BoardService>();
+builder.Services
+    .AddRefitClient<IBoardService>()
+    .ConfigureHttpClient(c => c.BaseAddress = new Uri(apiBaseUrl));
+
+builder.Services
+    .AddRefitClient<ICardService>()
+    .ConfigureHttpClient(c => c.BaseAddress = new Uri(apiBaseUrl));
+
+builder.Services
+    .AddRefitClient<IColumnService>()
+    .ConfigureHttpClient(c => c.BaseAddress = new Uri(apiBaseUrl));
+
+
+builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(apiBaseUrl) });
 
 await builder.Build().RunAsync();

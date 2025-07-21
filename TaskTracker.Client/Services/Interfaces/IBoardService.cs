@@ -1,13 +1,34 @@
-﻿using TaskTracker.Client.DTOs.Board;
-using TaskTracker.Client.DTOs.Card;
-using TaskTracker.Client.DTOs.Column;
+﻿using Refit;
+using TaskTracker.Client.DTOs.Board;
 
 namespace TaskTracker.Client.Services.Interfaces;
 
 public interface IBoardService
 {
-    Task<List<BoardDto>> GetBoardsByUserAsync(Guid userId);
-    Task<BoardDto?> GetBoardByIdAsync(Guid boardId);
-    Task<List<ColumnDto>> GetColumnsAsync(Guid boardId);
-    Task<List<CardDto>> GetCardsAsync(Guid columnId);
+    [Get("/api/board/{id}")]
+    Task<BoardDto> GetByIdAsync(Guid id);
+
+
+    [Get("/api/board/by-user/{userId}")]
+    Task<List<BoardDto>> GetByUserIdAsync(Guid userId);
+
+
+    [Post("/api/board")]
+    Task<BoardDto> CreateAsync([Body] CreateBoardDto command);
+
+
+    [Put("/api/board/{id}")]
+    Task UpdateAsync(Guid id, [Body] UpdateBoardDto command);
+
+
+    [Delete("/api/board/{id}")]
+    Task DeleteAsync(Guid id);
+
+    
+    [Put("/api/board/{id}/archive")]
+    Task ArchiveAsync(Guid id);
+
+    
+    [Delete("/api/board/{boardId}/users/{userId}")]
+    Task RemoveUserFromBoardAsync(Guid boardId, Guid userId);
 }

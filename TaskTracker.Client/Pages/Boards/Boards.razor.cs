@@ -1,7 +1,8 @@
-﻿using Microsoft.AspNetCore.Components;
+﻿using AntDesign;
+using Microsoft.AspNetCore.Components;
+using Refit;
 using TaskTracker.Client.DTOs.Board;
 using TaskTracker.Client.Services.Interfaces;
-using AntDesign;
 
 namespace TaskTracker.Client.Pages.Boards;
 
@@ -31,9 +32,14 @@ public partial class Boards : ComponentBase
         isLoading = true;
         try
         {
-            allBoards = (await BoardService.GetByUserAsync(currentUserId)).ToList();
+            allBoards = await BoardService.GetByUserIdAsync(currentUserId);
             totalBoards = allBoards.Count;
             ApplyFilterAndPaging();
+        }
+        catch (ApiException ex)
+        {
+            Console.Error.WriteLine($"Refit error while fetching boards: {ex.StatusCode} - {ex.Content}");
+            allBoards = new();
         }
         finally
         {
@@ -44,17 +50,17 @@ public partial class Boards : ComponentBase
     private void ApplyFilterAndPaging()
     {
         var filtered = string.IsNullOrWhiteSpace(searchTerm)
-          ? allBoards
-          : allBoards.Where(b =>
-              b.Title.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
-              (b.Description?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ?? false))
-            .ToList();
+            ? allBoards
+            : allBoards.Where(b =>
+                    b.Title.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                    (b.Description?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ?? false))
+                .ToList();
 
         totalBoards = filtered.Count;
         currentPageBoards = filtered
-          .Skip((currentPage - 1) * pageSize)
-          .Take(pageSize)
-          .ToList();
+            .Skip((currentPage - 1) * pageSize)
+            .Take(pageSize)
+            .ToList();
     }
 
     private void OnSearchChangedValue(string newValue)
