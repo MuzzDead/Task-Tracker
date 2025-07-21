@@ -7,19 +7,29 @@ using TaskTracker.Persistence.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+var allowedOrigins = builder.Configuration
+    .GetSection("Cors:AllowedOrigins")
+    .Get<string[]>() ?? Array.Empty<string>();
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: "AllowBlazorClient",
+        policy =>
+        {
+            policy
+                .WithOrigins(allowedOrigins)
+                .AllowAnyHeader()
+                .AllowAnyMethod()
+                .AllowCredentials();
+        });
+});
+
 builder.Services.AddControllers();
 
-// Application-layer services
 builder.Services.AddApplicationServices();
-
-// Infrastructure-layer services
 builder.Services.AddInfrastructureServices(builder.Configuration);
-
-// Persistence-layer services
 builder.Services.AddPersistenceServices(builder.Configuration);
 
-// Swagger
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(opt =>
 {
@@ -49,8 +59,6 @@ builder.Services.AddSwaggerGen(opt =>
     });
 });
 
-
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
 var app = builder.Build();
@@ -58,7 +66,6 @@ var app = builder.Build();
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 DatabaseMigrator.MigrateDatabase(connectionString);
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
@@ -67,6 +74,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseCors("AllowBlazorClient");
 
 app.UseAuthentication();
 app.UseAuthorization();

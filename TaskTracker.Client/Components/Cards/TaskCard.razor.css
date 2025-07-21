@@ -1,0 +1,16 @@
+﻿.task-card {
+    background: white;
+    padding: 8px;
+    border: 1px solid #e8e8e8;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+    .task-card:hover {
+        background: #fafafa;
+    }
+
+.task-title {
+    margin: 0;
+    font-size: 14px;
+}

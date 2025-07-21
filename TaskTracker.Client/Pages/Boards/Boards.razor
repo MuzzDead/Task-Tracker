@@ -1,0 +1,40 @@
+﻿@page "/boards"
+@using System
+@using System.Linq
+@using TaskTracker.Client.DTOs.Board
+@using TaskTracker.Client.Components.Boards
+@using AntDesign
+@using TaskTracker.Client.Services.Interfaces
+
+<div class="boards-container">
+    <div class="boards-header">
+        <div class="header-left">
+            <TypographyTitle Level="2" Class="boards-title">
+                My Boards
+            </TypographyTitle>
+        </div>
+        <div class="header-right">
+            <Input TValue="string"
+                   @bind-Value="searchTerm"
+                   Placeholder="Search boards..."
+                   PrefixIcon="search"
+                   Size=@InputSize.Default
+                   Class="search-input"
+                   OnChangeValue=@OnSearchChangedValue />
+            <Button Type=@ButtonType.Primary
+                    Size=@ButtonSize.Large
+                    Icon="plus"
+                    @onclick=@CreateBoard>
+                Add Board
+            </Button>
+        </div>
+    </div>
+
+    <BoardList CurrentPageBoards=@currentPageBoards
+               IsLoading=@isLoading
+               CurrentPage=@currentPage
+               PageSize=@pageSize
+               TotalBoards=@totalBoards
+               OnBoardClick=@OpenBoard
+               OnPageChange=@OnPageChange />
+</div>

@@ -1,0 +1,11 @@
+﻿.column-list {
+    display: flex;
+    gap: 16px;
+    padding: 16px;
+    overflow-x: auto;
+}
+
+.no-columns {
+    font-style: italic;
+    color: #999;
+}

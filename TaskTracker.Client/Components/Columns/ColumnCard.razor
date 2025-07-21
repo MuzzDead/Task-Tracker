@@ -1,0 +1,16 @@
+﻿@using AntDesign
+@using TaskTracker.Client.Components.Cards
+
+<div class="column-card">
+  <div class="column-header">
+    <TypographyTitle Level="5" Class="column-title">
+      @Column.Title
+    </TypographyTitle>
+  </div>
+
+  <div class="column-content">
+        <TaskCardList Cards=@Cards
+                      OnCardClick=@OnCardClick
+                      OnAddCard=@HandleAddCard />
+  </div>
+</div

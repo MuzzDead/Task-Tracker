@@ -1,0 +1,28 @@
+﻿@using AntDesign
+@using TaskTracker.Client.DTOs.Column
+@using TaskTracker.Client.DTOs.Card
+@using TaskTracker.Client.Components.Cards
+@using TaskTracker.Client.Components.Columns
+@using Microsoft.AspNetCore.Components
+
+<div class="column-list">
+    @if (IsLoading)
+    {
+        <Spin Tip="Loading columns..." />
+    }
+    else if (Columns?.Any() == true)
+    {
+        @foreach (var column in Columns)
+        {
+            <ColumnCard Column=@column
+                        Cards=@GetCards(column.Id)
+                        IsLoading="false"
+                        OnCardClick="OnCardClick"
+                        OnAddCard="OnAddCard" />
+        }
+    }
+    else
+    {
+        <div class="no-columns">No columns available.</div>
+    }
+</div>

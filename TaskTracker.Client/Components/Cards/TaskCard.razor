@@ -1,0 +1,11 @@
+﻿@using AntDesign
+@using Microsoft.AspNetCore.Components.Web
+
+<div class="task-card"
+     @onclick="() => OnCardClick.InvokeAsync(Card)"
+     draggable="true"
+     @ondragstart="e => OnDragStart.InvokeAsync((Card, e))">
+  <TypographyText Strong class="task-title">
+    @Card.Title
+  </TypographyText>
+</div>

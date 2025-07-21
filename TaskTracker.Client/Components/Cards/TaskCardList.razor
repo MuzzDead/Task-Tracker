@@ -1,0 +1,53 @@
+﻿@using AntDesign
+@using TaskTracker.Client.Components.Cards
+@using Microsoft.AspNetCore.Components.Web
+
+<div class="task-card-list">
+
+    @if (Cards?.Any() == true)
+    {
+        @foreach (var card in Cards)
+        {
+            <TaskCard Card=@card
+                      OnCardClick=@OnCardClick />
+        }
+    }
+    else
+    {
+        <div class="empty-state">
+            <Icon Type="inbox" /> No tasks yet
+        </div>
+    }
+
+    <div class="add-card-section">
+        @if (IsAdding)
+        {
+            <div class="add-card-form">
+                <Input TValue="string"
+                       InputRef=@newCardInputRef
+                       @bind-Value="newTitle"
+                       Placeholder="Enter a title..."
+                       @onkeypress=@HandleKeyPress />
+
+                <Button Type=@ButtonType.Primary
+                        Size=@ButtonSize.Small
+                        Disabled=@string.IsNullOrWhiteSpace(newTitle)
+                        @onclick=@Save>
+                    Add
+                </Button>
+                <Button Type=@ButtonType.Text
+                        Size=@ButtonSize.Small
+                        Icon="close"
+                        @onclick=@Cancel />
+            </div>
+        }
+        else
+        {
+            <Button Type=@ButtonType.Text
+                    Icon="plus"
+                    @onclick=@Start>
+                Add a card
+            </Button>
+        }
+    </div>
+</div>
