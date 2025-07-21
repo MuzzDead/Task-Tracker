@@ -19,10 +19,11 @@ public class CardRepository : BaseRepository<Card, Guid>, ICardRepository
 
     public async Task<int> GetMaxRowIndexByColumnIdAsync(Guid columnId)
     {
-        return await _dbSet
+        var maxRowIndex = await _dbSet
             .Where(c => c.ColumnId == columnId)
-            .Select(c => c.RowIndex)
-            .DefaultIfEmpty(-1)
+            .Select(c => (int?)c.RowIndex)
             .MaxAsync();
+
+        return maxRowIndex ?? -1;
     }
 }
