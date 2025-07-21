@@ -1,5 +1,4 @@
 ﻿@using AntDesign
-@using TaskTracker.Client.DTOs.Card
 @using Microsoft.AspNetCore.Components.Web
 
 <div class="task-card"
@@ -10,28 +9,3 @@
     @Card.Title
   </TypographyText>
 </div>
-
-@code {
-  [Parameter, EditorRequired] public CardDto Card { get; set; } = default!;
-  [Parameter] public EventCallback<CardDto> OnCardClick { get; set; }
-  [Parameter] public EventCallback<(CardDto card, DragEventArgs args)> OnDragStart { get; set; }
-}
-
-<style>
-    .task-card {
-        background: white;
-        padding: 8px;
-        border: 1px solid #e8e8e8;
-        border-radius: 4px;
-        cursor: pointer;
-    }
-
-        .task-card:hover {
-            background: #fafafa;
-        }
-
-    .task-title {
-        margin: 0;
-        font-size: 14px;
-    }
-</style>

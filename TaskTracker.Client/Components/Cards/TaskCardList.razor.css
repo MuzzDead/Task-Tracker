@@ -1,0 +1,20 @@
+﻿.task-card-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.empty-state {
+    color: #888;
+    text-align: center;
+    margin: 16px 0;
+}
+
+.add-card-section {
+    margin-top: 12px;
+}
+
+.add-card-form {
+    display: flex;
+    gap: 8px;
+}
