@@ -7,16 +7,17 @@ using TaskTracker.Persistence.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
+var allowedOrigins = builder.Configuration
+    .GetSection("Cors:AllowedOrigins")
+    .Get<string[]>() ?? Array.Empty<string>();
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy(name: "AllowBlazorClient",
         policy =>
         {
             policy
-                .WithOrigins(
-                    "http://localhost:5064",
-                    "https://localhost:5064"
-                )
+                .WithOrigins(allowedOrigins)
                 .AllowAnyHeader()
                 .AllowAnyMethod()
                 .AllowCredentials();

@@ -10,7 +10,7 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 
 builder.Services.AddAntDesign();
 
-var apiBaseUrl = "https://localhost:7045";
+var apiBaseUrl = builder.Configuration["ApiBaseUrl"];
 
 builder.Services
     .AddRefitClient<IBoardService>()
