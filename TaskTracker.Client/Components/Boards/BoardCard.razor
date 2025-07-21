@@ -1,5 +1,4 @@
 ﻿@using AntDesign
-@using TaskTracker.Client.DTOs.Board
 @using Microsoft.AspNetCore.Components
 
 <div class="board-card" @onclick="@(() => OnBoardClick.InvokeAsync(Board.Id))">
@@ -36,16 +35,3 @@
     </TypographyText>
   </div>
 </div>
-
-@code {
-  [Parameter, EditorRequired] public BoardDto Board { get; set; } = default!;
-  [Parameter] public int TasksCount { get; set; }
-  [Parameter] public int MembersCount { get; set; }
-  [Parameter] public List<string> Members { get; set; } = new();
-  [Parameter] public EventCallback<Guid> OnBoardClick { get; set; }
-
-  private string GetDescription()
-    => string.IsNullOrWhiteSpace(Board.Description)
-       ? "No description provided"
-       : Board.Description;
-}
