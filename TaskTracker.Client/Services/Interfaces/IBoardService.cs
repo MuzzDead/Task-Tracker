@@ -5,30 +5,30 @@ namespace TaskTracker.Client.Services.Interfaces;
 
 public interface IBoardService
 {
-    [Get("/api/board/{id}")]
+    [Get("/board/{id}")]
     Task<BoardDto> GetByIdAsync(Guid id);
 
 
-    [Get("/api/board/by-user/{userId}")]
+    [Get("/board/by-user/{userId}")]
     Task<List<BoardDto>> GetByUserIdAsync(Guid userId);
 
 
-    [Post("/api/board")]
+    [Post("/board")]
     Task<BoardDto> CreateAsync([Body] CreateBoardDto command);
 
 
-    [Put("/api/board/{id}")]
+    [Put("/board/{id}")]
     Task UpdateAsync(Guid id, [Body] UpdateBoardDto command);
 
 
-    [Delete("/api/board/{id}")]
+    [Delete("/board/{id}")]
     Task DeleteAsync(Guid id);
 
-    
-    [Put("/api/board/{id}/archive")]
+
+    [Put("/board/{id}/archive")]
     Task ArchiveAsync(Guid id);
 
-    
-    [Delete("/api/board/{boardId}/users/{userId}")]
+
+    [Delete("/board/{boardId}/users/{userId}")]
     Task RemoveUserFromBoardAsync(Guid boardId, Guid userId);
 }

@@ -5,22 +5,23 @@ namespace TaskTracker.Client.Services.Interfaces;
 
 public interface ICardService
 {
-    [Post("/api/card")]
+    [Post("/card")]
     Task<CardDto> CreateAsync([Body] CreateCardDto command);
 
-    
-    [Put("/api/card/{id}")]
+
+    [Put("/card/{id}")]
     Task UpdateAsync(Guid id, [Body] UpdateCardDto command);
 
-    
-    [Delete("/api/card/{id}")]
+
+    [Delete("/card/{id}")]
     Task DeleteAsync(Guid id);
 
-    
-    [Get("/api/card/{id}")]
+
+    [Get("/card/{id}")]
     Task<CardDto> GetByIdAsync(Guid id);
 
-    
-    [Get("/api/card/column/{columnId}")]
+
+    [Get("/card/column/{columnId}")]
     Task<List<CardDto>> GetByColumnIdAsync(Guid columnId);
 }
+

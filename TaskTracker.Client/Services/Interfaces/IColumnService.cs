@@ -5,22 +5,22 @@ namespace TaskTracker.Client.Services.Interfaces;
 
 public interface IColumnService
 {
-    [Get("/api/column/by-id/{id}")]
+    [Get("/column/by-id/{id}")]
     Task<ColumnDto> GetByIdAsync(Guid id);
 
-    
-    [Get("/api/column/by-board/{boardId}")]
+
+    [Get("/column/by-board/{boardId}")]
     Task<List<ColumnDto>> GetByBoardIdAsync(Guid boardId);
 
-    
-    [Post("/api/column")]
+
+    [Post("/column")]
     Task<Guid> CreateAsync([Body] CreateColumnDto command);
 
-    
-    [Put("/api/column/{id}")]
+
+    [Put("/column/{id}")]
     Task UpdateAsync(Guid id, [Body] UpdateColumnDto command);
 
-    
-    [Delete("/api/column/{id}")]
+
+    [Delete("/column/{id}")]
     Task DeleteAsync(Guid id);
 }
