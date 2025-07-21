@@ -18,23 +18,23 @@
                    @bind-Value="searchTerm"
                    Placeholder="Search boards..."
                    PrefixIcon="search"
-                   Size="@InputSize.Default"
+                   Size=@InputSize.Default
                    Class="search-input"
-                   OnChangeValue="OnSearchChangedValue" />
-            <Button Type="@ButtonType.Primary"
-                    Size="@ButtonSize.Large"
+                   OnChangeValue=@OnSearchChangedValue />
+            <Button Type=@ButtonType.Primary
+                    Size=@ButtonSize.Large
                     Icon="plus"
-                    @onclick="CreateBoard">
+                    @onclick=@CreateBoard>
                 Add Board
             </Button>
         </div>
     </div>
 
-    <BoardList CurrentPageBoards="currentPageBoards"
-               IsLoading="isLoading"
-               CurrentPage="currentPage"
-               PageSize="pageSize"
-               TotalBoards="totalBoards"
-               OnBoardClick="OpenBoard"
-               OnPageChange="OnPageChange" />
+    <BoardList CurrentPageBoards=@currentPageBoards
+               IsLoading=@isLoading
+               CurrentPage=@currentPage
+               PageSize=@pageSize
+               TotalBoards=@totalBoards
+               OnBoardClick=@OpenBoard
+               OnPageChange=@OnPageChange />
 </div>

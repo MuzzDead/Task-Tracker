@@ -3,40 +3,38 @@
 @using Microsoft.AspNetCore.Components
 
 <div class="boards-content">
-  @if (IsLoading)
-  {
-    <div class="loading-container">
-      <Spin Size="@SpinSize.Large" />
-      <TypographyText Class="loading-text">
-        Loading boards...
-      </TypographyText>
-    </div>
-  }
-  else
-  {
-    <div class="boards-grid">
-      @foreach (var board in CurrentPageBoards)
-      {
-        <BoardCard 
-          Board="board"
-          TasksCount="@GetBoardTasksCount(board.Id)"
-          MembersCount="@GetBoardMembersCount(board.Id)"
-          Members="@GetBoardMembers(board.Id)"
-          OnBoardClick="OnBoardClick" />
-      }
-    </div>
-
-    @if (TotalBoards > PageSize)
+    @if (IsLoading)
     {
-      <div class="pagination-container">
-        <Pagination 
-          Current="CurrentPage"
-          Total="TotalBoards"
-          PageSize="PageSize"
-          ShowSizeChanger="false"
-          OnChange="OnPageChange"
-          Class="boards-pagination" />
-      </div>
+        <div class="loading-container">
+            <Spin Size="@SpinSize.Large" />
+            <TypographyText Class="loading-text">
+                Loading boards...
+            </TypographyText>
+        </div>
     }
-  }
+    else
+    {
+        <div class="boards-grid">
+            @foreach (var board in CurrentPageBoards)
+            {
+                <BoardCard Board="board"
+                           TasksCount="@GetBoardTasksCount(board.Id)"
+                           MembersCount="@GetBoardMembersCount(board.Id)"
+                           Members="@GetBoardMembers(board.Id)"
+                           OnBoardClick="OnBoardClick" />
+            }
+        </div>
+
+        @if (TotalBoards > PageSize)
+        {
+            <div class="pagination-container">
+                <Pagination Current=@CurrentPage
+                            Total=@TotalBoards
+                            PageSize=@PageSize
+                            ShowSizeChanger="false"
+                            OnChange=@OnPageChange
+                            Class="boards-pagination" />
+            </div>
+        }
+    }
 </div>

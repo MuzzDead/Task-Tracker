@@ -8,8 +8,8 @@
     {
         @foreach (var card in Cards)
         {
-            <TaskCard Card="card"
-                      OnCardClick="OnCardClick" />
+            <TaskCard Card=@card
+                      OnCardClick=@OnCardClick />
         }
     }
     else
@@ -24,28 +24,28 @@
         {
             <div class="add-card-form">
                 <Input TValue="string"
-                       InputRef="@newCardInputRef"
+                       InputRef=@newCardInputRef
                        @bind-Value="newTitle"
                        Placeholder="Enter a title..."
-                       @onkeypress="HandleKeyPress" />
+                       @onkeypress=@HandleKeyPress />
 
-                <Button Type="@ButtonType.Primary"
-                        Size="@ButtonSize.Small"
-                        Disabled="@string.IsNullOrWhiteSpace(newTitle)"
-                        @onclick="Save">
+                <Button Type=@ButtonType.Primary
+                        Size=@ButtonSize.Small
+                        Disabled=@string.IsNullOrWhiteSpace(newTitle)
+                        @onclick=@Save>
                     Add
                 </Button>
-                <Button Type="@ButtonType.Text"
-                        Size="@ButtonSize.Small"
+                <Button Type=@ButtonType.Text
+                        Size=@ButtonSize.Small
                         Icon="close"
-                        @onclick="Cancel" />
+                        @onclick=@Cancel />
             </div>
         }
         else
         {
-            <Button Type="@ButtonType.Text"
+            <Button Type=@ButtonType.Text
                     Icon="plus"
-                    @onclick="Start">
+                    @onclick=@Start>
                 Add a card
             </Button>
         }

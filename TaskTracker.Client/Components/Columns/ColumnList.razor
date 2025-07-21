@@ -14,8 +14,8 @@
     {
         @foreach (var column in Columns)
         {
-            <ColumnCard Column="column"
-                        Cards="GetCards(column.Id)"
+            <ColumnCard Column=@column
+                        Cards=@GetCards(column.Id)
                         IsLoading="false"
                         OnCardClick="OnCardClick"
                         OnAddCard="OnAddCard" />
