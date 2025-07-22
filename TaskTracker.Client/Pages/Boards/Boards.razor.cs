@@ -1,90 +1,105 @@
-﻿using AntDesign;
+﻿using System;
+using System.Linq;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using AntDesign;
 using Microsoft.AspNetCore.Components;
-using Refit;
+using Microsoft.AspNetCore.Components.Web;
 using TaskTracker.Client.DTOs.Board;
 using TaskTracker.Client.Services.Interfaces;
+using Refit;
 
-namespace TaskTracker.Client.Pages.Boards;
-
-public partial class Boards : ComponentBase
+namespace TaskTracker.Client.Pages.Boards
 {
-    [Inject] private NavigationManager NavigationManager { get; set; } = default!;
-    [Inject] private IBoardService BoardService { get; set; } = default!;
-
-    private string searchTerm = string.Empty;
-
-    private bool isLoading = true;
-    private int currentPage = 1;
-    private int pageSize = 6;
-    private int totalBoards;
-    private List<BoardDto> allBoards = new();
-    private List<BoardDto> currentPageBoards = new();
-
-    private Guid currentUserId = new("c7dc3069-4e5e-f011-8d15-f09e4af2796a");
-
-    protected override async Task OnInitializedAsync()
+    public partial class Boards : ComponentBase
     {
-        await LoadBoardsAsync();
-    }
+        [Inject] private NavigationManager NavigationManager { get; set; } = default!;
+        [Inject] private IBoardService BoardService { get; set; } = default!;
+        [Inject] private IAuthStateService AuthStateService { get; set; } = default!;
 
-    private async Task LoadBoardsAsync()
-    {
-        isLoading = true;
-        try
+        private string searchTerm = string.Empty;
+        private bool isLoading = true;
+        private int currentPage = 1;
+        private int pageSize = 6;
+        private int totalBoards;
+        private List<BoardDto> allBoards = new();
+        private List<BoardDto> currentPageBoards = new();
+
+        private Guid currentUserId;
+
+        protected override async Task OnInitializedAsync()
         {
-            allBoards = await BoardService.GetByUserIdAsync(currentUserId);
-            totalBoards = allBoards.Count;
+            await AuthStateService.InitializeAsync();
+
+            if (AuthStateService.CurrentUser == null)
+            {
+                NavigationManager.NavigateTo("/login");
+                return;
+            }
+
+            currentUserId = AuthStateService.CurrentUser.Id;
+            await LoadBoardsAsync();
+        }
+
+        private async Task LoadBoardsAsync()
+        {
+            isLoading = true;
+            try
+            {
+                allBoards = await BoardService.GetByUserIdAsync(currentUserId);
+                totalBoards = allBoards.Count;
+                ApplyFilterAndPaging();
+            }
+            catch (ApiException ex)
+            {
+                Console.Error.WriteLine($"Refit error while fetching boards: {ex.StatusCode} - {ex.Content}");
+                allBoards = new();
+            }
+            finally
+            {
+                isLoading = false;
+            }
+        }
+
+        private void ApplyFilterAndPaging()
+        {
+            var filtered = string.IsNullOrWhiteSpace(searchTerm)
+                ? allBoards
+                : allBoards.Where(b =>
+                        b.Title.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                        (b.Description?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ?? false))
+                    .ToList();
+
+            totalBoards = filtered.Count;
+            currentPageBoards = filtered
+                .Skip((currentPage - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+        }
+
+        private void OnSearchChangedValue(string newValue)
+        {
+            searchTerm = newValue;
+            currentPage = 1;
             ApplyFilterAndPaging();
         }
-        catch (ApiException ex)
+
+        private async Task OnPageChange(PaginationEventArgs args)
         {
-            Console.Error.WriteLine($"Refit error while fetching boards: {ex.StatusCode} - {ex.Content}");
-            allBoards = new();
+            currentPage = args.Page;
+            ApplyFilterAndPaging();
+            await InvokeAsync(StateHasChanged);
         }
-        finally
+
+        private void CreateBoard()
         {
-            isLoading = false;
+            NavigationManager.NavigateTo("/boards/create");
         }
-    }
 
-    private void ApplyFilterAndPaging()
-    {
-        var filtered = string.IsNullOrWhiteSpace(searchTerm)
-            ? allBoards
-            : allBoards.Where(b =>
-                    b.Title.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
-                    (b.Description?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ?? false))
-                .ToList();
-
-        totalBoards = filtered.Count;
-        currentPageBoards = filtered
-            .Skip((currentPage - 1) * pageSize)
-            .Take(pageSize)
-            .ToList();
-    }
-
-    private void OnSearchChangedValue(string newValue)
-    {
-        searchTerm = newValue;
-        currentPage = 1;
-        ApplyFilterAndPaging();
-    }
-
-    private async Task OnPageChange(PaginationEventArgs args)
-    {
-        currentPage = args.Page;
-        ApplyFilterAndPaging();
-        await InvokeAsync(StateHasChanged);
-    }
-
-    private void CreateBoard()
-    {
-        NavigationManager.NavigateTo("/boards/create");
-    }
-
-    private Task OpenBoard(Guid boardId)
-    {
-        NavigationManager.NavigateTo($"/boards/{boardId}");
-        return Task.CompletedTask;
+        private Task OpenBoard(Guid boardId)
+        {
+            NavigationManager.NavigateTo($"/boards/{boardId}");
+            return Task.CompletedTask;
+        }
     }
 }
