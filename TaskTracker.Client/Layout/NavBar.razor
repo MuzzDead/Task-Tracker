@@ -1,5 +1,5 @@
 ﻿@using AntDesign
-@inject NavigationManager Navigation
+@using TaskTracker.Client.Services.Interfaces
 
 <div class="navbar-container">
     <div class="navbar-header">
@@ -28,7 +28,13 @@
     </div>
     
     <div class="navbar-footer">
-        <div class="user-section">
+            <div class="user-container">
+        @if (showLogout)
+        {
+            <Button Class="logout-button" @onclick="LogoutAsync">Logout</Button>
+        }
+
+        <div class="user-section" @onclick="ToggleLogout">
             @if (isAuthenticated)
             {
                 <Avatar Size="@AvatarSize.Small" Icon="user" />
@@ -37,10 +43,10 @@
             else
             {
                 <Button Type="@ButtonType.Text" Size="@ButtonSize.Small" Class="login-button" @onclick="@(() => NavigateTo("/login"))">
-                    <Icon Type="login" />
-                    Sign In
+                    <Icon Type="login" /> Sign In
                 </Button>
             }
         </div>
+    </div>
     </div>
 </div>
