@@ -1,0 +1,51 @@
+﻿@page "/boards/{boardId:guid}"
+@using AntDesign
+@using TaskTracker.Client.DTOs.Board
+@using TaskTracker.Client.DTOs.Column
+@using TaskTracker.Client.DTOs.Card
+@using TaskTracker.Client.Components.Columns
+@using Microsoft.AspNetCore.Components.Web
+@inject NavigationManager Navigation
+
+
+<h3>@(_board?.Title ?? "Loading…")</h3>
+
+@if (_isLoading)
+{
+    <Spin Tip="Loading board…" />
+}
+else
+{
+    <div class="board-toolbar">
+        @if (_isAddingColumn)
+        {
+            <Input TValue="string"
+                   @bind-Value="_newColumnTitle"
+                   Placeholder="New column title…"
+                   @onkeypress="HandleColumnKeyPress" />
+
+            <Button Type="@ButtonType.Primary"
+                    Disabled="@string.IsNullOrWhiteSpace(_newColumnTitle)"
+                    @onclick="SaveColumn">
+                Save
+            </Button>
+            <Button Type="@ButtonType.Text"
+                    Icon="close"
+                    @onclick="CancelAddColumn" />
+        }
+        else
+        {
+            <Button Type="@ButtonType.Primary"
+                    Icon="plus"
+                    @onclick="StartAddColumn">
+                Add Column
+            </Button>
+        }
+    </div>
+
+    <ColumnList Columns="_columns"
+                CardsByColumn="_cardsByColumn"
+                IsLoading="false"
+                OnAddColumn="OnAddColumn"
+                OnAddCard="OnAddCard" />
+}

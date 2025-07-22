@@ -6,4 +6,5 @@ namespace TaskTracker.Application.Common.Interfaces;
 public interface ICardRepository : IRepository<Card, Guid>
 {
     Task<IEnumerable<Card>> GetByColumnIdAsync(Guid columnId);
+    Task<int> GetMaxRowIndexByColumnIdAsync(Guid columnId);
 }
