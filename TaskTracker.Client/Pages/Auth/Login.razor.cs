@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Components;
 using Refit;
 using System.Net;
 using TaskTracker.Client.DTOs.Auth;
-using TaskTracker.Client.Services;
 using TaskTracker.Client.Services.Interfaces;
 
 namespace TaskTracker.Client.Pages.Auth;
