@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Components;
+﻿using AntDesign;
+using Microsoft.AspNetCore.Components;
 using Refit;
 using System.Net;
 using TaskTracker.Client.DTOs.Auth;
@@ -13,6 +14,10 @@ public partial class Login
     private bool isLoading = false;
 
     [Inject] private IPasswordHashingService PasswordHashingService { get; set; } = default!;
+    [Inject] private NavigationManager Navigation { get; set; } = default!;
+    [Inject] private IAuthService AuthService { get; set; } = default!;
+    [Inject] private IAuthStateService AuthStateService { get; set; } = default!;
+    [Inject] private IMessageService MessageService { get; set; } = default!;
 
     private async Task HandleValidSubmit()
     {

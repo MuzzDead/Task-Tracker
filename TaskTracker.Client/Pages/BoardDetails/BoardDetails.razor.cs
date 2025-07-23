@@ -1,10 +1,10 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
-using TaskTracker.Client.DTOs.Board;
-using TaskTracker.Client.DTOs.Column;
-using TaskTracker.Client.DTOs.Card;
-using TaskTracker.Client.Services.Interfaces;
 using Refit;
+using TaskTracker.Client.DTOs.Board;
+using TaskTracker.Client.DTOs.Card;
+using TaskTracker.Client.DTOs.Column;
+using TaskTracker.Client.Services.Interfaces;
 
 namespace TaskTracker.Client.Pages.BoardDetails
 {
@@ -15,6 +15,7 @@ namespace TaskTracker.Client.Pages.BoardDetails
         [Inject] private IBoardService BoardService { get; set; } = default!;
         [Inject] private IColumnService ColumnService { get; set; } = default!;
         [Inject] private ICardService CardService { get; set; } = default!;
+        [Inject] NavigationManager Navigation { get; set; } = default!;
 
         private bool _isLoading = true;
         private bool _isAddingColumn;

@@ -1,13 +1,8 @@
-﻿using System;
-using System.Linq;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using AntDesign;
+﻿using AntDesign;
 using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Web;
+using Refit;
 using TaskTracker.Client.DTOs.Board;
 using TaskTracker.Client.Services.Interfaces;
-using Refit;
 
 namespace TaskTracker.Client.Pages.Boards
 {
