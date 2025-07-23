@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.OpenApi.Models;
+using TaskTracker.API.Middlewares;
 using TaskTracker.Application.Extensions;
 using TaskTracker.Database;
 using TaskTracker.Infrastructure.Extensions;
@@ -63,6 +64,8 @@ builder.Services.AddOpenApi();
 
 var app = builder.Build();
 
+app.UseMiddleware<ExceptionHandlingMiddleware>();
+
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 DatabaseMigrator.MigrateDatabase(connectionString);
 
@@ -76,6 +79,7 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.UseCors("AllowBlazorClient");
+
 
 app.UseAuthentication();
 app.UseAuthorization();
