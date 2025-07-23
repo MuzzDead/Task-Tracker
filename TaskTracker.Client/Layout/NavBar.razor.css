@@ -171,3 +171,15 @@
         padding: 0.5rem;
     }
 }
+
+.user-container {
+    position: relative;
+    display: inline-block;
+}
+
+.logout-button {
+    position: absolute;
+    top: -40px;
+    right: 0;
+    z-index: 1000;
+}

@@ -1,0 +1,44 @@
+﻿@page "/login"
+@using AntDesign
+@using TaskTracker.Client.DTOs.Auth
+@using TaskTracker.Client.Services.Interfaces
+@using System.Net
+@using Refit
+
+<Flex Justify="FlexJustify.Center" Align="FlexAlign.Center" Style="min-height: 100vh;" Direction="FlexDirection.Vertical">
+    <Card Style="width: 500px; min-height: 350px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); border-radius: 12px;" Hoverable="true">
+        <Flex Justify="FlexJustify.Center" Align="FlexAlign.Center" Direction="FlexDirection.Vertical">
+            <Title Level="3">Sign In</Title>
+
+            <Form Model="@model"
+                  Layout="FormLayout.Vertical"
+                  OnFinish="@HandleValidSubmit"
+                  OnFinishFailed="@HandleInvalidSubmit">
+
+                <FormItem Label="Email" Name="@nameof(model.Email)" Required Tooltip="Enter your email address">
+                    <Input @bind-Value="model.Email" Placeholder="you@example.com" />
+                </FormItem>
+
+                <FormItem Label="Password" Name="@nameof(model.Password)" Required Tooltip="Enter your password">
+                    <InputPassword @bind-Value="model.Password" Placeholder="••••••••" />
+                </FormItem>
+
+                <FormItem>
+                    <Button Type="ButtonType.Primary"
+                            HtmlType="submit"
+                            Size="ButtonSize.Large"
+                            Block="true"
+                            Loading="@isLoading">
+                        Login
+                    </Button>
+                </FormItem>
+            </Form>
+        </Flex>
+    </Card>
+
+    <Button Type="ButtonType.Link"
+            OnClick="@(() => NavigateToRegister())"
+            Style="margin-top: 16px;">
+        Don't have an account? Register
+    </Button>
+</Flex>
