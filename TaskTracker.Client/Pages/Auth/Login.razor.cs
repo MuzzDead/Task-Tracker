@@ -1,6 +1,9 @@
-﻿using Refit;
+﻿using Microsoft.AspNetCore.Components;
+using Refit;
 using System.Net;
 using TaskTracker.Client.DTOs.Auth;
+using TaskTracker.Client.Services;
+using TaskTracker.Client.Services.Interfaces;
 
 namespace TaskTracker.Client.Pages.Auth;
 
@@ -9,13 +12,21 @@ public partial class Login
     private LoginUserDto model = new();
     private bool isLoading = false;
 
+    [Inject] private IPasswordHashingService PasswordHashingService { get; set; } = default!;
+
     private async Task HandleValidSubmit()
     {
         isLoading = true;
 
         try
         {
-            var response = await AuthService.LoginAsync(model);
+            var loginRequest = new LoginUserDto
+            {
+                Email = model.Email,
+                Password = PasswordHashingService.HashPassword(model.Password)
+            };
+
+            var response = await AuthService.LoginAsync(loginRequest);
 
             await AuthStateService.SetAuthDataAsync(response);
             MessageService.Success("Login successful!");

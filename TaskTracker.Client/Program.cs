@@ -33,6 +33,7 @@ builder.Services
     .ConfigureHttpClient(c => c.BaseAddress = new Uri(apiBaseUrl));
 
 builder.Services.AddScoped<IAuthStateService, AuthStateService>();
+builder.Services.AddScoped<IPasswordHashingService, PasswordHashingService>();
 
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(apiBaseUrl) });
 
