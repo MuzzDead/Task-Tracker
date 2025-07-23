@@ -23,13 +23,14 @@ public partial class Register
         isLoading = true;
         try
         {
-            var loginRequest = new LoginUserDto
+            var registerRequest = new RegisterUserDto
             {
                 Email = model.Email,
+                Username = model.Username,
                 Password = PasswordHashingService.HashPassword(model.Password)
             };
 
-            var response = await AuthService.RegisterAsync(model);
+            var response = await AuthService.RegisterAsync(registerRequest);
 
             await AuthStateService.SetAuthDataAsync(response);
 
