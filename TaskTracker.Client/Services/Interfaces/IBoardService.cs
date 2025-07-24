@@ -14,7 +14,7 @@ public interface IBoardService
 
 
     [Post("/board")]
-    Task<BoardDto> CreateAsync([Body] CreateBoardDto command);
+    Task<Guid> CreateAsync([Body] CreateBoardDto command);
 
 
     [Put("/board/{id}")]
