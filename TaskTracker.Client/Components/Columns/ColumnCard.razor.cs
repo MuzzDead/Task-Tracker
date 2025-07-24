@@ -6,14 +6,26 @@ namespace TaskTracker.Client.Components.Columns;
 
 public partial class ColumnCard : ComponentBase
 {
-    [Parameter, EditorRequired] public ColumnDto Column { get; set; } = default!;
-    [Parameter] public List<CardDto> Cards { get; set; } = new();
+    [Parameter] public ColumnDto Column { get; set; } = default!;
+    [Parameter] public List<CardDto>? Cards { get; set; }
     [Parameter] public bool IsLoading { get; set; }
     [Parameter] public EventCallback<CardDto> OnCardClick { get; set; }
-    [Parameter] public EventCallback<(string title, Guid columnId)> OnAddCard { get; set; }
+    [Parameter] public EventCallback<(Guid ColumnId, string Title)> OnAddCard { get; set; }
+    [Parameter] public EventCallback<ColumnDto> OnEditColumn { get; set; }
+    [Parameter] public EventCallback<ColumnDto> OnDeleteColumn { get; set; }
 
     private async Task HandleAddCard(string title)
     {
-        await OnAddCard.InvokeAsync((title, Column.Id));
+        await OnAddCard.InvokeAsync((Column.Id, title));
+    }
+
+    private async Task HandleEdit()
+    {
+        await OnEditColumn.InvokeAsync(Column);
+    }
+
+    private async Task HandleDelete()
+    {
+        await OnDeleteColumn.InvokeAsync(Column);
     }
 }
