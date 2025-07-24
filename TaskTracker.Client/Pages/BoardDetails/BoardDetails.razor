@@ -1,13 +1,14 @@
 ﻿@page "/boards/{boardId:guid}"
 @using AntDesign
-@using TaskTracker.Client.DTOs.Board
-@using TaskTracker.Client.DTOs.Column
-@using TaskTracker.Client.DTOs.Card
 @using TaskTracker.Client.Components.Columns
+@using TaskTracker.Client.Components.Boards
 @using Microsoft.AspNetCore.Components.Web
 
-<h3>@(_board?.Title ?? "Loading…")</h3>
-
+<div class="board-details-container">
+    <BoardsHeader Title="@(_board?.Title ?? "Loading…")"
+                  ShowSearch="false"
+                  OnCreateClick="@StartAddColumn"
+                  ButtonText="Add Column" />
 @if (_isLoading)
 {
     <Spin Tip="Loading board…" />
@@ -31,14 +32,6 @@ else
                     Icon="close"
                     @onclick="CancelAddColumn" />
         }
-        else
-        {
-            <Button Type="@ButtonType.Primary"
-                    Icon="plus"
-                    @onclick="StartAddColumn">
-                Add Column
-            </Button>
-        }
     </div>
 
     <ColumnList Columns="_columns"
@@ -47,3 +40,4 @@ else
                 OnAddColumn="OnAddColumn"
                 OnAddCard="OnAddCard" />
 }
+</div>

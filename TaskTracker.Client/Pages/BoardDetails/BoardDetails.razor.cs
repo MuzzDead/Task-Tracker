@@ -100,7 +100,7 @@ namespace TaskTracker.Client.Pages.BoardDetails
         {
             try
             {
-                var command = new CreateColumnDto { Title = title, BoardId = boardId };
+                var command = new CreateColumnDto { Title = title, BoardId = boardId, ColumnIndex = index };
                 var newId = await ColumnService.CreateAsync(command);
 
                 var newColumn = new ColumnDto
