@@ -11,6 +11,7 @@ namespace TaskTracker.Client.Pages.Boards
         [Inject] private NavigationManager NavigationManager { get; set; } = default!;
         [Inject] private IBoardService BoardService { get; set; } = default!;
         [Inject] private IAuthStateService AuthStateService { get; set; } = default!;
+        [Inject] private IMessageService MessageService { get; set; } = default!;
 
         private string searchTerm = string.Empty;
         private bool isLoading = true;
@@ -21,6 +22,7 @@ namespace TaskTracker.Client.Pages.Boards
         private List<BoardDto> currentPageBoards = new();
 
         private Guid currentUserId;
+        private bool isCreateBoardModalVisible = false;
 
         protected override async Task OnInitializedAsync()
         {
@@ -86,15 +88,62 @@ namespace TaskTracker.Client.Pages.Boards
             await InvokeAsync(StateHasChanged);
         }
 
-        private void CreateBoard()
+        private void ShowCreateBoardModal()
         {
-            NavigationManager.NavigateTo("/boards/create");
+            isCreateBoardModalVisible = true;
+        }
+
+        private async Task OnCreateBoardModalVisibilityChanged(bool isVisible)
+        {
+            isCreateBoardModalVisible = isVisible;
+            await InvokeAsync(StateHasChanged);
+        }
+
+        private async Task HandleBoardCreated(CreateBoardDto createBoardDto)
+        {
+            try
+            {
+                var newBoard = await BoardService.CreateAsync(createBoardDto);
+                var board = await BoardService.GetByIdAsync(newBoard);
+                allBoards.Insert(0, board);
+                totalBoards = allBoards.Count;
+
+                currentPage = 1;
+                searchTerm = string.Empty;
+                ApplyFilterAndPaging();
+
+                MessageService.Success($"Board '{board.Title}' created successfully!");
+                await InvokeAsync(StateHasChanged);
+            }
+            catch (ApiException ex)
+            {
+                var errorMessage = ex.StatusCode switch
+                {
+                    System.Net.HttpStatusCode.BadRequest => "Invalid board data. Please check your input.",
+                    System.Net.HttpStatusCode.Unauthorized => "You are not authorized to create boards.",
+                    System.Net.HttpStatusCode.Conflict => "A board with this title already exists.",
+                    _ => $"Failed to create board: {ex.Content}"
+                };
+
+                MessageService.Error(errorMessage);
+                Console.Error.WriteLine($"Board creation error: {ex.StatusCode} - {ex.Content}");
+            }
+            catch (Exception ex)
+            {
+                MessageService.Error("An unexpected error occurred. Please try again.");
+                Console.Error.WriteLine($"Unexpected error creating board: {ex}");
+            }
         }
 
         private Task OpenBoard(Guid boardId)
         {
             NavigationManager.NavigateTo($"/boards/{boardId}");
             return Task.CompletedTask;
+        }
+
+        private void CreateBoard()
+        {
+            ShowCreateBoardModal();
         }
     }
 }
