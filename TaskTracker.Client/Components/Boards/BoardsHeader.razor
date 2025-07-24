@@ -1,0 +1,28 @@
+﻿@using AntDesign
+
+<div class="boards-header">
+    <div class="header-left">
+        <TypographyTitle Level="2" Class="boards-title">
+            @Title
+        </TypographyTitle>
+    </div>
+    <div class="header-right">
+        @if (ShowSearch)
+        {
+            <Input TValue="string"
+                   @bind-Value="SearchTerm"
+                   Placeholder="Search boards..."
+                   PrefixIcon="search"
+                   Size=@InputSize.Default
+                   Class="search-input"
+                   OnChangeValue=@OnSearchChangedValue />
+        }
+
+        <Button Type=@ButtonType.Primary
+                Size=@ButtonSize.Large
+                Icon="plus"
+                @onclick=OnCreateClick>
+            @ButtonText
+        </Button>
+    </div>
+</div>
