@@ -5,7 +5,14 @@
      @onclick="() => OnCardClick.InvokeAsync(Card)"
      draggable="true"
      @ondragstart="e => OnDragStart.InvokeAsync((Card, e))">
-  <TypographyText Strong class="task-title">
-    @Card.Title
-  </TypographyText>
+    
+    <div class="task-card-content">
+        <TypographyText Strong class="task-title">
+            @Card.Title
+        </TypographyText
+    </div>
+
+    <div class="task-card-hover-overlay">
+        <Icon Type="edit" />
+    </div>
 </div>
