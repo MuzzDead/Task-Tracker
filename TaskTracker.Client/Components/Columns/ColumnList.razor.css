@@ -3,9 +3,48 @@
     gap: 16px;
     padding: 16px;
     overflow-x: auto;
+    min-height: 100vh;
+    background: #f5f5f5;
 }
 
+    .column-list::-webkit-scrollbar {
+        height: 8px;
+    }
+
+    .column-list::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 4px;
+    }
+
+    .column-list::-webkit-scrollbar-thumb {
+        background: #c1c1c1;
+        border-radius: 4px;
+    }
+
+        .column-list::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
+        }
+
 .no-columns {
-    font-style: italic;
-    color: #999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 400px;
+    color: #8c8c8c;
+}
+
+@media (max-width: 768px) {
+    .column-list {
+        gap: 12px;
+        padding: 12px;
+    }
+}
+
+.column-list .ant-spin-nested-loading {
+    width: 100%;
+    height: 400px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }

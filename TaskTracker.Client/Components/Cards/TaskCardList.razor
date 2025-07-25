@@ -3,19 +3,24 @@
 @using Microsoft.AspNetCore.Components.Web
 
 <div class="task-card-list">
-
     @if (Cards?.Any() == true)
     {
-        @foreach (var card in Cards)
-        {
-            <TaskCard Card=@card
-                      OnCardClick=@OnCardClick />
-        }
+        <div class="cards-container">
+            @foreach (var card in Cards)
+            {
+                <TaskCard Card=@card
+                          OnCardClick=@OnCardClick />
+            }
+        </div>
     }
     else
     {
         <div class="empty-state">
-            <Icon Type="inbox" /> No tasks yet
+            <div class="empty-icon">
+                <Icon Type="inbox" Style="font-size: 24px;" />
+            </div>
+            <div class="empty-text">No tasks yet</div>
+            <div class="empty-subtext">Add a task to get started</div>
         </div>
     }
 
@@ -23,30 +28,37 @@
         @if (IsAdding)
         {
             <div class="add-card-form">
-                <Input TValue="string"
-                       InputRef=@newCardInputRef
-                       @bind-Value="newTitle"
-                       Placeholder="Enter a title..."
-                       @onkeypress=@HandleKeyPress />
-
-                <Button Type=@ButtonType.Primary
-                        Size=@ButtonSize.Small
-                        Disabled=@string.IsNullOrWhiteSpace(newTitle)
-                        @onclick=@Save>
-                    Add
-                </Button>
-                <Button Type=@ButtonType.Text
-                        Size=@ButtonSize.Small
-                        Icon="close"
-                        @onclick=@Cancel />
+                <div class="add-card-input-wrapper">
+                    <TextArea InputRef=@newCardInputRef
+                              @bind-Value="newTitle"
+                              Placeholder="Enter a title for this card..."
+                              AutoSize="true"
+                              MaxRows="4"
+                              @onkeypress=@HandleKeyPress
+                              class="add-card-textarea" />
+                </div>
+                <div class="add-card-buttons">
+                    <Button Type=@ButtonType.Primary
+                            Size=@ButtonSize.Small
+                            Disabled=@string.IsNullOrWhiteSpace(newTitle)
+                            @onclick=@Save>
+                        Add card
+                    </Button>
+                    <Button Type=@ButtonType.Text
+                            Size=@ButtonSize.Small
+                            Icon="close"
+                            @onclick=@Cancel
+                            class="cancel-btn" />
+                </div>
             </div>
         }
         else
         {
             <Button Type=@ButtonType.Text
                     Icon="plus"
-                    @onclick=@Start>
-                Add a card
+                    @onclick=@Start
+                    class="add-card-trigger">
+                Add card
             </Button>
         }
     </div>

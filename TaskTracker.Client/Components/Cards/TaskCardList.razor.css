@@ -1,20 +1,109 @@
 ﻿.task-card-list {
     display: flex;
     flex-direction: column;
+    min-height: 100px;
+}
+
+.cards-container {
+    display: flex;
+    flex-direction: column;
     gap: 8px;
+    margin-bottom: 8px;
 }
 
 .empty-state {
-    color: #888;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 16px;
+    color: #8c8c8c;
     text-align: center;
-    margin: 16px 0;
+    border-radius: 8px;
+    background: #fafafa;
+    border: 2px dashed #d9d9d9;
+    margin-bottom: 12px;
+}
+
+.empty-icon {
+    margin-bottom: 8px;
+    opacity: 0.6;
+}
+
+.empty-text {
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 4px;
+    color: #595959;
+}
+
+.empty-subtext {
+    font-size: 12px;
+    color: #8c8c8c;
 }
 
 .add-card-section {
-    margin-top: 12px;
+    margin-top: auto;
 }
 
 .add-card-form {
+    background: #ffffff;
+    border: 1px solid #d9d9d9;
+    border-radius: 8px;
+    padding: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.add-card-input-wrapper {
+    margin-bottom: 12px;
+}
+
+.add-card-textarea {
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    font-size: 14px;
+    resize: none;
+}
+
+    .add-card-textarea:focus {
+        border: none !important;
+        box-shadow: none !important;
+    }
+
+.add-card-buttons {
     display: flex;
+    align-items: center;
     gap: 8px;
 }
+
+.cancel-btn {
+    color: #8c8c8c !important;
+    padding: 4px 8px !important;
+}
+
+    .cancel-btn:hover {
+        color: #595959 !important;
+        background: #f5f5f5 !important;
+    }
+
+.add-card-trigger {
+    width: 100%;
+    text-align: left;
+    color: #8c8c8c !important;
+    border: 1px dashed transparent;
+    border-radius: 8px;
+    padding: 8px 12px;
+    transition: all 0.2s ease;
+}
+
+    .add-card-trigger:hover {
+        background: #fafafa !important;
+        border-color: #d9d9d9 !important;
+        color: #595959 !important;
+    }
+
+    .add-card-trigger:focus {
+        border-color: #1890ff !important;
+        color: #1890ff !important;
+    }

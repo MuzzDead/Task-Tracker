@@ -39,7 +39,7 @@ public class BoardController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<BoardDto>> CreateAsync([FromBody] CreateBoardCommand command)
+    public async Task<ActionResult<Guid>> CreateAsync([FromBody] CreateBoardCommand command)
     {
         var board = await _mediator.Send(command);
 

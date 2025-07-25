@@ -1,6 +1,4 @@
 ﻿@using AntDesign
-@using TaskTracker.Client.DTOs.Column
-@using TaskTracker.Client.DTOs.Card
 @using TaskTracker.Client.Components.Cards
 @using TaskTracker.Client.Components.Columns
 @using Microsoft.AspNetCore.Components
@@ -14,15 +12,18 @@
     {
         @foreach (var column in Columns)
         {
-            <ColumnCard Column=@column
-                        Cards=@GetCards(column.Id)
-                        IsLoading="false"
-                        OnCardClick="OnCardClick"
-                        OnAddCard="OnAddCard" />
+            <ColumnCard Column="@column"
+                        Cards="@GetCards(column.Id)"
+                        OnCardClick="@OnCardClick"
+                        OnAddCard="@HandleAddCard"
+                        OnEditColumn="@OnEditColumn"
+                        OnDeleteColumn="@OnDeleteColumn" />
         }
     }
     else
     {
-        <div class="no-columns">No columns available.</div>
+        <div class="no-columns">
+            <h4>No columns available</h4>
+        </div>
     }
 </div>
