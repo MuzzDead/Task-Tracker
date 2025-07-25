@@ -7,7 +7,12 @@
     <BoardsHeader Title="@(_board?.Title ?? "Loading…")"
                   ShowSearch="false"
                   OnCreateClick="@ShowColumnModal"
-                  ButtonText="Add Column" />
+                  ButtonText="Add Column"
+                  EnableTitleEdit="@(_board != null)"
+                  IsTitleEditing="@_isTitleEditing"
+                  OnTitleEditingChanged="@OnTitleEditingChanged"
+                  IsTitleSaving="@_isTitleSaving"
+                  OnTitleSave="@SaveBoardTitle" />
 
     @if (_isLoading)
     {

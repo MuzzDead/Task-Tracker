@@ -18,6 +18,8 @@ namespace TaskTracker.Client.Pages.BoardDetails
 
         private bool _isLoading = true;
         private bool _isColumnModalVisible;
+        private bool _isTitleEditing;
+        private bool _isTitleSaving;
 
         private BoardDto? _board;
         private List<ColumnDto> _columns = new();
@@ -141,6 +143,55 @@ namespace TaskTracker.Client.Pages.BoardDetails
             {
                 Console.Error.WriteLine($"Error reloading cards: {ex.Message}");
             }
+        }
+
+        private Task OnTitleEditingChanged(bool isEditing)
+        {
+            _isTitleEditing = isEditing;
+            StateHasChanged();
+            return Task.CompletedTask;
+        }
+
+        private async Task SaveBoardTitle(string newTitle)
+        {
+            if (_board == null || string.IsNullOrWhiteSpace(newTitle))
+                return;
+
+            _isTitleSaving = true;
+            StateHasChanged();
+
+            try
+            {
+                var updateDto = new UpdateBoardDto
+                {
+                    Id = _board.Id,
+                    Title = newTitle,
+                    Description = _board.Description,
+                    UpdatedBy = GetCurrentUserId()
+                };
+                await BoardService.UpdateAsync(_board.Id, updateDto);
+
+                _board.Title = newTitle;
+                _isTitleEditing = false;
+            }
+            catch (ApiException apiEx)
+            {
+                Console.Error.WriteLine($"[API Error] Failed to update board title: {apiEx.StatusCode}: {apiEx.Content}");
+            }
+            catch (Exception ex)
+            {
+                Console.Error.WriteLine($"Error updating board title: {ex.Message}");
+            }
+            finally
+            {
+                _isTitleSaving = false;
+                StateHasChanged();
+            }
+        }
+
+        private Guid GetCurrentUserId()
+        {
+            return Guid.Empty;
         }
     }
 }
