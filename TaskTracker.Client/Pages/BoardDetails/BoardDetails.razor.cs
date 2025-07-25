@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Web;
 using Refit;
 using TaskTracker.Client.DTOs.Board;
 using TaskTracker.Client.DTOs.Card;
@@ -18,8 +17,7 @@ namespace TaskTracker.Client.Pages.BoardDetails
         [Inject] NavigationManager Navigation { get; set; } = default!;
 
         private bool _isLoading = true;
-        private bool _isAddingColumn;
-        private string _newColumnTitle = string.Empty;
+        private bool _isColumnModalVisible;
 
         private BoardDto? _board;
         private List<ColumnDto> _columns = new();
@@ -71,71 +69,41 @@ namespace TaskTracker.Client.Pages.BoardDetails
             _cardsByColumn.Clear();
         }
 
-        private void StartAddColumn()
+        private void ShowColumnModal()
         {
-            _isAddingColumn = true;
-            _newColumnTitle = string.Empty;
+            _isColumnModalVisible = true;
         }
 
-        private Task CancelAddColumn()
+        private Task HideColumnModal()
         {
-            _isAddingColumn = false;
-            _newColumnTitle = string.Empty;
+            _isColumnModalVisible = false;
+            StateHasChanged();
             return Task.CompletedTask;
         }
 
-        private async Task SaveColumn()
+        private async Task HandleColumnCreated(CreateColumnDto dto)
         {
-            if (string.IsNullOrWhiteSpace(_newColumnTitle)) return;
-
             var nextIndex = _columns.Any() ? _columns.Max(c => c.ColumnIndex) + 1 : 0;
 
-            if (await TryCreateColumn(_newColumnTitle.Trim(), nextIndex))
+            var newId = await ColumnService.CreateAsync(new CreateColumnDto
             {
-                await CancelAddColumn();
-            }
-        }
+                Title = dto.Title,
+                BoardId = dto.BoardId,
+                ColumnIndex = nextIndex
+            });
 
-        private async Task<bool> TryCreateColumn(string title, int index)
-        {
-            try
+            var newColumn = new ColumnDto
             {
-                var command = new CreateColumnDto { Title = title, BoardId = boardId, ColumnIndex = index };
-                var newId = await ColumnService.CreateAsync(command);
+                Id = newId,
+                Title = dto.Title,
+                BoardId = dto.BoardId,
+                ColumnIndex = nextIndex,
+                CreatedAt = DateTimeOffset.Now
+            };
 
-                var newColumn = new ColumnDto
-                {
-                    Id = newId,
-                    Title = title,
-                    BoardId = boardId,
-                    ColumnIndex = index,
-                    CreatedAt = DateTimeOffset.Now
-                };
-
-                _columns.Add(newColumn);
-                _cardsByColumn[newId] = new();
-                return true;
-            }
-            catch (Exception ex)
-            {
-                Console.Error.WriteLine($"Error creating column: {ex.Message}");
-                return false;
-            }
-        }
-
-        private async Task HandleColumnKeyPress(KeyboardEventArgs e)
-        {
-            switch (e.Key)
-            {
-                case "Enter": await SaveColumn(); break;
-                case "Escape": await CancelAddColumn(); break;
-            }
-        }
-
-        private async Task OnAddColumn(string title)
-        {
-            _newColumnTitle = title;
-            await SaveColumn();
+            _columns.Add(newColumn);
+            _cardsByColumn[newId] = new();
+            StateHasChanged();
         }
 
         private async Task OnAddCard((string title, Guid columnId) data)

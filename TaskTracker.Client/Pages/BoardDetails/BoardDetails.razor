@@ -2,42 +2,27 @@
 @using AntDesign
 @using TaskTracker.Client.Components.Columns
 @using TaskTracker.Client.Components.Boards
-@using Microsoft.AspNetCore.Components.Web
 
 <div class="board-details-container">
     <BoardsHeader Title="@(_board?.Title ?? "Loading…")"
                   ShowSearch="false"
-                  OnCreateClick="@StartAddColumn"
+                  OnCreateClick="@ShowColumnModal"
                   ButtonText="Add Column" />
-@if (_isLoading)
-{
-    <Spin Tip="Loading board…" />
-}
-else
-{
-    <div class="board-toolbar">
-        @if (_isAddingColumn)
-        {
-            <Input TValue="string"
-                   @bind-Value="_newColumnTitle"
-                   Placeholder="New column title…"
-                   @onkeypress="HandleColumnKeyPress" />
 
-            <Button Type="@ButtonType.Primary"
-                    Disabled="@string.IsNullOrWhiteSpace(_newColumnTitle)"
-                    @onclick="SaveColumn">
-                Save
-            </Button>
-            <Button Type="@ButtonType.Text"
-                    Icon="close"
-                    @onclick="CancelAddColumn" />
-        }
-    </div>
+    @if (_isLoading)
+    {
+        <Spin Tip="Loading board…" />
+    }
+    else
+    {
+        <ColumnList Columns="_columns"
+                    CardsByColumn="_cardsByColumn"
+                    IsLoading="false"
+                    OnAddCard="OnAddCard" />
+    }
 
-    <ColumnList Columns="_columns"
-                CardsByColumn="_cardsByColumn"
-                IsLoading="false"
-                OnAddColumn="OnAddColumn"
-                OnAddCard="OnAddCard" />
-}
+    <CreateColumn IsVisible="@_isColumnModalVisible"
+                  IsVisibleChanged="@HideColumnModal"
+                  OnColumnCreated="@HandleColumnCreated"
+                  BoardId="@boardId" />
 </div>
