@@ -2,9 +2,20 @@
 
 <div class="boards-header">
     <div class="header-left">
-        <TypographyTitle Level="2" Class="boards-title">
-            @Title
-        </TypographyTitle>
+        @if (EnableTitleEdit)
+        {
+            <EditableBoardTitle Title="@Title"
+                              IsEditing="@IsTitleEditing"
+                              IsEditingChanged="@OnTitleEditingChanged"
+                              IsSaving="@IsTitleSaving"
+                              OnSave="@OnTitleSave" />
+        }
+        else
+        {
+            <TypographyTitle Level="2" Class="boards-title">
+                @Title
+            </TypographyTitle>
+        }
     </div>
     <div class="header-right">
         @if (ShowSearch)

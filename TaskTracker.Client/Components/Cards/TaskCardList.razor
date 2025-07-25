@@ -1,7 +1,6 @@
 ﻿@using AntDesign
 @using TaskTracker.Client.Components.Cards
 @using Microsoft.AspNetCore.Components.Web
-
 <div class="task-card-list">
     @if (Cards?.Any() == true)
     {
@@ -23,7 +22,6 @@
             <div class="empty-subtext">Add a task to get started</div>
         </div>
     }
-
     <div class="add-card-section">
         @if (IsAdding)
         {
@@ -34,13 +32,16 @@
                               Placeholder="Enter a title for this card..."
                               AutoSize="true"
                               MaxRows="4"
+                              MaxLength="128"
+                              ShowCount="true"
                               @onkeypress=@HandleKeyPress
+                              @oninput=@HandleInput
                               class="add-card-textarea" />
                 </div>
                 <div class="add-card-buttons">
                     <Button Type=@ButtonType.Primary
                             Size=@ButtonSize.Small
-                            Disabled=@string.IsNullOrWhiteSpace(newTitle)
+                            Disabled=@(string.IsNullOrWhiteSpace(newTitle) || newTitle.Length > 128)
                             @onclick=@Save>
                         Add card
                     </Button>
