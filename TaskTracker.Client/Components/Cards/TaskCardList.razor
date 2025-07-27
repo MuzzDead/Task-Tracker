@@ -1,6 +1,7 @@
 ﻿@using AntDesign
 @using TaskTracker.Client.Components.Cards
 @using Microsoft.AspNetCore.Components.Web
+
 <div class="task-card-list">
     @if (Cards?.Any() == true)
     {
@@ -8,7 +9,7 @@
             @foreach (var card in Cards)
             {
                 <TaskCard Card=@card
-                          OnCardClick=@OnCardClick />
+                          OnCardClick=@HandleCardClick />
             }
         </div>
     }
@@ -27,7 +28,7 @@
         {
             <div class="add-card-form">
                 <div class="add-card-input-wrapper">
-                    <TextArea InputRef=@newCardInputRef
+                    <TextArea @ref=@newCardInputRef
                               @bind-Value="newTitle"
                               Placeholder="Enter a title for this card..."
                               AutoSize="true"

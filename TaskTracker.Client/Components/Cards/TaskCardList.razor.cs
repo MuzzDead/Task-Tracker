@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using TaskTracker.Client.DTOs.Card;
+using AntDesign;
 
 namespace TaskTracker.Client.Components.Cards;
 
@@ -12,16 +13,23 @@ public partial class TaskCardList : ComponentBase
 
     private bool IsAdding;
     private string newTitle = string.Empty;
-    private ElementReference newCardInputRef;
+    private TextArea? newCardInputRef;
     private const int MaxTitleLength = 128;
+
+    private async Task HandleCardClick(CardDto card)
+    {
+        await OnCardClick.InvokeAsync(card);
+    }
 
     private async Task Start()
     {
         IsAdding = true;
         newTitle = string.Empty;
         StateHasChanged();
-        await Task.Yield();
-        await newCardInputRef.FocusAsync();
+
+        await Task.Delay(50);
+        if (newCardInputRef != null)
+            await newCardInputRef.Focus();
     }
 
     private Task Cancel()
@@ -35,7 +43,6 @@ public partial class TaskCardList : ComponentBase
     private async Task Save()
     {
         var trimmedTitle = newTitle?.Trim() ?? string.Empty;
-
         if (!string.IsNullOrWhiteSpace(trimmedTitle) && trimmedTitle.Length <= MaxTitleLength)
         {
             await OnAddCard.InvokeAsync(trimmedTitle);
@@ -58,12 +65,10 @@ public partial class TaskCardList : ComponentBase
     private Task HandleInput(ChangeEventArgs e)
     {
         newTitle = e.Value?.ToString() ?? string.Empty;
-
         if (newTitle.Length > MaxTitleLength)
         {
             newTitle = newTitle.Substring(0, MaxTitleLength);
         }
-
         StateHasChanged();
         return Task.CompletedTask;
     }
