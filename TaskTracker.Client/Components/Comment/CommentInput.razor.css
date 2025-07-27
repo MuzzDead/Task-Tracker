@@ -1,0 +1,36 @@
+﻿.comment-input-container {
+    margin-bottom: 16px;
+}
+
+.comment-input-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 12px;
+    border: 1px solid #d9d9d9;
+    border-radius: 8px;
+    background: #fafafa;
+    transition: all 0.2s ease;
+}
+
+    .comment-input-form:focus-within {
+        background: white;
+        border-color: #1890ff;
+        box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+    }
+
+.comment-textarea {
+    border: none;
+    background: transparent;
+    resize: none;
+}
+
+    .comment-textarea:focus {
+        box-shadow: none;
+    }
+
+.comment-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+}
