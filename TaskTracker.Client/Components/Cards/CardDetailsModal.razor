@@ -1,0 +1,48 @@
+﻿@using AntDesign
+@using TaskTracker.Client.Components.Comment
+
+<div class="card-modal-backdrop @(IsVisible ? "visible" : "")" @onclick="HandleBackdropClick">
+    <div class="card-modal-container" @onclick:stopPropagation="true">
+        <Card Class="card-details-modal" Bordered="false">
+            <div class="modal-header">
+                <EditableCardTitle Title="@(Card?.Title ?? "")"
+                                   IsEditing="@IsTitleEditing"
+                                   IsSaving="@IsTitleSaving"
+                                   OnTitleEditingChanged="@OnTitleEditingChanged"
+                                   OnTitleSave="@OnTitleSave" />
+
+                <Button Type="@ButtonType.Text"
+                        Icon="delete"
+                        Size="@ButtonSize.Large"
+                        @onclick="HandleDelete"
+                        Loading="@IsDeleting"
+                        Class="delete-button me-2" />
+
+                <Button Type="@ButtonType.Text"
+                        Icon="close"
+                        Size="@ButtonSize.Large"
+                        @onclick="HandleClose"
+                        Class="close-button" />
+            </div>
+
+            <div class="modal-content">
+                <div class="modal-right-section">
+                    <div class="comments-section">
+                        <div class="section-label">
+                            <Icon Type="message" />
+                            <span>Comments</span>
+                        </div>
+
+                        <CommentInput OnCommentSubmit="@OnCommentSubmit"
+                                      IsSubmitting="@IsCommentSubmitting" />
+
+                        <CommentList Comments="@Comments"
+                                     IsLoading="@IsCommentsLoading"
+                                     OnCommentEdit="@OnCommentEdit"
+                                     OnCommentDelete="@OnCommentDelete" />
+                    </div>
+                </div>
+            </div>
+        </Card>
+    </div>
+</div>
