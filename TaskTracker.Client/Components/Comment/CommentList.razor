@@ -1,0 +1,32 @@
+﻿@using AntDesign
+
+<div class="comment-list-container">
+    @if (IsLoading)
+    {
+        <div class="loading-state">
+            <Spin Tip="Loading comments..." />
+        </div>
+    }
+    else if (Comments?.Any() == true)
+    {
+        <div class="comments-wrapper">
+            @foreach (var comment in Comments.OrderBy(c => c.CreatedAt))
+            {
+                <CommentCard Comment="@comment"
+                             OnEdit="@(text => HandleCommentEdit(comment.Id, text))"
+                             OnDelete="@(async () => await HandleCommentDelete(comment.Id))" />
+            }
+        </div>
+    }
+    else
+    {
+        <div class="empty-comments">
+            <div class="empty-icon">
+                <Icon Type="message" Style="font-size: 24px; color: #d9d9d9;" />
+            </div>
+            <div class="empty-text">No comments yet</div>
+            <div class="empty-subtext">Be the first to comment</div>
+        </div>
+    }
+</div>
+
