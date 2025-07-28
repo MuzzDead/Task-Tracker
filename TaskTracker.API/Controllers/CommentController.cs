@@ -39,7 +39,7 @@ public class CommentController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> CreateAsync([FromBody] CreateCommentCommand command)
+    public async Task<ActionResult<Guid>> CreateAsync([FromBody] CreateCommentCommand command)
     {
         var comment = await _mediator.Send(command);
 

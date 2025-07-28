@@ -32,6 +32,11 @@ builder.Services
     .AddRefitClient<IAuthService>()
     .ConfigureHttpClient(c => c.BaseAddress = new Uri(apiBaseUrl));
 
+builder.Services
+    .AddRefitClient<ICommentService>()
+    .ConfigureHttpClient(c => c.BaseAddress = new Uri(apiBaseUrl));
+
+
 builder.Services.AddScoped<IAuthStateService, AuthStateService>();
 builder.Services.AddScoped<IPasswordHashingService, PasswordHashingService>();
 

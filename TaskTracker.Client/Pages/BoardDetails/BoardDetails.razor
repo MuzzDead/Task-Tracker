@@ -2,42 +2,50 @@
 @using AntDesign
 @using TaskTracker.Client.Components.Columns
 @using TaskTracker.Client.Components.Boards
-@using Microsoft.AspNetCore.Components.Web
+@using TaskTracker.Client.Components.Cards
 
 <div class="board-details-container">
-    <BoardsHeader Title="@(_board?.Title ?? "Loading…")"
+    <BoardsHeader Title=@(_board?.Title ?? "Loading…")
                   ShowSearch="false"
-                  OnCreateClick="@StartAddColumn"
-                  ButtonText="Add Column" />
-@if (_isLoading)
-{
-    <Spin Tip="Loading board…" />
-}
-else
-{
-    <div class="board-toolbar">
-        @if (_isAddingColumn)
-        {
-            <Input TValue="string"
-                   @bind-Value="_newColumnTitle"
-                   Placeholder="New column title…"
-                   @onkeypress="HandleColumnKeyPress" />
+                  OnCreateClick=@ShowColumnModal
+                  ButtonText="Add Column"
+                  EnableTitleEdit=@(_board != null)
+                  IsTitleEditing=@_isTitleEditing
+                  OnTitleEditingChanged=@OnTitleEditingChanged
+                  IsTitleSaving=@_isTitleSaving
+                  OnTitleSave=@SaveBoardTitle />
+    @if (_isLoading)
+    {
+        <Spin Tip="Loading board…" />
+    }
+    else
+    {
+        <ColumnList Columns=@_columns
+                    CardsByColumn=@_cardsByColumn
+                    IsLoading="false"
+                    OnAddCard=@OnAddCard
+                    OnCardClick=@OnCardClick
+                    OnEditColumn=@OnColumnEdit
+                    OnDeleteColumn=@OnColumnDelete />
+    }
+    <CreateColumn IsVisible=@_isColumnModalVisible
+                  IsVisibleChanged=@HideColumnModal
+                  OnColumnCreated=@HandleColumnCreated
+                  BoardId=@boardId />
 
-            <Button Type="@ButtonType.Primary"
-                    Disabled="@string.IsNullOrWhiteSpace(_newColumnTitle)"
-                    @onclick="SaveColumn">
-                Save
-            </Button>
-            <Button Type="@ButtonType.Text"
-                    Icon="close"
-                    @onclick="CancelAddColumn" />
-        }
-    </div>
-
-    <ColumnList Columns="_columns"
-                CardsByColumn="_cardsByColumn"
-                IsLoading="false"
-                OnAddColumn="OnAddColumn"
-                OnAddCard="OnAddCard" />
-}
+    <CardDetailsModal IsVisible=@_isCardDetailsModalVisible
+                      IsVisibleChanged=@HideCardDetailsModal
+                      Card=@_selectedCard
+                      Comments=@_cardComments
+                      IsTitleEditing=@_isCardTitleEditing
+                      IsTitleSaving=@_isCardTitleSaving
+                      IsDeleting=@_isCardDeleting
+                      OnTitleEditingChanged=@OnCardTitleEditingChanged
+                      OnTitleSave=@SaveCardTitle
+                      OnCardDelete=@OnCardDelete
+                      IsCommentsLoading=@_isCommentsLoading
+                      IsCommentSubmitting=@_isCommentSubmitting
+                      OnCommentSubmit=@OnCommentSubmit
+                      OnCommentEdit=@OnCommentEdit
+                      OnCommentDelete=@OnCommentDelete />
 </div>

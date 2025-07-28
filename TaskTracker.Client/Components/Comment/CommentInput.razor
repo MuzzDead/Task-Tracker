@@ -1,0 +1,28 @@
+﻿@using AntDesign
+@using Microsoft.AspNetCore.Components
+
+<div class="comment-input-container">
+    <div class="comment-input-form">
+<TextArea @bind-Value="CommentText"
+          Placeholder="Write a comment..."
+          AutoSize="true"
+          MinRows="2"
+          MaxRows="6"
+          MaxLength="256"
+          ShowCount="true"
+          @onkeydown=@HandleKeyDown
+          Class="comment-textarea" />
+
+
+
+        <div class="comment-actions">
+            <Button Type=@ButtonType.Primary
+                    Size=@ButtonSize.Small
+                    Icon="send"
+                    @onclick=@SubmitComment
+                    Loading=@IsSubmitting>
+                Comment
+            </Button>
+        </div>
+    </div>
+</div>

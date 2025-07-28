@@ -8,8 +8,8 @@
     <BoardsHeader Title="My Boards"
                   ShowSearch="true"
                   SearchTerm="@searchTerm"
-                  OnSearchChangedValue="@OnSearchChangedValue"
-                  OnCreateClick="@CreateBoard"
+                  OnSearchChangedValue=@OnSearchChangedValue
+                  OnCreateClick=@CreateBoard
                   ButtonText="Add Board" />
 
     <BoardList CurrentPageBoards=@currentPageBoards
@@ -21,6 +21,6 @@
                OnPageChange=@OnPageChange />
 </div>
 
-<CreateBoard IsVisible="@isCreateBoardModalVisible"
-             IsVisibleChanged="@OnCreateBoardModalVisibilityChanged"
-             OnBoardCreated="@HandleBoardCreated" />
+<CreateBoard IsVisible=@isCreateBoardModalVisible
+             IsVisibleChanged=@OnCreateBoardModalVisibilityChanged
+             OnBoardCreated=@HandleBoardCreated />

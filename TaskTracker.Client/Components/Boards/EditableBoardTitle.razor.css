@@ -1,0 +1,49 @@
+﻿.editable-title-container {
+    display: flex;
+    align-items: center;
+}
+
+.title-display-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    border-radius: 6px;
+    padding: 4px 12px 4px 8px;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+    .title-display-container:hover {
+        background-color: #f0f0f0;
+    }
+
+        .title-display-container:hover .edit-icon {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+.clickable-title {
+    margin: 0 !important;
+    user-select: none;
+}
+
+.edit-icon {
+    opacity: 0;
+    transform: scale(0.8);
+    transition: all 0.2s ease;
+    color: #8c8c8c;
+    font-size: 16px;
+}
+
+.title-edit-form {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.title-input {
+    min-width: 300px;
+    font-size: 1.5em;
+    font-weight: 600;
+}

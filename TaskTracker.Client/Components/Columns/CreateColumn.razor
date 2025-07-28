@@ -1,0 +1,25 @@
+﻿@using AntDesign
+
+<Modal Title="Create New Column"
+       Visible=@IsVisible
+       OnOk=@HandleCreateColumn
+       OnCancel=@HandleCancel
+       Centered="true"
+       Width="400">
+    <BodyTemplate>
+        <Form Model=@model
+              Layout=@FormLayout.Vertical
+              ValidateOnChange="true">
+            <FormItem Label="Column Title"
+                      Name=@nameof(model.Title)
+                      Required="true"
+                      Rules=@titleRules>
+                <Input @bind-Value=@model.Title
+                       Placeholder="Enter column title"
+                       MaxLength="100"
+                       ShowCount="true"
+                       Size=@InputSize.Large />
+            </FormItem>
+        </Form>
+    </BodyTemplate>
+</Modal>

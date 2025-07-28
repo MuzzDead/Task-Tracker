@@ -1,42 +1,40 @@
 ﻿@using AntDesign
-
 <Modal Title="Create New Board"
-       Visible="@IsVisible"
-       OnOk="@HandleCreateBoard"
-       OnCancel="@HandleCancel"
+       Visible=@IsVisible
+       OnOk=@HandleCreateBoard
+       OnCancel=@HandleCancel
        Centered="true"
        Width="500">
     <BodyTemplate>
-        <Form Model="@model"
-              Layout="@FormLayout.Vertical"
+        <Form Model=@model
+              Layout=@FormLayout.Vertical
               ValidateOnChange="true">
             <FormItem Label="Board Title"
-                      Name="@nameof(model.Title)"
+                      Name=@nameof(model.Title)
                       Required="true"
-                      Rules="titleRules">
-                <Input @bind-Value="model.Title"
+                      Rules=@titleRules>
+                <Input @bind-Value=@model.Title
                        Placeholder="Enter board title"
                        MaxLength="100"
                        ShowCount="true"
-                       Size="@InputSize.Large" />
+                       Size=@InputSize.Large />
             </FormItem>
-
             <FormItem Label="Description"
-                      Name="@nameof(model.Description)">
-                <TextArea @bind-Value="model.Description"
+                      Name=@nameof(model.Description)>
+                <TextArea @bind-Value=@model.Description
                           Placeholder="Enter board description (optional)"
                           Rows="4"
                           MaxLength="500"
                           ShowCount="true"
-                          Size="@InputSize.Large" />
+                          Size=@InputSize.Large />
             </FormItem>
         </Form>
     </BodyTemplate>
     @* <FooterTemplate>
-        <Button @onclick="@HandleCancel">Cancel</Button>
-        <Button Type="@ButtonType.Primary"
-                Loading="@isLoading"
-                @onclick="@HandleCreateBoard">
+        <Button @onclick=@HandleCancel>Cancel</Button>
+        <Button Type=@ButtonType.Primary
+                Loading=@isLoading
+                @onclick=@HandleCreateBoard>
             Create
         </Button>
     </FooterTemplate> *@

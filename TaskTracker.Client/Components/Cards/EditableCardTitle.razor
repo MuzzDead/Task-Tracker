@@ -1,0 +1,50 @@
+﻿@using AntDesign
+@using Microsoft.AspNetCore.Components
+
+<div class="editable-card-title">
+    @if (IsEditing)
+    {
+        <div class="title-edit-form">
+            <Input TValue="string"
+                   @bind-Value=@EditValue
+                   Size=@InputSize.Large
+                   Class="title-input"
+                   @onkeypress=@HandleKeyPress
+                   @ref=@InputRef
+                   MaxLength="128"
+                   ShowCount="true" />
+            <div class="edit-buttons">
+                <Button Type=@ButtonType.Primary
+                        Size=@ButtonSize.Small
+                        Icon="check"
+                        @onclick=@SaveTitle
+                        Loading=@IsSaving
+                        Disabled=@(string.IsNullOrWhiteSpace(EditValue))>
+                    Save
+                </Button>
+                <Button Type=@ButtonType.Default
+                        Size=@ButtonSize.Small
+                        Icon="close"
+                        @onclick=@CancelEdit
+                        Disabled=@IsSaving>
+                </Button>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="title-display" @onclick="StartEdit">
+            <div class="title-text">
+                @if (string.IsNullOrWhiteSpace(Title))
+                {
+                    <span class="placeholder-text">Add a title...</span>
+                }
+                else
+                {
+                    <span>@Title</span>
+                }
+            </div>
+            <Icon Type="edit" Class="edit-icon" />
+        </div>
+    }
+</div>

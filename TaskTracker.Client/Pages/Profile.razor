@@ -1,124 +1,67 @@
 ﻿@page "/profile"
 @using AntDesign
-@inject NavigationManager Navigation
 
 <div class="profile-wrapper">
-    <Card Hoverable="true" Style="width: 100%; max-width: 500px;">
-        <div class="profile-header">
-            <TypographyTitle Level="3">👤 User Profile</TypographyTitle>
+    @if (IsLoading)
+    {
+        <div class="loading-container">
+            <Spin Size=SpinSize.Large />
+            <TypographyText Style="margin-top: 1rem;">Loading profile...</TypographyText>
         </div>
-
-        <div class="avatar-section">
-            <Avatar Size="@AvatarSize.Large" Src="@User.AvatarUrl" />
-            <Button Type="@ButtonType.Link"
-                    Icon="upload"
-                    Size="@ButtonSize.Default"
-                    OnClick="@OnChangeAvatar">
-                Change Avatar
-            </Button>
-        </div>
-
-        <div class="user-info">
-            <TypographyText class="info-item"><strong>Username:</strong> @($"@{User.Username}")</TypographyText>
-            <TypographyText class="info-item"><strong>Email:</strong> @User.Email</TypographyText>
-            <TypographyText class="info-item"><strong>Created At:</strong> @User.CreatedAt.ToString("dd.MM.yyyy")</TypographyText>
-        </div>
-
-        <div class="edit-buttons">
-            <Button Block="true"
-                    Type="@ButtonType.Primary"
-                    Icon="form"
-                    Size="@ButtonSize.Large"
-                    OnClick="@OnEditInfo">
-                Edit Info
-            </Button>
-        </div>
-
-        <Divider />
-
-        <div class="password-section">
-            <Button Block="true"
-                    Type="@ButtonType.Dashed"
-                    Icon="key"
-                    Size="@ButtonSize.Large"
-                    OnClick="@OnChangePassword">
-                Change Password
-            </Button>
-        </div>
-    </Card>
+    }
+    else if (User != null)
+    {
+        <Card Hoverable="true" Style="width: 100%; max-width: 500px;">
+            <div class="profile-header">
+                <TypographyTitle Level="3">👤 User Profile</TypographyTitle>
+            </div>
+            <div class="avatar-section">
+                <Avatar Size=@AvatarSize.Large Src="https://api.dicebear.com/7.x/identicon/svg?seed=smbd" />
+                <Button Type=@ButtonType.Link
+                        Icon="upload"
+                        Size=@ButtonSize.Default
+                        OnClick=@OnChangeAvatar>
+                    Change Avatar
+                </Button>
+            </div>
+            <div class="user-info">
+                <TypographyText class="info-item"><strong>Username:</strong> @($"@{User.Username}")</TypographyText>
+                <TypographyText class="info-item"><strong>Email:</strong> @User.Email</TypographyText>
+            </div>
+            <div class="edit-buttons">
+                <Button Block="true"
+                        Type=@ButtonType.Primary
+                        Icon="form"
+                        Size=@ButtonSize.Large
+                        OnClick=@OnEditInfo>
+                    Edit Info
+                </Button>
+            </div>
+            <Divider />
+            <div class="password-section">
+                <Button Block="true"
+                        Type=@ButtonType.Dashed
+                        Icon="key"
+                        Size=@ButtonSize.Large
+                        OnClick=@OnChangePassword>
+                    Change Password
+                </Button>
+            </div>
+        </Card>
+    }
+    else
+    {
+        <Card Style="width: 100%; max-width: 400px; text-align: center;">
+            <div class="error-container">
+                <Icon Type="exclamation-circle" Style="font-size: 48px; color: #ff4d4f; margin-bottom: 1rem;" />
+                <TypographyTitle Level="4">Access Denied</TypographyTitle>
+                <TypographyText>Please log in to view your profile.</TypographyText>
+                <Button Type=@ButtonType.Primary
+                        Style="margin-top: 1rem;"
+                        OnClick=@GoToLogin>
+                    Go to Login
+                </Button>
+            </div>
+        </Card>
+    }
 </div>
-
-@code {
-    private UserProfileModel User = new()
-    {
-        Username = "Mr. Weewe",
-        Email = "vi02@gmail.com",
-        AvatarUrl = "https://api.dicebear.com/7.x/identicon/svg?seed=victor",
-        CreatedAt = new DateTime(2024, 4, 21)
-    };
-
-    private void OnChangeAvatar() => Console.WriteLine("Change avatar clicked");
-
-    private void OnEditInfo() => Navigation.NavigateTo("/profile/edit");
-
-    private void OnChangePassword() => Navigation.NavigateTo("/profile/change-password");
-
-    public class UserProfileModel
-    {
-        public string Username { get; set; } = "";
-        public string Email { get; set; } = "";
-        public string AvatarUrl { get; set; } = "";
-        public DateTime CreatedAt { get; set; }
-    }
-}
-
-
-<style>
-    .profile-wrapper {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        padding: 3rem 1rem;
-        background-color: #f0f2f5;
-        min-height: calc(100vh - 100px);
-    }
-
-    .profile-header {
-        text-align: center;
-        margin-bottom: 1.5rem;
-    }
-
-    .avatar-section {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 0.5rem;
-        margin-bottom: 2rem;
-    }
-
-    .user-info {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 1rem;
-        margin-bottom: 2rem;
-        text-align: center;
-    }
-
-    .info-item {
-        font-size: 1rem;
-    }
-
-    .edit-buttons {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        margin-bottom: 2rem;
-    }
-
-    .password-section {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-    }
-</style>
