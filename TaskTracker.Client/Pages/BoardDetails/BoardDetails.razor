@@ -5,47 +5,47 @@
 @using TaskTracker.Client.Components.Cards
 
 <div class="board-details-container">
-    <BoardsHeader Title="@(_board?.Title ?? "Loading…")"
+    <BoardsHeader Title=@(_board?.Title ?? "Loading…")
                   ShowSearch="false"
-                  OnCreateClick="@ShowColumnModal"
+                  OnCreateClick=@ShowColumnModal
                   ButtonText="Add Column"
-                  EnableTitleEdit="@(_board != null)"
-                  IsTitleEditing="@_isTitleEditing"
-                  OnTitleEditingChanged="@OnTitleEditingChanged"
-                  IsTitleSaving="@_isTitleSaving"
-                  OnTitleSave="@SaveBoardTitle" />
+                  EnableTitleEdit=@(_board != null)
+                  IsTitleEditing=@_isTitleEditing
+                  OnTitleEditingChanged=@OnTitleEditingChanged
+                  IsTitleSaving=@_isTitleSaving
+                  OnTitleSave=@SaveBoardTitle />
     @if (_isLoading)
     {
         <Spin Tip="Loading board…" />
     }
     else
     {
-        <ColumnList Columns="_columns"
-                    CardsByColumn="_cardsByColumn"
+        <ColumnList Columns=@_columns
+                    CardsByColumn=@_cardsByColumn
                     IsLoading="false"
-                    OnAddCard="OnAddCard"
-                    OnCardClick="OnCardClick"
-                    OnEditColumn="OnColumnEdit"
-                    OnDeleteColumn="OnColumnDelete" />
+                    OnAddCard=@OnAddCard
+                    OnCardClick=@OnCardClick
+                    OnEditColumn=@OnColumnEdit
+                    OnDeleteColumn=@OnColumnDelete />
     }
-    <CreateColumn IsVisible="@_isColumnModalVisible"
-                  IsVisibleChanged="@HideColumnModal"
-                  OnColumnCreated="@HandleColumnCreated"
-                  BoardId="@boardId" />
+    <CreateColumn IsVisible=@_isColumnModalVisible
+                  IsVisibleChanged=@HideColumnModal
+                  OnColumnCreated=@HandleColumnCreated
+                  BoardId=@boardId />
 
-    <CardDetailsModal IsVisible="@_isCardDetailsModalVisible"
-                      IsVisibleChanged="@HideCardDetailsModal"
-                      Card="@_selectedCard"
-                      Comments="@_cardComments"
-                      IsTitleEditing="@_isCardTitleEditing"
-                      IsTitleSaving="@_isCardTitleSaving"
-                      IsDeleting="@_isCardDeleting"
-                      OnTitleEditingChanged="@OnCardTitleEditingChanged"
-                      OnTitleSave="@SaveCardTitle"
-                      OnCardDelete="@OnCardDelete"
-                      IsCommentsLoading="@_isCommentsLoading"
-                      IsCommentSubmitting="@_isCommentSubmitting"
-                      OnCommentSubmit="@OnCommentSubmit"
-                      OnCommentEdit="@OnCommentEdit"
-                      OnCommentDelete="@OnCommentDelete" />
+    <CardDetailsModal IsVisible=@_isCardDetailsModalVisible
+                      IsVisibleChanged=@HideCardDetailsModal
+                      Card=@_selectedCard
+                      Comments=@_cardComments
+                      IsTitleEditing=@_isCardTitleEditing
+                      IsTitleSaving=@_isCardTitleSaving
+                      IsDeleting=@_isCardDeleting
+                      OnTitleEditingChanged=@OnCardTitleEditingChanged
+                      OnTitleSave=@SaveCardTitle
+                      OnCardDelete=@OnCardDelete
+                      IsCommentsLoading=@_isCommentsLoading
+                      IsCommentSubmitting=@_isCommentSubmitting
+                      OnCommentSubmit=@OnCommentSubmit
+                      OnCommentEdit=@OnCommentEdit
+                      OnCommentDelete=@OnCommentDelete />
 </div>

@@ -10,17 +10,17 @@
           MaxRows="6"
           MaxLength="256"
           ShowCount="true"
-          @onkeydown="HandleKeyDown"
+          @onkeydown=@HandleKeyDown
           Class="comment-textarea" />
 
 
 
         <div class="comment-actions">
-            <Button Type="@ButtonType.Primary"
-                    Size="@ButtonSize.Small"
+            <Button Type=@ButtonType.Primary
+                    Size=@ButtonSize.Small
                     Icon="send"
-                    @onclick="SubmitComment"
-                    Loading="@IsSubmitting">
+                    @onclick=@SubmitComment
+                    Loading=@IsSubmitting>
                 Comment
             </Button>
         </div>

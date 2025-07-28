@@ -1,27 +1,28 @@
 ﻿@using AntDesign
 @using TaskTracker.Client.Components.Comment
 
-<div class="card-modal-backdrop @(IsVisible ? "visible" : "")" @onclick="HandleBackdropClick">
+<div class="card-modal-backdrop @(IsVisible ? "visible" : "")"
+     @onclick=@HandleBackdropClick>
     <div class="card-modal-container" @onclick:stopPropagation="true">
         <Card Class="card-details-modal" Bordered="false">
             <div class="modal-header">
-                <EditableCardTitle Title="@(Card?.Title ?? "")"
-                                   IsEditing="@IsTitleEditing"
-                                   IsSaving="@IsTitleSaving"
-                                   OnTitleEditingChanged="@OnTitleEditingChanged"
-                                   OnTitleSave="@OnTitleSave" />
+                <EditableCardTitle Title=@(Card?.Title ?? "")
+                                   IsEditing=@IsTitleEditing
+                                   IsSaving=@IsTitleSaving
+                                   OnTitleEditingChanged=@OnTitleEditingChanged
+                                   OnTitleSave=@OnTitleSave />
 
-                <Button Type="@ButtonType.Text"
+                <Button Type=@ButtonType.Text
                         Icon="delete"
-                        Size="@ButtonSize.Large"
-                        @onclick="HandleDelete"
-                        Loading="@IsDeleting"
+                        Size=@ButtonSize.Large
+                        @onclick=@HandleDelete
+                        Loading=@IsDeleting
                         Class="delete-button me-2" />
 
-                <Button Type="@ButtonType.Text"
+                <Button Type=@ButtonType.Text
                         Icon="close"
-                        Size="@ButtonSize.Large"
-                        @onclick="HandleClose"
+                        Size=@ButtonSize.Large
+                        @onclick=@HandleClose
                         Class="close-button" />
             </div>
 
@@ -33,13 +34,13 @@
                             <span>Comments</span>
                         </div>
 
-                        <CommentInput OnCommentSubmit="@OnCommentSubmit"
-                                      IsSubmitting="@IsCommentSubmitting" />
+                        <CommentInput OnCommentSubmit=@OnCommentSubmit
+                                      IsSubmitting=@IsCommentSubmitting />
 
-                        <CommentList Comments="@Comments"
-                                     IsLoading="@IsCommentsLoading"
-                                     OnCommentEdit="@OnCommentEdit"
-                                     OnCommentDelete="@OnCommentDelete" />
+                        <CommentList Comments=@Comments
+                                     IsLoading=@IsCommentsLoading
+                                     OnCommentEdit=@OnCommentEdit
+                                     OnCommentDelete=@OnCommentDelete />
                     </div>
                 </div>
             </div>

@@ -6,27 +6,27 @@
     {
         <div class="title-edit-form">
             <Input TValue="string"
-                   @bind-Value="EditValue"
-                   Size="@InputSize.Large"
+                   @bind-Value=@EditValue
+                   Size=@InputSize.Large
                    Class="title-input"
-                   @onkeypress="@HandleKeyPress"
-                   @ref="InputRef"
+                   @onkeypress=@HandleKeyPress
+                   @ref=@InputRef
                    MaxLength="128"
                    ShowCount="true" />
             <div class="edit-buttons">
-                <Button Type="@ButtonType.Primary"
-                        Size="@ButtonSize.Small"
+                <Button Type=@ButtonType.Primary
+                        Size=@ButtonSize.Small
                         Icon="check"
-                        @onclick="SaveTitle"
-                        Loading="@IsSaving"
-                        Disabled="@(string.IsNullOrWhiteSpace(EditValue))">
+                        @onclick=@SaveTitle
+                        Loading=@IsSaving
+                        Disabled=@(string.IsNullOrWhiteSpace(EditValue))>
                     Save
                 </Button>
-                <Button Type="@ButtonType.Default"
-                        Size="@ButtonSize.Small"
+                <Button Type=@ButtonType.Default
+                        Size=@ButtonSize.Small
                         Icon="close"
-                        @onclick="CancelEdit"
-                        Disabled="@IsSaving">
+                        @onclick=@CancelEdit
+                        Disabled=@IsSaving>
                 </Button>
             </div>
         </div>

@@ -12,9 +12,9 @@
         <div class="comments-wrapper">
             @foreach (var comment in Comments.OrderBy(c => c.CreatedAt))
             {
-                <CommentCard Comment="@comment"
-                             OnEdit="@(text => HandleCommentEdit(comment.Id, text))"
-                             OnDelete="@(async () => await HandleCommentDelete(comment.Id))" />
+                <CommentCard Comment=@comment
+                             OnEdit=@(text => HandleCommentEdit(comment.Id, text))
+                             OnDelete=@(async () => await HandleCommentDelete(comment.Id)) />
             }
         </div>
     }

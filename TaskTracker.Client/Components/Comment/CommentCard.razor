@@ -4,7 +4,7 @@
 <div class="comment-card">
     <div class="comment-header">
         <div class="author-info">
-            <Avatar Size="@AvatarSize.Small"
+            <Avatar Size=@AvatarSize.Small
                     Icon="user"
                     Class="author-avatar" />
             <div class="author-details">
@@ -13,23 +13,23 @@
             </div>
         </div>
 
-        <Dropdown Trigger="@(new Trigger[] { Trigger.Click })"
-                  Placement="@Placement.BottomRight">
+        <Dropdown Trigger=@(new Trigger[] { Trigger.Click })
+                  Placement=@Placement.BottomRight>
             <Overlay>
                 <Menu>
-                    <MenuItem Key="edit" OnClick="@(() => StartEdit())">
+                    <MenuItem Key="edit" OnClick=@(() => StartEdit())>
                         <Icon Type="edit" />
                         Edit
                     </MenuItem>
-                    <MenuItem Key="delete" OnClick="@(() => DeleteComment())" Class="delete-menu-item">
+                    <MenuItem Key="delete" OnClick=@(() => DeleteComment()) Class="delete-menu-item">
                         <Icon Type="delete" />
                         Delete
                     </MenuItem>
                 </Menu>
             </Overlay>
             <ChildContent>
-                <Button Type="@ButtonType.Text"
-                        Size="@ButtonSize.Small"
+                <Button Type=@ButtonType.Text
+                        Size=@ButtonSize.Small
                         Icon="more"
                         Class="comment-menu-btn" />
             </ChildContent>
@@ -40,30 +40,30 @@
         @if (IsEditing)
         {
             <div class="edit-form">
-                <TextArea @bind-Value="EditContent"
+                <TextArea @bind-Value=@EditContent
                           AutoSize="true"
                           MinRows="2"
                           MaxRows="6"
-                          MaxLength="1000"
+                          MaxLength="256"
                           ShowCount="true"
-                          @onkeydown="HandleKeyDown"
-                          @ref="EditTextAreaRef"
+                          @onkeydown=@HandleKeyDown
+                          @ref=@EditTextAreaRef
                           class="edit-textarea" />
 
                 <div class="edit-actions">
-                    <Button Type="@ButtonType.Primary"
-                            Size="@ButtonSize.Small"
+                    <Button Type=@ButtonType.Primary
+                            Size=@ButtonSize.Small
                             Icon="check"
-                            @onclick="SaveEdit"
-                            Loading="@IsSaving"
-                            Disabled="@string.IsNullOrWhiteSpace(EditContent)">
+                            @onclick=@SaveEdit
+                            Loading=@IsSaving
+                            Disabled=@string.IsNullOrWhiteSpace(EditContent)>
                         Save
                     </Button>
-                    <Button Type="@ButtonType.Default"
-                            Size="@ButtonSize.Small"
+                    <Button Type=@ButtonType.Default
+                            Size=@ButtonSize.Small
                             Icon="close"
-                            @onclick="CancelEdit"
-                            Disabled="@IsSaving">
+                            @onclick=@CancelEdit
+                            Disabled=@IsSaving>
                         Cancel
                     </Button>
                 </div>

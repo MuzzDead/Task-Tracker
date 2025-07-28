@@ -12,12 +12,12 @@
     {
         @foreach (var column in Columns)
         {
-            <ColumnCard Column="@column"
-                        Cards="@GetCards(column.Id)"
-                        OnCardClick="@OnCardClick"
-                        OnAddCard="@HandleAddCard"
-                        OnEditColumn="@OnEditColumn"
-                        OnDeleteColumn="@OnDeleteColumn" />
+            <ColumnCard Column=@column
+                        Cards=@GetCards(column.Id)
+                        OnCardClick=@OnCardClick
+                        OnAddCard=@HandleAddCard
+                        OnEditColumn=@OnEditColumn
+                        OnDeleteColumn=@OnDeleteColumn />
         }
     }
     else

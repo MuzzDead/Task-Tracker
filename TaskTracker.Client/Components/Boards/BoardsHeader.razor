@@ -1,14 +1,13 @@
 ﻿@using AntDesign
-
 <div class="boards-header">
     <div class="header-left">
         @if (EnableTitleEdit)
         {
-            <EditableBoardTitle Title="@Title"
-                              IsEditing="@IsTitleEditing"
-                              IsEditingChanged="@OnTitleEditingChanged"
-                              IsSaving="@IsTitleSaving"
-                              OnSave="@OnTitleSave" />
+            <EditableBoardTitle Title=@Title
+                              IsEditing=@IsTitleEditing
+                              IsEditingChanged=@OnTitleEditingChanged
+                              IsSaving=@IsTitleSaving
+                              OnSave=@OnTitleSave />
         }
         else
         {
@@ -21,18 +20,17 @@
         @if (ShowSearch)
         {
             <Input TValue="string"
-                   @bind-Value="SearchTerm"
+                   @bind-Value=@SearchTerm
                    Placeholder="Search boards..."
                    PrefixIcon="search"
                    Size=@InputSize.Default
                    Class="search-input"
                    OnChangeValue=@OnSearchChangedValue />
         }
-
         <Button Type=@ButtonType.Primary
                 Size=@ButtonSize.Large
                 Icon="plus"
-                @onclick=OnCreateClick>
+                @onclick=@OnCreateClick>
             @ButtonText
         </Button>
     </div>

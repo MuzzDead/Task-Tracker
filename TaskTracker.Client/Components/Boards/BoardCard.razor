@@ -1,37 +1,33 @@
 ﻿@using AntDesign
 @using Microsoft.AspNetCore.Components
-
-<div class="board-card" @onclick="@(() => OnBoardClick.InvokeAsync(Board.Id))">
+<div class="board-card" @onclick=@(() => OnBoardClick.InvokeAsync(Board.Id))>
     <div class="board-header" style="background: #667eea;">
-    <TypographyTitle Level="4" Class="board-title">
-      @Board.Title
-    </TypographyTitle>
-  </div>
-
-  <div class="board-body">
-    <TypographyText Class="board-description">
-      @GetDescription()
-    </TypographyText>
-
-    <div class="board-stats">
-      <div class="stat-item">
-        <Icon Type="bars" />
-        <TypographyText Class="stat-text">
-          @TasksCount tasks
-        </TypographyText>
-      </div>
-      <div class="stat-item">
-        <Icon Type="team" />
-        <TypographyText Class="stat-text">
-          @MembersCount members
-        </TypographyText>
-      </div>
+        <TypographyTitle Level="4" Class="board-title">
+            @Board.Title
+        </TypographyTitle>
     </div>
-  </div>
-
-  <div class="board-footer">
-    <TypographyText Class="last-activity">
-      @Board.CreatedAt.ToString("MMM dd")
-    </TypographyText>
-  </div>
+    <div class="board-body">
+        <TypographyText Class="board-description">
+            @GetDescription()
+        </TypographyText>
+        <div class="board-stats">
+            <div class="stat-item">
+                <Icon Type="bars" />
+                <TypographyText Class="stat-text">
+                    @TasksCount tasks
+                </TypographyText>
+            </div>
+            <div class="stat-item">
+                <Icon Type="team" />
+                <TypographyText Class="stat-text">
+                    @MembersCount members
+                </TypographyText>
+            </div>
+        </div>
+    </div>
+    <div class="board-footer">
+        <TypographyText Class="last-activity">
+            @Board.CreatedAt.ToString("MMM dd")
+        </TypographyText>
+    </div>
 </div>

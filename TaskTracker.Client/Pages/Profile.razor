@@ -5,7 +5,7 @@
     @if (IsLoading)
     {
         <div class="loading-container">
-            <Spin Size="SpinSize.Large" />
+            <Spin Size=SpinSize.Large />
             <TypographyText Style="margin-top: 1rem;">Loading profile...</TypographyText>
         </div>
     }
@@ -16,11 +16,11 @@
                 <TypographyTitle Level="3">👤 User Profile</TypographyTitle>
             </div>
             <div class="avatar-section">
-                <Avatar Size="@AvatarSize.Large" Src="https://api.dicebear.com/7.x/identicon/svg?seed=smbd" />
-                <Button Type="@ButtonType.Link"
+                <Avatar Size=@AvatarSize.Large Src="https://api.dicebear.com/7.x/identicon/svg?seed=smbd" />
+                <Button Type=@ButtonType.Link
                         Icon="upload"
-                        Size="@ButtonSize.Default"
-                        OnClick="@OnChangeAvatar">
+                        Size=@ButtonSize.Default
+                        OnClick=@OnChangeAvatar>
                     Change Avatar
                 </Button>
             </div>
@@ -30,20 +30,20 @@
             </div>
             <div class="edit-buttons">
                 <Button Block="true"
-                        Type="@ButtonType.Primary"
+                        Type=@ButtonType.Primary
                         Icon="form"
-                        Size="@ButtonSize.Large"
-                        OnClick="@OnEditInfo">
+                        Size=@ButtonSize.Large
+                        OnClick=@OnEditInfo>
                     Edit Info
                 </Button>
             </div>
             <Divider />
             <div class="password-section">
                 <Button Block="true"
-                        Type="@ButtonType.Dashed"
+                        Type=@ButtonType.Dashed
                         Icon="key"
-                        Size="@ButtonSize.Large"
-                        OnClick="@OnChangePassword">
+                        Size=@ButtonSize.Large
+                        OnClick=@OnChangePassword>
                     Change Password
                 </Button>
             </div>
@@ -56,9 +56,9 @@
                 <Icon Type="exclamation-circle" Style="font-size: 48px; color: #ff4d4f; margin-bottom: 1rem;" />
                 <TypographyTitle Level="4">Access Denied</TypographyTitle>
                 <TypographyText>Please log in to view your profile.</TypographyText>
-                <Button Type="@ButtonType.Primary"
+                <Button Type=@ButtonType.Primary
                         Style="margin-top: 1rem;"
-                        OnClick="@GoToLogin">
+                        OnClick=@GoToLogin>
                     Go to Login
                 </Button>
             </div>
