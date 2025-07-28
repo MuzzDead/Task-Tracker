@@ -5,46 +5,52 @@
 @using TaskTracker.Client.Components.Cards
 
 <div class="board-details-container">
-    <BoardsHeader Title=@(_board?.Title ?? "Loading…")
+    <BoardsHeader Title=@(_boardState.Board?.Title ?? "Loading…")
                   ShowSearch="false"
                   OnCreateClick=@ShowColumnModal
                   ButtonText="Add Column"
-                  EnableTitleEdit=@(_board != null)
-                  IsTitleEditing=@_isTitleEditing
+                  EnableTitleEdit=@(_boardState.Board != null)
+                  IsTitleEditing=@_boardState.IsTitleEditing
                   OnTitleEditingChanged=@OnTitleEditingChanged
-                  IsTitleSaving=@_isTitleSaving
+                  IsTitleSaving=@_boardState.IsTitleSaving
                   OnTitleSave=@SaveBoardTitle />
-    @if (_isLoading)
+
+    @if (!string.IsNullOrEmpty(_boardState.Error))
+    {
+        <Alert Type=@AlertType.Error Message=@_boardState.Error />
+    }
+    else if (_boardState.IsLoading)
     {
         <Spin Tip="Loading board…" />
     }
     else
     {
-        <ColumnList Columns=@_columns
-                    CardsByColumn=@_cardsByColumn
+        <ColumnList Columns=@_boardState.Columns
+                    CardsByColumn=@_boardState.CardsByColumn
                     IsLoading="false"
                     OnAddCard=@OnAddCard
                     OnCardClick=@OnCardClick
                     OnEditColumn=@OnColumnEdit
                     OnDeleteColumn=@OnColumnDelete />
     }
-    <CreateColumn IsVisible=@_isColumnModalVisible
+
+    <CreateColumn IsVisible=@_boardState.IsColumnModalVisible
                   IsVisibleChanged=@HideColumnModal
                   OnColumnCreated=@HandleColumnCreated
                   BoardId=@boardId />
 
-    <CardDetailsModal IsVisible=@_isCardDetailsModalVisible
+    <CardDetailsModal IsVisible=@_cardModalState.IsVisible
                       IsVisibleChanged=@HideCardDetailsModal
-                      Card=@_selectedCard
-                      Comments=@_cardComments
-                      IsTitleEditing=@_isCardTitleEditing
-                      IsTitleSaving=@_isCardTitleSaving
-                      IsDeleting=@_isCardDeleting
+                      Card=@_cardModalState.SelectedCard
+                      Comments=@_cardModalState.Comments
+                      IsTitleEditing=@_cardModalState.IsTitleEditing
+                      IsTitleSaving=@_cardModalState.IsTitleSaving
+                      IsDeleting=@_cardModalState.IsCardDeleting
                       OnTitleEditingChanged=@OnCardTitleEditingChanged
                       OnTitleSave=@SaveCardTitle
                       OnCardDelete=@OnCardDelete
-                      IsCommentsLoading=@_isCommentsLoading
-                      IsCommentSubmitting=@_isCommentSubmitting
+                      IsCommentsLoading=@_cardModalState.IsCommentsLoading
+                      IsCommentSubmitting=@_cardModalState.IsCommentSubmitting
                       OnCommentSubmit=@OnCommentSubmit
                       OnCommentEdit=@OnCommentEdit
                       OnCommentDelete=@OnCommentDelete />
