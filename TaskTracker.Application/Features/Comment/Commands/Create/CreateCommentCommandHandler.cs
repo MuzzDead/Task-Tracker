@@ -21,7 +21,7 @@ public class CreateCommentCommandHandler : IRequestHandler<CreateCommentCommand,
             Text = request.Text,
             CardId = request.CardId,
             UserId = request.UserId,
-            CreatedBy = request.UserId.ToString()
+            CreatedBy = request.CreatedBy
         };
 
         await uow.Comments.AddAsync(comment);
