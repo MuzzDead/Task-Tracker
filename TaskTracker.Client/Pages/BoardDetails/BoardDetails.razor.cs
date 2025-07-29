@@ -255,14 +255,14 @@ namespace TaskTracker.Client.Pages.BoardDetails
             try
             {
                 var username = AuthStateService.CurrentUser?.Username ?? "Unknown";
-                var success = await CardModalService.CreateCommentAsync(
+                var commentId = await CardModalService.CreateCommentAsync(
                     _cardModalState.SelectedCard.Id, commentContent, currentUserId, username);
 
-                if (success)
+                if (commentId != Guid.Empty)
                 {
                     var newComment = new CommentDto
                     {
-                        Id = Guid.NewGuid(),
+                        Id = commentId,
                         Text = commentContent,
                         CardId = _cardModalState.SelectedCard.Id,
                         UserId = currentUserId,

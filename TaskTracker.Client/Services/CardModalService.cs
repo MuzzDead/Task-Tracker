@@ -72,7 +72,7 @@ public class CardModalService : ICardModalService
         }
     }
 
-    public async Task<bool> CreateCommentAsync(Guid cardId, string content, Guid userId, string username)
+    public async Task<Guid> CreateCommentAsync(Guid cardId, string content, Guid userId, string username)
     {
         try
         {
@@ -80,21 +80,22 @@ public class CardModalService : ICardModalService
             {
                 Text = content,
                 CardId = cardId,
-                UserId = userId
+                UserId = userId,
+                CreatedBy = username
             };
 
             var commentId = await _commentService.CreateAsync(createDto);
-            return commentId != Guid.Empty;
+            return commentId;
         }
         catch (ApiException apiEx)
         {
             Console.Error.WriteLine($"[API Error] Failed to create comment: {apiEx.StatusCode}: {apiEx.Content}");
-            return false;
+            return Guid.Empty;
         }
         catch (Exception ex)
         {
             Console.Error.WriteLine($"Error creating comment: {ex.Message}");
-            return false;
+            return Guid.Empty;
         }
     }
 
