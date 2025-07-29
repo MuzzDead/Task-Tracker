@@ -1,10 +1,9 @@
 ﻿using Microsoft.AspNetCore.Components;
-using Refit;
-using TaskTracker.Client.DTOs.Board;
 using TaskTracker.Client.DTOs.Card;
 using TaskTracker.Client.DTOs.Column;
 using TaskTracker.Client.DTOs.Comment;
 using TaskTracker.Client.Services.Interfaces;
+using TaskTracker.Client.States;
 
 namespace TaskTracker.Client.Pages.BoardDetails
 {
@@ -12,83 +11,164 @@ namespace TaskTracker.Client.Pages.BoardDetails
     {
         [Parameter] public Guid boardId { get; set; }
 
-        [Inject] private IBoardService BoardService { get; set; } = default!;
-        [Inject] private IColumnService ColumnService { get; set; } = default!;
-        [Inject] private ICardService CardService { get; set; } = default!;
-        [Inject] private ICommentService CommentService { get; set; } = default!;
+        [Inject] private IBoardPageService BoardPageService { get; set; } = default!;
+        [Inject] private ICardModalService CardModalService { get; set; } = default!;
         [Inject] private IAuthStateService AuthStateService { get; set; } = default!;
-        [Inject] NavigationManager Navigation { get; set; } = default!;
 
-        private bool _isLoading = true;
-        private bool _isColumnModalVisible;
-        private bool _isTitleEditing;
-        private bool _isTitleSaving;
-
-        private BoardDto? _board;
-        private List<ColumnDto> _columns = new();
-        private Dictionary<Guid, List<CardDto>> _cardsByColumn = new();
-
-        private bool _isCardDetailsModalVisible;
-        private CardDto? _selectedCard;
-        private List<CommentDto> _cardComments = new();
-
-        private bool _isCardTitleEditing;
-        private bool _isCardTitleSaving;
-        private bool _isCardDescriptionEditing;
-        private bool _isCardDescriptionSaving;
-
-        private bool _isCommentsLoading;
-        private bool _isCommentSubmitting;
-
-        private bool _isCardDeleting;
-        private bool _isColumnDeleting;
+        private BoardPageState _boardState = BoardPageState.Loading();
+        private CardModalState _cardModalState = CardModalState.Hidden();
 
         protected override async Task OnInitializedAsync()
         {
             await LoadBoardData();
         }
 
-        private Guid GetCurrentUserId()
+
+        private async Task LoadBoardData()
         {
-            return AuthStateService.CurrentUser?.Id ?? Guid.Empty;
+            _boardState = BoardPageState.Loading();
+            StateHasChanged();
+
+            _boardState = await BoardPageService.LoadBoardAsync(boardId);
+            StateHasChanged();
+        }
+
+        private async Task SaveBoardTitle(string newTitle)
+        {
+            if (string.IsNullOrWhiteSpace(newTitle))
+                return;
+
+            var currentUserId = GetCurrentUserId();
+            if (currentUserId == Guid.Empty)
+            {
+                Console.Error.WriteLine("User not authenticated");
+                return;
+            }
+
+            _boardState.IsTitleSaving = true;
+            StateHasChanged();
+
+            try
+            {
+                var success = await BoardPageService.UpdateBoardTitleAsync(boardId, newTitle, currentUserId);
+                if (success)
+                {
+                    _boardState.UpdateBoardTitle(newTitle);
+                    _boardState.IsTitleEditing = false;
+                }
+            }
+            finally
+            {
+                _boardState.IsTitleSaving = false;
+                StateHasChanged();
+            }
+        }
+
+        private Task OnTitleEditingChanged(bool isEditing)
+        {
+            _boardState.IsTitleEditing = isEditing;
+            StateHasChanged();
+            return Task.CompletedTask;
+        }
+
+        private void ShowColumnModal()
+        {
+            _boardState.IsColumnModalVisible = true;
+            StateHasChanged();
+        }
+
+        private Task HideColumnModal()
+        {
+            _boardState.IsColumnModalVisible = false;
+            StateHasChanged();
+            return Task.CompletedTask;
+        }
+
+        private async Task HandleColumnCreated(CreateColumnDto dto)
+        {
+            var success = await BoardPageService.CreateColumnAsync(dto.BoardId, dto.Title);
+            if (success)
+            {
+                await LoadBoardData();
+            }
+
+            _boardState.IsColumnModalVisible = false;
+            StateHasChanged();
+        }
+
+        private async Task OnColumnDelete(ColumnDto column)
+        {
+            if (_boardState.IsColumnDeleting) return;
+
+            _boardState.IsColumnDeleting = true;
+            StateHasChanged();
+
+            try
+            {
+                var success = await BoardPageService.DeleteColumnAsync(column.Id);
+                if (success)
+                {
+                    _boardState.RemoveColumn(column.Id);
+                }
+            }
+            finally
+            {
+                _boardState.IsColumnDeleting = false;
+                StateHasChanged();
+            }
+        }
+
+        private async Task OnColumnEdit(ColumnDto column)
+        {
+            Console.WriteLine($"Edit column: {column.Title}");
+            await Task.CompletedTask;
+        }
+
+        private async Task OnAddCard((string title, Guid columnId) data)
+        {
+            var currentUserId = GetCurrentUserId();
+            if (currentUserId == Guid.Empty)
+            {
+                Console.Error.WriteLine("User not authenticated");
+                return;
+            }
+
+            var success = await BoardPageService.CreateCardAsync(data.columnId, data.title, currentUserId);
+            if (success)
+            {
+                var updatedCards = await BoardPageService.ReloadCardsForColumnAsync(data.columnId);
+                _boardState.UpdateCardsForColumn(data.columnId, updatedCards);
+                StateHasChanged();
+            }
         }
 
         private async Task OnCardClick(CardDto card)
         {
-            _selectedCard = card;
-            _isCardDetailsModalVisible = true;
-            await LoadCardComments(card.Id);
+            _cardModalState = CardModalState.WithCard(card);
+            StateHasChanged();
+
+            var cardDetails = await CardModalService.LoadCardDetailsAsync(card.Id);
+            _cardModalState.SetComments(cardDetails.Comments);
             StateHasChanged();
         }
 
         private Task HideCardDetailsModal()
         {
-            _isCardDetailsModalVisible = false;
-            _selectedCard = null;
-            _cardComments.Clear();
-            ResetCardEditingStates();
+            _cardModalState = CardModalState.Hidden();
             StateHasChanged();
             return Task.CompletedTask;
         }
 
-        private void ResetCardEditingStates()
-        {
-            _isCardTitleEditing = false;
-            _isCardTitleSaving = false;
-            _isCardDescriptionEditing = false;
-            _isCardDescriptionSaving = false;
-        }
-
         private Task OnCardTitleEditingChanged(bool isEditing)
         {
-            _isCardTitleEditing = isEditing;
+            _cardModalState.IsTitleEditing = isEditing;
             StateHasChanged();
             return Task.CompletedTask;
         }
 
         private async Task SaveCardTitle(string newTitle)
         {
-            if (_selectedCard == null || string.IsNullOrWhiteSpace(newTitle))
+            if (_cardModalState.SelectedCard == null || string.IsNullOrWhiteSpace(newTitle))
                 return;
 
             var currentUserId = GetCurrentUserId();
@@ -98,79 +178,68 @@ namespace TaskTracker.Client.Pages.BoardDetails
                 return;
             }
 
-            _isCardTitleSaving = true;
+            _cardModalState.IsTitleSaving = true;
             StateHasChanged();
 
             try
             {
-                var updateDto = new UpdateCardDto
+                var card = _cardModalState.SelectedCard;
+                var success = await CardModalService.UpdateCardTitleAsync(
+                    card.Id, newTitle, card.ColumnId, card.RowIndex, currentUserId);
+
+                if (success)
                 {
-                    Id = _selectedCard.Id,
-                    Title = newTitle,
-                    ColumnId = _selectedCard.ColumnId,
-                    RowIndex = _selectedCard.RowIndex,
-                    UpdatedBy = currentUserId
-                };
+                    _cardModalState.UpdateCardTitle(newTitle);
 
-                await CardService.UpdateAsync(_selectedCard.Id, updateDto);
-
-                _selectedCard.Title = newTitle;
-
-                if (_cardsByColumn.TryGetValue(_selectedCard.ColumnId, out var columnCards))
-                {
-                    var cardIndex = columnCards.FindIndex(c => c.Id == _selectedCard.Id);
-                    if (cardIndex >= 0)
+                    if (_boardState.CardsByColumn.TryGetValue(card.ColumnId, out var columnCards))
                     {
-                        columnCards[cardIndex].Title = newTitle;
+                        var cardIndex = columnCards.FindIndex(c => c.Id == card.Id);
+                        if (cardIndex >= 0)
+                        {
+                            columnCards[cardIndex].Title = newTitle;
+                        }
                     }
-                }
 
-                _isCardTitleEditing = false;
-            }
-            catch (ApiException apiEx)
-            {
-                Console.Error.WriteLine($"[API Error] Failed to update card title: {apiEx.StatusCode}: {apiEx.Content}");
-            }
-            catch (Exception ex)
-            {
-                Console.Error.WriteLine($"Error updating card title: {ex.Message}");
+                    _cardModalState.IsTitleEditing = false;
+                }
             }
             finally
             {
-                _isCardTitleSaving = false;
+                _cardModalState.IsTitleSaving = false;
                 StateHasChanged();
             }
         }
 
-        private async Task LoadCardComments(Guid cardId)
+        private async Task OnCardDelete(Guid cardId)
         {
-            _isCommentsLoading = true;
+            if (_cardModalState.IsCardDeleting) return;
+
+            _cardModalState.IsCardDeleting = true;
             StateHasChanged();
 
             try
             {
-                _cardComments = (await CommentService.GetByCardIdAsync(cardId)).ToList();
-            }
-            catch (ApiException apiEx)
-            {
-                Console.Error.WriteLine($"[API Error] Failed to load comments: {apiEx.StatusCode}: {apiEx.Content}");
-                _cardComments.Clear();
-            }
-            catch (Exception ex)
-            {
-                Console.Error.WriteLine($"Error loading comments: {ex.Message}");
-                _cardComments.Clear();
+                var success = await CardModalService.DeleteCardAsync(cardId);
+                if (success)
+                {
+                    _boardState.RemoveCardFromColumn(cardId);
+
+                    if (_cardModalState.SelectedCard?.Id == cardId)
+                    {
+                        await HideCardDetailsModal();
+                    }
+                }
             }
             finally
             {
-                _isCommentsLoading = false;
+                _cardModalState.IsCardDeleting = false;
                 StateHasChanged();
             }
         }
 
         private async Task OnCommentSubmit(string commentContent)
         {
-            if (_selectedCard == null || string.IsNullOrWhiteSpace(commentContent))
+            if (_cardModalState.SelectedCard == null || string.IsNullOrWhiteSpace(commentContent))
                 return;
 
             var currentUserId = GetCurrentUserId();
@@ -180,43 +249,33 @@ namespace TaskTracker.Client.Pages.BoardDetails
                 return;
             }
 
-            _isCommentSubmitting = true;
+            _cardModalState.IsCommentSubmitting = true;
             StateHasChanged();
 
             try
             {
-                var createDto = new CreateCommentDto
+                var username = AuthStateService.CurrentUser?.Username ?? "Unknown";
+                var success = await CardModalService.CreateCommentAsync(
+                    _cardModalState.SelectedCard.Id, commentContent, currentUserId, username);
+
+                if (success)
                 {
-                    Text = commentContent,
-                    CardId = _selectedCard.Id,
-                    UserId = currentUserId
-                };
+                    var newComment = new CommentDto
+                    {
+                        Id = Guid.NewGuid(),
+                        Text = commentContent,
+                        CardId = _cardModalState.SelectedCard.Id,
+                        UserId = currentUserId,
+                        CreatedAt = DateTimeOffset.Now,
+                        CreatedBy = username
+                    };
 
-                var newCommentId = await CommentService.CreateAsync(createDto);
-
-                var newComment = new CommentDto
-                {
-                    Id = newCommentId,
-                    Text = commentContent,
-                    CardId = _selectedCard.Id,
-                    UserId = currentUserId,
-                    CreatedAt = DateTimeOffset.Now,
-                    CreatedBy = AuthStateService.CurrentUser?.Username ?? "Unknown"
-                };
-
-                _cardComments.Add(newComment);
-            }
-            catch (ApiException apiEx)
-            {
-                Console.Error.WriteLine($"[API Error] Failed to create comment: {apiEx.StatusCode}: {apiEx.Content}");
-            }
-            catch (Exception ex)
-            {
-                Console.Error.WriteLine($"Error creating comment: {ex.Message}");
+                    _cardModalState.AddComment(newComment);
+                }
             }
             finally
             {
-                _isCommentSubmitting = false;
+                _cardModalState.IsCommentSubmitting = false;
                 StateHasChanged();
             }
         }
@@ -230,299 +289,27 @@ namespace TaskTracker.Client.Pages.BoardDetails
                 return;
             }
 
-            try
+            var success = await CardModalService.UpdateCommentAsync(data.commentId, data.newContent, currentUserId);
+            if (success)
             {
-                var updateDto = new UpdateCommentDto
-                {
-                    Id = data.commentId,
-                    Text = data.newContent,
-                    UpdatedBy = currentUserId
-                };
-
-                await CommentService.UpdateAsync(data.commentId, updateDto);
-
-                var comment = _cardComments.FirstOrDefault(c => c.Id == data.commentId);
-                if (comment != null)
-                {
-                    comment.Text = data.newContent;
-                    StateHasChanged();
-                }
-            }
-            catch (ApiException apiEx)
-            {
-                Console.Error.WriteLine($"[API Error] Failed to update comment: {apiEx.StatusCode}: {apiEx.Content}");
-            }
-            catch (Exception ex)
-            {
-                Console.Error.WriteLine($"Error updating comment: {ex.Message}");
+                _cardModalState.UpdateComment(data.commentId, data.newContent);
+                StateHasChanged();
             }
         }
 
         private async Task OnCommentDelete(Guid commentId)
         {
-            try
+            var success = await CardModalService.DeleteCommentAsync(commentId);
+            if (success)
             {
-                await CommentService.DeleteAsync(commentId);
-                _cardComments.RemoveAll(c => c.Id == commentId);
-                StateHasChanged();
-            }
-            catch (ApiException apiEx)
-            {
-                Console.Error.WriteLine($"[API Error] Failed to delete comment: {apiEx.StatusCode}: {apiEx.Content}");
-            }
-            catch (Exception ex)
-            {
-                Console.Error.WriteLine($"Error deleting comment: {ex.Message}");
-            }
-        }
-
-        private async Task OnCardDelete(Guid cardId)
-        {
-            if (_isCardDeleting) return;
-
-            _isCardDeleting = true;
-            StateHasChanged();
-
-            try
-            {
-                await CardService.DeleteAsync(cardId);
-
-                foreach (var columnCards in _cardsByColumn.Values)
-                {
-                    columnCards.RemoveAll(c => c.Id == cardId);
-                }
-
-                if (_selectedCard?.Id == cardId)
-                {
-                    await HideCardDetailsModal();
-                }
-            }
-            catch (ApiException apiEx)
-            {
-                Console.Error.WriteLine($"[API Error] Failed to delete card: {apiEx.StatusCode}: {apiEx.Content}");
-            }
-            catch (Exception ex)
-            {
-                Console.Error.WriteLine($"Error deleting card: {ex.Message}");
-            }
-            finally
-            {
-                _isCardDeleting = false;
+                _cardModalState.RemoveComment(commentId);
                 StateHasChanged();
             }
         }
 
-        private async Task OnColumnDelete(ColumnDto column)
+        private Guid GetCurrentUserId()
         {
-            if (_isColumnDeleting) return;
-
-            _isColumnDeleting = true;
-            StateHasChanged();
-
-            try
-            {
-                await ColumnService.DeleteAsync(column.Id);
-
-                _columns.RemoveAll(c => c.Id == column.Id);
-                _cardsByColumn.Remove(column.Id);
-            }
-            catch (ApiException apiEx)
-            {
-                Console.Error.WriteLine($"[API Error] Failed to delete column: {apiEx.StatusCode}: {apiEx.Content}");
-            }
-            catch (Exception ex)
-            {
-                Console.Error.WriteLine($"Error deleting column: {ex.Message}");
-            }
-            finally
-            {
-                _isColumnDeleting = false;
-                StateHasChanged();
-            }
-        }
-
-        private async Task OnColumnEdit(ColumnDto column)
-        {
-            Console.WriteLine($"Edit column: {column.Title}");
-            await Task.CompletedTask;
-        }
-
-        private async Task LoadBoardData()
-        {
-            _isLoading = true;
-
-            try
-            {
-                _board = await BoardService.GetByIdAsync(boardId);
-                _columns = (await ColumnService.GetByBoardIdAsync(boardId)).ToList();
-
-                var cardTasks = _columns.Select(async column => new
-                {
-                    ColumnId = column.Id,
-                    Cards = (await CardService.GetByColumnIdAsync(column.Id)).ToList()
-                });
-
-                _cardsByColumn = (await Task.WhenAll(cardTasks))
-                    .ToDictionary(r => r.ColumnId, r => r.Cards);
-            }
-            catch (ApiException apiEx)
-            {
-                Console.Error.WriteLine($"[API Error] {apiEx.StatusCode}: {apiEx.Content}");
-                SetErrorState();
-            }
-            catch (Exception ex)
-            {
-                Console.Error.WriteLine($"Error: {ex.Message}");
-                SetErrorState();
-            }
-            finally
-            {
-                _isLoading = false;
-            }
-        }
-
-        private void SetErrorState()
-        {
-            _board = new BoardDto { Id = boardId, Title = "Error loading board" };
-            _columns.Clear();
-            _cardsByColumn.Clear();
-        }
-
-        private void ShowColumnModal()
-        {
-            _isColumnModalVisible = true;
-        }
-
-        private Task HideColumnModal()
-        {
-            _isColumnModalVisible = false;
-            StateHasChanged();
-            return Task.CompletedTask;
-        }
-
-        private async Task HandleColumnCreated(CreateColumnDto dto)
-        {
-            var nextIndex = _columns.Any() ? _columns.Max(c => c.ColumnIndex) + 1 : 0;
-
-            var newId = await ColumnService.CreateAsync(new CreateColumnDto
-            {
-                Title = dto.Title,
-                BoardId = dto.BoardId,
-                ColumnIndex = nextIndex
-            });
-
-            var newColumn = new ColumnDto
-            {
-                Id = newId,
-                Title = dto.Title,
-                BoardId = dto.BoardId,
-                ColumnIndex = nextIndex,
-                CreatedAt = DateTimeOffset.Now
-            };
-
-            _columns.Add(newColumn);
-            _cardsByColumn[newId] = new();
-            StateHasChanged();
-        }
-
-        private async Task OnAddCard((string title, Guid columnId) data)
-        {
-            if (await TryCreateCard(data.title, data.columnId))
-            {
-                await ReloadCardsForColumn(data.columnId);
-            }
-        }
-
-        private async Task<bool> TryCreateCard(string title, Guid columnId)
-        {
-            var currentUserId = GetCurrentUserId();
-            if (currentUserId == Guid.Empty)
-            {
-                Console.Error.WriteLine("User not authenticated");
-                return false;
-            }
-
-            try
-            {
-                var command = new CreateCardDto
-                {
-                    Title = title,
-                    ColumnId = columnId,
-                    CreatedBy = currentUserId
-                };
-                var cardId = await CardService.CreateAsync(command);
-                return cardId != Guid.Empty;
-            }
-            catch (Exception ex)
-            {
-                Console.Error.WriteLine($"Error creating card: {ex.Message}");
-                return false;
-            }
-        }
-
-        private async Task ReloadCardsForColumn(Guid columnId)
-        {
-            try
-            {
-                var cards = await CardService.GetByColumnIdAsync(columnId);
-                _cardsByColumn[columnId] = cards.ToList();
-                StateHasChanged();
-            }
-            catch (Exception ex)
-            {
-                Console.Error.WriteLine($"Error reloading cards: {ex.Message}");
-            }
-        }
-
-        private Task OnTitleEditingChanged(bool isEditing)
-        {
-            _isTitleEditing = isEditing;
-            StateHasChanged();
-            return Task.CompletedTask;
-        }
-
-        private async Task SaveBoardTitle(string newTitle)
-        {
-            if (_board == null || string.IsNullOrWhiteSpace(newTitle))
-                return;
-
-            var currentUserId = GetCurrentUserId();
-            if (currentUserId == Guid.Empty)
-            {
-                Console.Error.WriteLine("User not authenticated");
-                return;
-            }
-
-            _isTitleSaving = true;
-            StateHasChanged();
-
-            try
-            {
-                var updateDto = new UpdateBoardDto
-                {
-                    Id = _board.Id,
-                    Title = newTitle,
-                    Description = _board.Description,
-                    UpdatedBy = currentUserId
-                };
-                await BoardService.UpdateAsync(_board.Id, updateDto);
-
-                _board.Title = newTitle;
-                _isTitleEditing = false;
-            }
-            catch (ApiException apiEx)
-            {
-                Console.Error.WriteLine($"[API Error] Failed to update board title: {apiEx.StatusCode}: {apiEx.Content}");
-            }
-            catch (Exception ex)
-            {
-                Console.Error.WriteLine($"Error updating board title: {ex.Message}");
-            }
-            finally
-            {
-                _isTitleSaving = false;
-                StateHasChanged();
-            }
+            return AuthStateService.CurrentUser?.Id ?? Guid.Empty;
         }
     }
 }
