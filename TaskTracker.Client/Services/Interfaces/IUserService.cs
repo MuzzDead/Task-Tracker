@@ -16,4 +16,7 @@ public interface IUserService
 
     [Delete("/user/{id}")]
     Task DeleteAsync(Guid id);
+
+    [Put("/user/{id}/change-password")]
+    Task ChangePasswordAsync(Guid id, [Body] ChangePasswordDto model);
 }
