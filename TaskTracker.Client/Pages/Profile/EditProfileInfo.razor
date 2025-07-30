@@ -1,0 +1,78 @@
+﻿@page "/editprofile"
+@using AntDesign
+
+<Flex Justify=@FlexJustify.Center
+      Align=@FlexAlign.Center
+      Style="min-height:100vh; padding:16px;">
+    <Card Hoverable="true"
+          Style="width:100%; max-width:500px;">
+        <Title Level="3" Style="text-align: center;">Edit Profile information</Title>
+
+        @if (isLoading)
+        {
+            <div style="text-align: center; padding: 2rem;">
+                <Spin Size=@SpinSize.Large />
+                <div style="margin-top: 1rem;">Loading profile...</div>
+            </div>
+        }
+        else
+        {
+            <Form Model=@model>
+                <Space Direction=@SpaceDirection.Vertical
+                       Size=@SpaceSize.Middle
+                       Style="width:100%; padding:0 16px;">
+                    <SpaceItem>
+                        <div class="avatar-section">
+                            <Avatar Style="width: 100px; height: 100px;"
+                                    Size=@AvatarSize.Large
+                                    Src="https://api.dicebear.com/7.x/identicon/svg?seed=smbd"/>
+                                <Button Type=@ButtonType.Link
+                                        Icon="upload"
+                                        Size=@ButtonSize.Large
+                                        OnClick="@ChangeAvatar">
+                                    Change Avatar
+                                </Button>
+                        </div>
+                    </SpaceItem>
+
+                    <SpaceItem>
+                        <Input @bind-Value=@model.Username
+                               Placeholder="Username"
+                               Size=@InputSize.Large
+                               Disabled="@isSubmitting"
+                               OnPressEnter=@HandleEnterPress />
+                    </SpaceItem>
+
+                    <SpaceItem>
+                        <Input @bind-Value=@model.Email
+                               Placeholder="Email"
+                               Size=@InputSize.Large
+                               Disabled="@isSubmitting"
+                               OnPressEnter=@HandleEnterPress />
+                    </SpaceItem>
+                </Space>
+
+                <Divider />
+
+                <div Style="gap: 0.75rem; display: flex; flex-direction: column;">
+                    <Button Block="true"
+                            Type=@ButtonType.Primary
+                            Size=@ButtonSize.Large
+                            Loading=@isSubmitting
+                            Disabled=@(!IsFormValid() || isSubmitting)
+                            OnClick=@SaveChanges>
+                        @(isSubmitting ? "Saving..." : "Save Changes")
+                    </Button>
+
+                    <Button Block="true"
+                            Type=@ButtonType.Default
+                            Size=@ButtonSize.Large
+                            OnClick=@Cancel
+                            Disabled=@isSubmitting>
+                        Cancel
+                    </Button>
+                </div>
+            </Form>
+        }
+    </Card>
+</Flex>
