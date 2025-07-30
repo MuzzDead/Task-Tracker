@@ -6,6 +6,7 @@ using TaskTracker.Application.Features.User.Command.Delete;
 using TaskTracker.Application.Features.User.Command.Update;
 using TaskTracker.Application.Features.User.Queries.GetByEmail;
 using TaskTracker.Application.Features.User.Queries.GetById;
+using TaskTracker.Application.Features.User.Command.ChangePassword;
 
 namespace TaskTracker.API.Controllers;
 
@@ -23,7 +24,7 @@ public class UserController : ControllerBase
     public async Task<ActionResult<UserDto>> GetByIdAsync(Guid id)
     {
         var user = await _mediator.Send(new GetUserByIdQuery { Id = id });
-        
+
         return Ok(user);
     }
 
@@ -31,7 +32,7 @@ public class UserController : ControllerBase
     public async Task<ActionResult<UserDto>> GetByEmailAsync([FromQuery] string email)
     {
         var user = await _mediator.Send(new GetUserByEmailQuery { Email = email });
-        
+
         return Ok(user);
     }
 
@@ -42,7 +43,18 @@ public class UserController : ControllerBase
             return BadRequest("Route ID does not match body ID.");
 
         await _mediator.Send(command);
-        
+
+        return NoContent();
+    }
+
+    [HttpPut("{id:guid}/change-password")]
+    public async Task<IActionResult> ChangePasswordAsync(Guid id, [FromBody] ChangePasswordCommand command)
+    {
+        if (id != command.Id)
+            return BadRequest("Route ID does not match body ID.");
+
+        await _mediator.Send(command);
+
         return NoContent();
     }
 
@@ -50,7 +62,7 @@ public class UserController : ControllerBase
     public async Task<IActionResult> DeleteAsync(Guid id)
     {
         await _mediator.Send(new DeleteUserCommand { Id = id });
-        
+
         return NoContent();
     }
 }
