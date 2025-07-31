@@ -36,6 +36,10 @@ builder.Services
     .AddRefitClient<ICommentService>()
     .ConfigureHttpClient(c => c.BaseAddress = new Uri(apiBaseUrl));
 
+builder.Services
+    .AddRefitClient<IUserService>()
+    .ConfigureHttpClient(c => c.BaseAddress = new Uri(apiBaseUrl));
+
 builder.Services.AddScoped<IBoardPageService, BoardPageService>();
 builder.Services.AddScoped<ICardModalService, CardModalService>();
 

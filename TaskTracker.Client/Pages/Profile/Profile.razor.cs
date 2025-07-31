@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Components;
 using TaskTracker.Client.DTOs.User;
 using TaskTracker.Client.Services.Interfaces;
 
-namespace TaskTracker.Client.Pages;
+namespace TaskTracker.Client.Pages.Profile;
 
 public partial class Profile
 {
@@ -60,9 +60,9 @@ public partial class Profile
         Console.WriteLine("Change avatar - TODO");
     }
 
-    private void OnEditInfo() => Navigation.NavigateTo("/profile/edit");
+    private void OnEditInfo() => Navigation.NavigateTo("/editprofile");
 
-    private void OnChangePassword() => Navigation.NavigateTo("/profile/change-password");
+    private void OnChangePassword() => Navigation.NavigateTo("/changepassword");
 
     private void GoToLogin() => Navigation.NavigateTo("/login");
 }

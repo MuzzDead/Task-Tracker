@@ -3,7 +3,7 @@ using TaskTracker.Client.Services.Interfaces;
 
 namespace TaskTracker.Client.Layout;
 
-public partial class NavBar : ComponentBase
+public partial class NavBar : ComponentBase, IDisposable
 {
     [Inject] private NavigationManager Navigation { get; set; } = default!;
     [Inject] private IAuthStateService AuthStateService { get; set; } = default!;
@@ -31,10 +31,10 @@ public partial class NavBar : ComponentBase
 
     protected override async Task OnInitializedAsync()
     {
-        await AuthStateService.InitializeAsync();
+        AuthStateService.AuthStateChanged += OnAuthStateChanged;
 
-        isAuthenticated = AuthStateService.IsAuthenticated;
-        userDisplayName = AuthStateService.CurrentUser?.Username ?? string.Empty;
+        await AuthStateService.InitializeAsync();
+        UpdateAuthState();
     }
 
     private void NavigateTo(string path)
@@ -46,5 +46,25 @@ public partial class NavBar : ComponentBase
     {
         var currentPath = Navigation.Uri.Replace(Navigation.BaseUri, "/");
         return currentPath.StartsWith(path, StringComparison.OrdinalIgnoreCase);
+    }
+
+    private void OnAuthStateChanged(bool isAuthenticatedNow)
+    {
+        InvokeAsync(() =>
+        {
+            UpdateAuthState();
+            StateHasChanged();
+        });
+    }
+
+    private void UpdateAuthState()
+    {
+        isAuthenticated = AuthStateService.IsAuthenticated;
+        userDisplayName = AuthStateService.CurrentUser?.Username ?? string.Empty;
+    }
+
+    public void Dispose()
+    {
+        AuthStateService.AuthStateChanged -= OnAuthStateChanged;
     }
 }
