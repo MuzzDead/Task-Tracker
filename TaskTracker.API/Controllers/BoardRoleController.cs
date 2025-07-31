@@ -1,10 +1,12 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using TaskTracker.Application.DTOs;
 using TaskTracker.Application.Features.BoardRole.Command.Create;
 using TaskTracker.Application.Features.BoardRole.Command.Delete;
 using TaskTracker.Application.Features.BoardRole.Command.Update;
 using TaskTracker.Application.Features.BoardRole.Queries.GetAll;
 using TaskTracker.Application.Features.BoardRole.Queries.GetById;
+using TaskTracker.Application.Features.BoardRole.Queries.GetMembersByBoardId;
 
 namespace TaskTracker.API.Controllers;
 
@@ -22,9 +24,9 @@ public class BoardRoleController : ControllerBase
     public async Task<IActionResult> GetAllAsync()
     {
         var query = new GetAllBoardRoleQuery();
-        
+
         var roles = await _mediator.Send(query);
-        
+
         return Ok(roles);
     }
 
@@ -32,9 +34,9 @@ public class BoardRoleController : ControllerBase
     public async Task<IActionResult> GetByIdAsync(Guid id)
     {
         var query = new GetBoardRoleByIdQuery { Id = id };
-        
+
         var role = await _mediator.Send(query);
-        
+
         return Ok(role);
     }
 
@@ -42,7 +44,7 @@ public class BoardRoleController : ControllerBase
     public async Task<IActionResult> CreateAsync([FromBody] CreateBoardRoleCommand command)
     {
         var role = await _mediator.Send(command);
-        
+
         return Ok(role);
     }
 
@@ -53,7 +55,7 @@ public class BoardRoleController : ControllerBase
             return BadRequest("Route ID does not match body ID.");
 
         await _mediator.Send(command);
-        
+
         return NoContent();
     }
 
@@ -61,9 +63,18 @@ public class BoardRoleController : ControllerBase
     public async Task<IActionResult> DeleteAsync(Guid id)
     {
         var command = new DeleteBoardRoleCommand { Id = id };
-        
+
         await _mediator.Send(command);
-        
+
         return NoContent();
+    }
+
+    [HttpGet("members/{boardId:guid}")]
+    public async Task<ActionResult<MemberDto>> GetMemberByBoardIdAsync(Guid boardId)
+    {
+        var query = new GetMembersByBoardIdQuery { BoardId = boardId };
+
+        var member = await _mediator.Send(query);
+        return Ok(member);
     }
 }
