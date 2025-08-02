@@ -28,8 +28,10 @@ public class BoardRepository : BaseRepository<Board, Guid>, IBoardRepository
     public async Task<IEnumerable<Board>> GetByUserId(Guid userId)
     {
         var boards = await _dbSet
-            .Where(b => b.CreatedBy == userId.ToString())
-            .OrderBy(b => b.CreatedAt)
+            .AsNoTracking()
+            .Where(b => b.CreatedBy == userId.ToString()
+                && !b.IsArchived)
+            .OrderByDescending(b => b.CreatedAt)
             .ToListAsync();
 
         return boards;
