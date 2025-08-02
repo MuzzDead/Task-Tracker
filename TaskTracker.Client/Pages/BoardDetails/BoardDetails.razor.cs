@@ -18,6 +18,7 @@ namespace TaskTracker.Client.Pages.BoardDetails
         [Inject] private IAuthStateService AuthStateService { get; set; } = default!;
         [Inject] private IBoardRoleService BoardRoleService { get; set; } = default!;
         [Inject] private IUserService UserService { get; set; } = default!;
+        [Inject] private NavigationManager NavigationManager { get; set; } = default!;
 
         private BoardPageState _boardState = BoardPageState.Loading();
         private CardModalState _cardModalState = CardModalState.Hidden();
@@ -87,6 +88,15 @@ namespace TaskTracker.Client.Pages.BoardDetails
             {
                 _boardState.IsTitleSaving = false;
                 StateHasChanged();
+            }
+        }
+
+        private async Task ArchiveBoard()
+        {
+            var success = await BoardPageService.ArchiveBoardAsync(boardId);
+            if (success)
+            {
+                NavigationManager.NavigateTo($"/boards");
             }
         }
 

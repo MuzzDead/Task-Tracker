@@ -16,7 +16,8 @@
                   IsTitleEditing=@_boardState.IsTitleEditing
                   OnTitleEditingChanged=@OnTitleEditingChanged
                   IsTitleSaving=@_boardState.IsTitleSaving
-                  OnTitleSave=@SaveBoardTitle />
+                  OnTitleSave=@SaveBoardTitle
+                  OnArchiveBoard=@ArchiveBoard/>
 
 
     @if (!string.IsNullOrEmpty(_boardState.Error))
