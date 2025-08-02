@@ -1,13 +1,12 @@
-﻿@using AntDesign
-<div class="boards-header">
+﻿<div class="boards-header">
     <div class="header-left">
         @if (EnableTitleEdit)
         {
             <EditableBoardTitle Title=@Title
-                              IsEditing=@IsTitleEditing
-                              IsEditingChanged=@OnTitleEditingChanged
-                              IsSaving=@IsTitleSaving
-                              OnSave=@OnTitleSave />
+                                IsEditing=@IsTitleEditing
+                                IsEditingChanged=@OnTitleEditingChanged
+                                IsSaving=@IsTitleSaving
+                                OnSave=@OnTitleSave />
         }
         else
         {
@@ -27,6 +26,15 @@
                    Class="search-input"
                    OnChangeValue=@OnSearchChangedValue />
         }
+
+        @if (ShowMembersButton)
+        {
+            <Button Size=@ButtonSize.Large Type=@ButtonType.Default @onclick ="OpenMembersDrawer">
+                <Icon Type="team" />
+                @("Members")
+            </Button>
+        }
+
         <Button Type=@ButtonType.Primary
                 Size=@ButtonSize.Large
                 Icon="plus"
