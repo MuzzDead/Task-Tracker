@@ -41,7 +41,7 @@ public class BoardRoleController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> CreateAsync([FromBody] CreateBoardRoleCommand command)
+    public async Task<ActionResult<Guid>> CreateAsync([FromBody] CreateBoardRoleCommand command)
     {
         var role = await _mediator.Send(command);
 
