@@ -22,16 +22,22 @@
                    @bind-Value=@SearchTerm
                    Placeholder="Search boards..."
                    PrefixIcon="search"
-                   Size=@InputSize.Default
+                   Size=@InputSize.Large
                    Class="search-input"
                    OnChangeValue=@OnSearchChangedValue />
         }
 
         @if (ShowMembersButton)
         {
-            <Button Size=@ButtonSize.Large Type=@ButtonType.Default @onclick ="OpenMembersDrawer">
+            <Button Size=@ButtonSize.Large Type=@ButtonType.Default @onclick=@OpenMembersDrawer>
                 <Icon Type="team" />
                 @("Members")
+            </Button>
+
+            <Button Size=@ButtonSize.Large Type=@ButtonType.Default @onclick=@ArchiveBoard>
+                <Text Type=@TextElementType.Danger>
+                    <Icon Type="file-zip" />
+                </Text>
             </Button>
         }
 

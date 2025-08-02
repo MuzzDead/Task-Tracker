@@ -18,10 +18,16 @@ public partial class BoardsHeader
     [Parameter] public EventCallback<string> OnTitleSave { get; set; }
     [Parameter] public bool ShowMembersButton { get; set; } = false;
     [Parameter] public EventCallback OnOpenMembers { get; set; }
+    [Parameter] public EventCallback OnArchiveBoard { get; set; }
 
     private async Task OpenMembersDrawer()
     {
         if (OnOpenMembers.HasDelegate)
             await OnOpenMembers.InvokeAsync();
+    }
+
+    private async Task ArchiveBoard()
+    {
+        await OnArchiveBoard.InvokeAsync();
     }
 }
