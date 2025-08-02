@@ -11,4 +11,5 @@ public interface IBoardPageService
     Task<bool> DeleteColumnAsync(Guid columnId);
     Task<bool> CreateCardAsync(Guid columnId, string title, Guid userId);
     Task<List<CardDto>> ReloadCardsForColumnAsync(Guid columnId);
+    Task<bool> ArchiveBoardAsync(Guid boardId);
 }

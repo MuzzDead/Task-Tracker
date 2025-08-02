@@ -174,4 +174,23 @@ public class BoardPageService : IBoardPageService
             return new List<CardDto>();
         }
     }
+
+    public async Task<bool> ArchiveBoardAsync(Guid boardId)
+    {
+        try
+        {
+            await _boardService.ArchiveAsync(boardId);
+            return true;
+        }
+        catch (ApiException apiEx)
+        {
+            Console.Error.WriteLine($"[API Error] Failed to archive board: {apiEx.StatusCode}: {apiEx.Content}");
+            return false;
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Error archiving board: {ex.Message}");
+            return false;
+        }
+    }
 }
