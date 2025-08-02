@@ -8,6 +8,7 @@ namespace TaskTracker.Client.Components.Member;
 public partial class MemberList : ComponentBase
 {
     [Parameter] public Guid BoardId { get; set; }
+    [Parameter] public Guid? CurrentUserId { get; set; }
 
     [Parameter] public List<MemberDto> Members { get; set; } = new();
     [Parameter] public bool MembersDrawerVisible { get; set; }

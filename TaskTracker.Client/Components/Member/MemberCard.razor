@@ -14,6 +14,10 @@
                 <div>
                     <Text Strong Style="font-size: 16px; display: block; line-height: 1.2;">
                         @Member.Username
+                        @if (IsCurrentUser)
+                        {
+                            <Tag Color=@TagColor.Blue Style="margin-left: 8px; font-size: 10px;">You</Tag>
+                        }
                     </Text>
                     <Tag Color=@GetRoleColor(Member.UserRole) Style="margin-top: 4px; font-size: 11px; border-radius: 12px;">
                         @GetRoleDisplayName(Member.UserRole)
@@ -21,30 +25,33 @@
                 </div>
             </Flex>
 
-            <Dropdown Trigger=@(new Trigger[] { Trigger.Click })
-                      Placement=@Placement.BottomRight
-                      @bind-Visible=@dropdownVisible>
-                <Overlay>
-                    <Menu>
-                        <MenuItem Key="edit" OnClick=@(_ => ShowRoleDrawer())>
-                            <Icon Type="user-switch" Style="margin-right: 8px;" />
-                            @("Change Role")
-                        </MenuItem>
-                        <MenuItem Key="delete" OnClick="HandleDelete" Class="delete-menu-item">
-                            <Text Type=@TextElementType.Danger>
-                                <Icon Type="user-delete" Style="margin-right: 8px;" />
-                                @("Remove Member")
-                            </Text>
-                        </MenuItem>
-                    </Menu>
-                </Overlay>
-                <ChildContent>
-                    <Button Type=@ButtonType.Text
-                            Size=@ButtonSize.Small
-                            Icon="more"
-                            Style="color: #8c8c8c;" />
-                </ChildContent>
-            </Dropdown>
+            @if (!IsCurrentUser)
+            {
+                <Dropdown Trigger=@(new Trigger[] { Trigger.Click })
+                          Placement=@Placement.BottomRight
+                          @bind-Visible=@dropdownVisible>
+                    <Overlay>
+                        <Menu>
+                            <MenuItem Key="edit" OnClick=@(_ => ShowRoleDrawer())>
+                                <Icon Type="user-switch" Style="margin-right: 8px;" />
+                                @("Change Role")
+                            </MenuItem>
+                            <MenuItem Key="delete" OnClick="HandleDelete" Class="delete-menu-item">
+                                <Text Type=@TextElementType.Danger>
+                                    <Icon Type="user-delete" Style="margin-right: 8px;" />
+                                    @("Remove Member")
+                                </Text>
+                            </MenuItem>
+                        </Menu>
+                    </Overlay>
+                    <ChildContent>
+                        <Button Type=@ButtonType.Text
+                                Size=@ButtonSize.Small
+                                Icon="more"
+                                Style="color: #8c8c8c;" />
+                    </ChildContent>
+                </Dropdown>
+            }
         </Flex>
     </Body>
 </Card>
@@ -61,10 +68,24 @@
                     Size=@AvatarSize.Large
                     Style="margin-bottom: 8px;" />
             <div>
-                <Text Strong Style="display: block; font-size: 16px;">@Member.Username</Text>
+                <Text Strong Style="display: block; font-size: 16px;">
+                    @Member.Username
+                    @if (IsCurrentUser)
+                    {
+                        <Tag Color=@TagColor.Blue Style="margin-left: 8px; font-size: 10px;">You</Tag>
+                    }
+                </Text>
                 <Text Type=@TextElementType.Secondary Style="font-size: 14px;">@Member.Email</Text>
             </div>
         </div>
+
+        @if (IsCurrentUser)
+        {
+            <Alert Type="AlertType.Warning"
+                   Message="You are editing your own role"
+                   Description="Be careful when changing your own permissions."
+                   Style="margin-bottom: 16px;" />
+        }
 
         <div style="margin-bottom: 24px;">
             <Text Strong Style="display: block; margin-bottom: 8px; color: #262626;">@("Select Role:"):</Text>

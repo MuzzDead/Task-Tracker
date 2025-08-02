@@ -13,6 +13,9 @@ public partial class MemberCard : ComponentBase
     [Parameter] public MemberDto Member { get; set; } = default!;
     [Parameter] public EventCallback<(Guid BoardRoleId, UserRole NewRole)> OnEditRole { get; set; }
     [Parameter] public EventCallback<Guid> OnRemoveMember { get; set; }
+    [Parameter] public Guid? CurrentUserId { get; set; }
+
+    private bool IsCurrentUser => CurrentUserId.HasValue && CurrentUserId.Value == Member.UserId;
 
     private void ShowRoleDrawer()
     {
