@@ -32,17 +32,12 @@
             </div>
 
             <div class="hero-actions">
-                <Button Type=@ButtonType.Primary
-                        Size=@ButtonSize.Large
-                        class="cta-button"
-                        @onclick=@(() => Navigation.NavigateTo("/register"))>
+                <Button Type="ButtonType.Primary"
+                        Size="ButtonSize.Large"
+                        Class="cta-button"
+                        Style="background-color: #667eea; border-color: #667eea; color: white;"
+                        @onclick="@(() => Navigation.NavigateTo("/register"))">
                     Get Started
-                </Button>
-
-                <Button Type=@ButtonType.Default
-                        Size=@ButtonSize.Large
-                        class="demo-button">
-                    View Demo
                 </Button>
             </div>
         </div>
