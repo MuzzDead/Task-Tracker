@@ -1,17 +1,19 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TaskTracker.Application.DTOs;
-using TaskTracker.Application.Features.User.Command.RegisterUser;
+using TaskTracker.Application.Features.User.Command.ChangePassword;
 using TaskTracker.Application.Features.User.Command.Delete;
+using TaskTracker.Application.Features.User.Command.RegisterUser;
 using TaskTracker.Application.Features.User.Command.Update;
 using TaskTracker.Application.Features.User.Queries.GetByEmail;
 using TaskTracker.Application.Features.User.Queries.GetById;
-using TaskTracker.Application.Features.User.Command.ChangePassword;
 
 namespace TaskTracker.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
 public class UserController : ControllerBase
 {
     private readonly IMediator _mediator;

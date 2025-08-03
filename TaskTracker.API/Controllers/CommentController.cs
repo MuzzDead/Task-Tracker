@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TaskTracker.Application.Features.Comment.Commands.Create;
 using TaskTracker.Application.Features.Comment.Commands.Delete;
@@ -10,6 +11,7 @@ namespace TaskTracker.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
 public class CommentController : ControllerBase
 {
     private readonly IMediator _mediator;

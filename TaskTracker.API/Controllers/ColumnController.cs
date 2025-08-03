@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TaskTracker.Application.Features.Column.Commands.Create;
 using TaskTracker.Application.Features.Column.Commands.Delete;
@@ -10,6 +11,7 @@ namespace TaskTracker.API.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
+[Authorize]
 public class ColumnController : ControllerBase
 {
     private readonly IMediator _mediator;
