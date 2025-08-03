@@ -27,10 +27,21 @@ public class BoardRepository : BaseRepository<Board, Guid>, IBoardRepository
 
     public async Task<IEnumerable<Board>> GetByUserId(Guid userId)
     {
-        var boards = await _dbSet
+        var createdBoards = _dbSet
             .AsNoTracking()
-            .Where(b => b.CreatedBy == userId.ToString()
-                && !b.IsArchived)
+            .Where(b => b.CreatedBy == userId.ToString() && !b.IsArchived);
+
+        var memberBoards = _dbSet
+                .AsNoTracking()
+                .Join(_context.Set<BoardRole>(),
+                      board => board.Id,
+                      boardRole => boardRole.BoardId,
+                      (board, boardRole) => new { Board = board, BoardRole = boardRole })
+                .Where(joined => joined.BoardRole.UserId == userId && !joined.Board.IsArchived)
+                .Select(joined => joined.Board);
+
+        var boards = await createdBoards
+            .Union(memberBoards)
             .OrderByDescending(b => b.CreatedAt)
             .ToListAsync();
 
