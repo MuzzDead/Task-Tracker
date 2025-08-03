@@ -7,6 +7,7 @@ public interface IBoardPageService
 {
     Task<BoardPageState> LoadBoardAsync(Guid boardId);
     Task<bool> UpdateBoardTitleAsync(Guid boardId, string title, Guid userId);
+    Task<bool> UpdateColumnTitleAsync(Guid columnId, string title);
     Task<bool> CreateColumnAsync(Guid boardId, string title);
     Task<bool> DeleteColumnAsync(Guid columnId);
     Task<bool> CreateCardAsync(Guid columnId, string title, Guid userId);

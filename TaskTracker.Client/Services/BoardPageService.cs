@@ -82,6 +82,31 @@ public class BoardPageService : IBoardPageService
         }
     }
 
+    public async Task<bool> UpdateColumnTitleAsync(Guid columnId, string title)
+    {
+        try
+        {
+            var currentColumn = await _columnService.GetByIdAsync(columnId);
+            var updateDto = new UpdateColumnDto
+            {
+                Id = columnId,
+                Title = title
+            };
+            await _columnService.UpdateAsync(columnId, updateDto);
+            return true;
+        }
+        catch (ApiException apiEx)
+        {
+            Console.Error.WriteLine($"[API Error] Failed to update column title: {apiEx.StatusCode}: {apiEx.Content}");
+            return false;
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Error updating column title: {ex.Message}");
+            return false;
+        }
+    }
+
     public async Task<bool> CreateColumnAsync(Guid boardId, string title)
     {
         try
