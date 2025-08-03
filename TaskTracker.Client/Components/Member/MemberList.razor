@@ -39,10 +39,10 @@
             {
                 @foreach (var member in Members)
                 {
-                    <MemberCard Member="@member"
-                                CurrentUserId="@CurrentUserId"
-                                OnEditRole="@HandleEditRole"
-                                OnRemoveMember="@HandleRemoveMember" />
+                    <MemberCard Member=@member
+                                CurrentUserId=@CurrentUserId
+                                OnEditRole=@HandleEditRole
+                                OnRemoveMember=@HandleRemoveMember />
                 }
             }
         </div>
