@@ -1,0 +1,36 @@
+﻿@using AntDesign
+<div class="editable-column-title-container">
+    @if (IsEditing)
+    {
+        <div class="column-title-edit-form">
+            <Input TValue="string"
+                   @bind-Value=@EditValue
+                   Size=@InputSize.Default
+                   Class="column-title-input"
+                   @onkeypress=@HandleKeyPress
+                   @ref="InputRef" />
+            <div class="column-title-buttons">
+                <Button Type=@ButtonType.Primary
+                        Size=@ButtonSize.Small
+                        Icon="check"
+                        @onclick=@SaveTitle
+                        Loading=@IsSaving>
+                </Button>
+                <Button Type=@ButtonType.Default
+                        Size=@ButtonSize.Small
+                        Icon="close"
+                        @onclick=@CancelEdit>
+                </Button>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="column-title-display-container" @onclick=@StartEdit>
+            <TypographyTitle Level="5" Class="column-title clickable-column-title">
+                @Title
+            </TypographyTitle>
+            <Icon Type="edit" Class="column-edit-icon" Theme=@IconThemeType.Outline />
+        </div>
+    }
+</div>
