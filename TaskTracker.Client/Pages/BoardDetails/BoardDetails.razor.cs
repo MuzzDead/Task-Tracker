@@ -154,10 +154,51 @@ namespace TaskTracker.Client.Pages.BoardDetails
             }
         }
 
-        private async Task OnColumnEdit(ColumnDto column)
+        private async Task OnColumnTitleEditingChanged(Guid? columnId)
         {
-            Console.WriteLine($"Edit column: {column.Title}");
-            await Task.CompletedTask;
+            _boardState.EditingColumnId = columnId;
+            StateHasChanged();
+        }
+
+        private async Task SaveColumnTitle((Guid ColumnId, string NewTitle) data)
+        {
+            _boardState.IsColumnTitleSaving = true;
+            StateHasChanged();
+
+            try
+            {
+                var success = await BoardPageService.UpdateColumnTitleAsync(data.ColumnId, data.NewTitle);
+
+                if (success)
+                {
+                    _boardState.UpdateColumnTitle(data.ColumnId, data.NewTitle);
+                    _boardState.EditingColumnId = null;
+                    Console.WriteLine($"Column title updated successfully: {data.NewTitle}");
+                }
+                else
+                {
+                    Console.WriteLine("Failed to update column title");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error updating column title: {ex.Message}");
+            }
+            finally
+            {
+                _boardState.IsColumnTitleSaving = false;
+                StateHasChanged();
+            }
+        }
+
+        private async Task OnColumnEdit((Guid columnId, string newTitle) data)
+        {
+            var success = await BoardPageService.UpdateColumnTitleAsync(data.columnId, data.newTitle);
+            if (success)
+            {
+                _boardState.UpdateColumnTitle(data.columnId, data.newTitle);
+                StateHasChanged();
+            }
         }
 
         private async Task OnAddCard((string title, Guid columnId) data)

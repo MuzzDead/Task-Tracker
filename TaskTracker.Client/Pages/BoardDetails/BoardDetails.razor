@@ -17,8 +17,7 @@
                   OnTitleEditingChanged=@OnTitleEditingChanged
                   IsTitleSaving=@_boardState.IsTitleSaving
                   OnTitleSave=@SaveBoardTitle
-                  OnArchiveBoard=@ArchiveBoard/>
-
+                  OnArchiveBoard=@ArchiveBoard />
 
     @if (!string.IsNullOrEmpty(_boardState.Error))
     {
@@ -33,6 +32,10 @@
         <ColumnList Columns=@_boardState.Columns
                     CardsByColumn=@_boardState.CardsByColumn
                     IsLoading="false"
+                    EditingColumnId=@_boardState.EditingColumnId
+                    EditingColumnIdChanged=@OnColumnTitleEditingChanged
+                    IsColumnTitleSaving=@_boardState.IsColumnTitleSaving
+                    OnColumnTitleSave=@SaveColumnTitle
                     OnAddCard=@OnAddCard
                     OnCardClick=@OnCardClick
                     OnEditColumn=@OnColumnEdit
