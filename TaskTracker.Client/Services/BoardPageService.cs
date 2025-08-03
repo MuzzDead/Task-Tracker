@@ -90,7 +90,8 @@ public class BoardPageService : IBoardPageService
             var updateDto = new UpdateColumnDto
             {
                 Id = columnId,
-                Title = title
+                Title = title,
+                ColumnIndex = currentColumn.ColumnIndex
             };
             await _columnService.UpdateAsync(columnId, updateDto);
             return true;
