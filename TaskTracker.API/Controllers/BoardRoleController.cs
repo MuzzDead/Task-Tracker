@@ -43,7 +43,7 @@ public class BoardRoleController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<Guid>> CreateAsync([FromBody] CreateBoardRoleCommand command)
+    public async Task<IActionResult> CreateAsync([FromBody] CreateBoardRoleCommand command)
     {
         var role = await _mediator.Send(command);
 
@@ -72,7 +72,7 @@ public class BoardRoleController : ControllerBase
     }
 
     [HttpGet("members/{boardId:guid}")]
-    public async Task<ActionResult<MemberDto>> GetMemberByBoardIdAsync(Guid boardId)
+    public async Task<IActionResult> GetMemberByBoardIdAsync(Guid boardId)
     {
         var query = new GetMembersByBoardIdQuery { BoardId = boardId };
 

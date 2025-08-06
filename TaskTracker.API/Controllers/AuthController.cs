@@ -20,7 +20,7 @@ public class AuthController : ControllerBase
 
     [AllowAnonymous]
     [HttpPost("register")]
-    public async Task<ActionResult<AuthResponse>> RegisterAsync(RegisterUserCommand command)
+    public async Task<IActionResult> RegisterAsync(RegisterUserCommand command)
     {
         var response = await _mediator.Send(command);
 
@@ -29,7 +29,7 @@ public class AuthController : ControllerBase
 
     [AllowAnonymous]
     [HttpPost("login")]
-    public async Task<ActionResult<AuthResponse>> LoginAsync(LoginUserCommand command)
+    public async Task<IActionResult> LoginAsync(LoginUserCommand command)
     {
         var response = await _mediator.Send(command);
 
@@ -38,7 +38,7 @@ public class AuthController : ControllerBase
 
     [Authorize]
     [HttpGet("me")]
-    public async Task<ActionResult<UserDto>> GetCurrentUserAsync()
+    public async Task<IActionResult> GetCurrentUserAsync()
     {
         var response = await _mediator.Send(new GetCurrentUserQuery());
         return Ok(response);

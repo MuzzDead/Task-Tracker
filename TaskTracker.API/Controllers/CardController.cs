@@ -19,7 +19,7 @@ public class CardController : ControllerBase
     public CardController(IMediator mediator) => _mediator = mediator;
 
     [HttpPost]
-    public async Task<ActionResult<Guid>> CreateAsync([FromBody] CreateCardCommand command)
+    public async Task<IActionResult> CreateAsync([FromBody] CreateCardCommand command)
     {
         var card = await _mediator.Send(command);
 
@@ -46,7 +46,7 @@ public class CardController : ControllerBase
     }
 
     [HttpGet("{id:guid}")]
-    public async Task<ActionResult<CardDto>> GetByIdAsync(Guid id)
+    public async Task<IActionResult> GetByIdAsync(Guid id)
     {
         var query = new GetCardByIdQuery { Id = id };
 
@@ -56,7 +56,7 @@ public class CardController : ControllerBase
     }
 
     [HttpGet("column/{columnId:guid}")]
-    public async Task<ActionResult<IEnumerable<CardDto>>> GetByColumnIdAsync(Guid columnId)
+    public async Task<IActionResult> GetByColumnIdAsync(Guid columnId)
     {
         var query = new GetCardsByColumnIdQuery { ColumnId = columnId };
 

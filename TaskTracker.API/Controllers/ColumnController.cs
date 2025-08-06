@@ -36,14 +36,14 @@ public class ColumnController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult> CreateAsync([FromBody] CreateColumnCommand command)
+    public async Task<IActionResult> CreateAsync([FromBody] CreateColumnCommand command)
     {
         var columnId = await _mediator.Send(command);
         return Ok(columnId);
     }
 
     [HttpPut("{id:guid}")]
-    public async Task<ActionResult> UpdateAsync(Guid id, [FromBody] UpdateColumnCommand command)
+    public async Task<IActionResult> UpdateAsync(Guid id, [FromBody] UpdateColumnCommand command)
     {
         if (id != command.Id)
             return BadRequest("Route ID does not match body ID.");

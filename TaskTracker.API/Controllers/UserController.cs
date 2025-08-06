@@ -23,7 +23,7 @@ public class UserController : ControllerBase
     }
 
     [HttpGet("{id:guid}")]
-    public async Task<ActionResult<UserDto>> GetByIdAsync(Guid id)
+    public async Task<IActionResult> GetByIdAsync(Guid id)
     {
         var user = await _mediator.Send(new GetUserByIdQuery { Id = id });
 
@@ -31,7 +31,7 @@ public class UserController : ControllerBase
     }
 
     [HttpGet("by-email")]
-    public async Task<ActionResult<UserDto>> GetByEmailAsync([FromQuery] string email)
+    public async Task<IActionResult> GetByEmailAsync([FromQuery] string email)
     {
         var user = await _mediator.Send(new GetUserByEmailQuery { Email = email });
 
