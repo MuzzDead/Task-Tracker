@@ -9,14 +9,12 @@ namespace TaskTracker.Client.Services;
 public class AuthStateService : IAuthStateService
 {
     private readonly ILocalStorageService _localStorage;
-    private readonly HttpClient _httpClient;
     private const string TokenKey = "auth_token";
     private const string UserKey = "current_user";
 
-    public AuthStateService(ILocalStorageService localStorage, HttpClient httpClient)
+    public AuthStateService(ILocalStorageService localStorage)
     {
         _localStorage = localStorage;
-        _httpClient = httpClient;
     }
 
     public bool IsAuthenticated => !string.IsNullOrEmpty(Token);
