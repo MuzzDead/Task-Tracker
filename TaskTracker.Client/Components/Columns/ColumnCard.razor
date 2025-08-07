@@ -1,24 +1,26 @@
 ﻿@using AntDesign
 @using TaskTracker.Client.Components.Cards
+@using TaskTracker.Client.Components.Columns
 
 <div class="column-card">
     <div class="column-header">
         <div class="column-title-section">
-            <TypographyTitle Level="5" Class="column-title">
-                @Column.Title
-            </TypographyTitle>
-            <Badge Count=@(Cards?.Count ?? 0) 
-                   Class="task-count-badge" 
+            <EditableColumnTitle Title=@Column.Title
+                                 IsEditing=@IsTitleEditing
+                                 IsEditingChanged=@OnTitleEditingChanged
+                                 IsSaving=@IsTitleSaving
+                                 OnSave=@HandleTitleSave />
+            <Badge Count=@(Cards?.Count ?? 0)
+                   Class="task-count-badge"
                    ShowZero="true" />
         </div>
-        
-        <Dropdown Trigger=@(new Trigger[] { Trigger.Click }) 
+        <Dropdown Trigger=@(new Trigger[] { Trigger.Click })
                   Placement=@Placement.BottomRight>
             <Overlay>
                 <Menu>
                     <MenuItem Key="edit" OnClick=@HandleEdit>
                         <Icon Type="edit" />
-                        Edit
+                        Edit Title
                     </MenuItem>
                     <MenuItem Key="delete" OnClick=@HandleDelete Class="delete-menu-item">
                         <Icon Type="delete" />
@@ -27,14 +29,13 @@
                 </Menu>
             </Overlay>
             <ChildContent>
-                <Button Type=@ButtonType.Text 
-                        Size=@ButtonSize.Small 
+                <Button Type=@ButtonType.Text
+                        Size=@ButtonSize.Small
                         Icon="more"
                         Class="column-menu-btn" />
             </ChildContent>
         </Dropdown>
     </div>
-    
     <div class="column-content">
         <TaskCardList Cards=@Cards
                       OnCardClick=@OnCardClick

@@ -11,11 +11,12 @@ public class BoardPageState
     public Dictionary<Guid, List<CardDto>> CardsByColumn { get; set; } = new();
     public bool IsLoading { get; set; } = true;
     public string? Error { get; set; }
-
     public bool IsColumnModalVisible { get; set; }
     public bool IsTitleEditing { get; set; }
     public bool IsTitleSaving { get; set; }
     public bool IsColumnDeleting { get; set; }
+    public Guid? EditingColumnId { get; set; }
+    public bool IsColumnTitleSaving { get; set; }
 
     public static BoardPageState WithError(string error) => new()
     {
@@ -46,6 +47,15 @@ public class BoardPageState
         if (Board != null)
         {
             Board.Title = newTitle;
+        }
+    }
+
+    public void UpdateColumnTitle(Guid columnId, string newTitle)
+    {
+        var column = Columns.FirstOrDefault(c => c.Id == columnId);
+        if (column != null)
+        {
+            column.Title = newTitle;
         }
     }
 

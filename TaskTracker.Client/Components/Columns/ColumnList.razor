@@ -2,6 +2,7 @@
 @using TaskTracker.Client.Components.Cards
 @using TaskTracker.Client.Components.Columns
 @using Microsoft.AspNetCore.Components
+@using TaskTracker.Client.DTOs.Column
 
 <div class="column-list">
     @if (IsLoading)
@@ -14,9 +15,13 @@
         {
             <ColumnCard Column=@column
                         Cards=@GetCards(column.Id)
+                        IsTitleEditing=@IsColumnTitleEditing(column.Id)
+                        OnTitleEditingChanged=@(async (isEditing) => await OnColumnTitleEditingChanged(column.Id, isEditing))
+                        IsTitleSaving=@IsColumnTitleSaving
+                        OnTitleSave=@HandleColumnTitleSave
                         OnCardClick=@OnCardClick
                         OnAddCard=@HandleAddCard
-                        OnEditColumn=@OnEditColumn
+                        OnEditColumn=@(EventCallback.Factory.Create<ColumnDto>(this, async (col) => await OnEditColumn.InvokeAsync((col.Id, col.Title))))
                         OnDeleteColumn=@OnDeleteColumn />
         }
     }

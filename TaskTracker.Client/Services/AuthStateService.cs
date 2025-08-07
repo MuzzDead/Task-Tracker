@@ -9,14 +9,12 @@ namespace TaskTracker.Client.Services;
 public class AuthStateService : IAuthStateService
 {
     private readonly ILocalStorageService _localStorage;
-    private readonly HttpClient _httpClient;
     private const string TokenKey = "auth_token";
     private const string UserKey = "current_user";
 
-    public AuthStateService(ILocalStorageService localStorage, HttpClient httpClient)
+    public AuthStateService(ILocalStorageService localStorage)
     {
         _localStorage = localStorage;
-        _httpClient = httpClient;
     }
 
     public bool IsAuthenticated => !string.IsNullOrEmpty(Token);
@@ -33,8 +31,6 @@ public class AuthStateService : IAuthStateService
         await _localStorage.RemoveItemAsync(TokenKey);
         await _localStorage.RemoveItemAsync(UserKey);
 
-        _httpClient.DefaultRequestHeaders.Authorization = null;
-
         AuthStateChanged?.Invoke(false);
     }
 
@@ -42,14 +38,12 @@ public class AuthStateService : IAuthStateService
     {
         try
         {
-            Token = await _localStorage.GetItemAsStringAsync(TokenKey);
+            Token = await _localStorage.GetItemAsync<string>(TokenKey);
             var userJson = await _localStorage.GetItemAsStringAsync(UserKey);
 
             if (!string.IsNullOrEmpty(Token) && !string.IsNullOrEmpty(userJson))
             {
                 CurrentUser = JsonSerializer.Deserialize<UserDto>(userJson);
-                _httpClient.DefaultRequestHeaders.Authorization =
-                    new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", Token);
             }
         }
         catch
@@ -65,9 +59,6 @@ public class AuthStateService : IAuthStateService
 
         await _localStorage.SetItemAsync(TokenKey, authResponse.Token);
         await _localStorage.SetItemAsStringAsync(UserKey, JsonSerializer.Serialize(authResponse.User));
-
-        _httpClient.DefaultRequestHeaders.Authorization =
-            new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authResponse.Token);
 
         AuthStateChanged?.Invoke(true);
     }

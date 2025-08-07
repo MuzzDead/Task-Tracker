@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TaskTracker.Application.DTOs;
 using TaskTracker.Application.Features.Board.Commands.Archive;
@@ -13,13 +14,14 @@ namespace TaskTracker.API.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
+[Authorize]
 public class BoardController : ControllerBase
 {
     private readonly IMediator _mediator;
     public BoardController(IMediator mediator) => _mediator = mediator;
 
     [HttpGet("{id:guid}")]
-    public async Task<ActionResult<BoardDto>> GetByIdAsync(Guid id)
+    public async Task<IActionResult> GetByIdAsync(Guid id)
     {
         var query = new GetBoardByIdQuery { Id = id };
 
@@ -29,7 +31,7 @@ public class BoardController : ControllerBase
     }
 
     [HttpGet("by-user/{userId:guid}")]
-    public async Task<ActionResult<IEnumerable<BoardDto>>> GetByUserId(Guid userId)
+    public async Task<IActionResult> GetByUserId(Guid userId)
     {
         var query = new GetBoardsByUserIdQuery { UserId = userId };
 
@@ -39,7 +41,7 @@ public class BoardController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<Guid>> CreateAsync([FromBody] CreateBoardCommand command)
+    public async Task<IActionResult> CreateAsync([FromBody] CreateBoardCommand command)
     {
         var board = await _mediator.Send(command);
 

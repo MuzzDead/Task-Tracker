@@ -1,0 +1,67 @@
+﻿@using AntDesign
+@using TaskTracker.Client.DTOs.Member
+
+<div>
+    <Drawer Width="380"
+            Closable="true"
+            Placement=@DrawerPlacement.Right
+            Title='("Team Members")'
+            @bind-Visible=@MembersDrawerVisible
+            OnClose=@HandleMembersDrawerClose>
+
+        <div style="margin-bottom: 16px;">
+            <Button Type=@ButtonType.Primary
+                    Icon="usergroup-add"
+                    Size=@ButtonSize.Large
+                    Block="true"
+                    Style="height: 48px; font-size: 16px; font-weight: 500; border-radius: 8px;"
+                    OnClick=@OpenInviteModal>
+                <Icon Type="plus" Style="margin-right: 8px;" />
+                Invite Members
+            </Button>
+        </div>
+
+        <div style="margin-bottom: 16px; padding: 12px; background: #f6f6f6; border-radius: 6px;">
+            <Text Style="color: #595959; font-size: 14px;">
+                <Icon Type="team" Style="margin-right: 6px;" />
+                @($"{Members.Count} members")
+            </Text>
+        </div>
+
+        <div style="max-height: calc(100vh - 200px); overflow-y: auto;">
+            @if (IsLoading)
+            {
+                <div style="text-align: center; padding: 40px 0;">
+                    <Spin Size=@SpinSize.Large />
+                </div>
+            }
+            else
+            {
+                @foreach (var member in Members)
+                {
+                    <MemberCard Member=@member
+                                CurrentUserId=@CurrentUserId
+                                OnEditRole=@HandleEditRole
+                                OnRemoveMember=@HandleRemoveMember />
+                }
+            }
+        </div>
+    </Drawer>
+
+    <InviteMemberModal Visible=@InviteModalVisible
+                       BoardId=@BoardId
+                       CurrentStep=@CurrentInviteStep
+                       SearchEmail=@SearchEmail
+                       SearchEmailChanged=@SearchEmailChanged
+                       SearchError=@SearchError
+                       FoundUser=@FoundUser
+                       SelectedRole=@SelectedRole
+                       SelectedRoleChanged=@SelectedRoleChanged
+                       IsSearching=@IsSearching
+                       IsSendingInvite=@IsSendingInvite
+                       OnUserSearch=@HandleUserSearch
+                       OnSendInvite=@HandleSendInvite
+                       OnBackToSearch=@HandleBackToSearch
+                       OnCancel=@HandleInviteCancel
+                       OnClose=@HandleInviteClose />
+</div>

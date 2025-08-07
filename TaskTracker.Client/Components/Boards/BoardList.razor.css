@@ -2,7 +2,6 @@
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 0.5rem;
-    padding-left: 2.5rem;
 }
 
     .boards-grid ::deep .board-card {

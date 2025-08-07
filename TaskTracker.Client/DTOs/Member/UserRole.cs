@@ -1,4 +1,4 @@
-﻿namespace TaskTracker.Domain.Enums;
+﻿namespace TaskTracker.Client.DTOs.Member;
 
 public enum UserRole
 {

@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TaskTracker.Application.DTOs;
 using TaskTracker.Application.Features.Card.Commands.Create;
@@ -11,13 +12,14 @@ namespace TaskTracker.API.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
+[Authorize]
 public class CardController : ControllerBase
 {
     private readonly IMediator _mediator;
     public CardController(IMediator mediator) => _mediator = mediator;
 
     [HttpPost]
-    public async Task<ActionResult<Guid>> CreateAsync([FromBody] CreateCardCommand command)
+    public async Task<IActionResult> CreateAsync([FromBody] CreateCardCommand command)
     {
         var card = await _mediator.Send(command);
 
@@ -44,7 +46,7 @@ public class CardController : ControllerBase
     }
 
     [HttpGet("{id:guid}")]
-    public async Task<ActionResult<CardDto>> GetByIdAsync(Guid id)
+    public async Task<IActionResult> GetByIdAsync(Guid id)
     {
         var query = new GetCardByIdQuery { Id = id };
 
@@ -54,7 +56,7 @@ public class CardController : ControllerBase
     }
 
     [HttpGet("column/{columnId:guid}")]
-    public async Task<ActionResult<IEnumerable<CardDto>>> GetByColumnIdAsync(Guid columnId)
+    public async Task<IActionResult> GetByColumnIdAsync(Guid columnId)
     {
         var query = new GetCardsByColumnIdQuery { ColumnId = columnId };
 
