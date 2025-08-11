@@ -1,5 +1,6 @@
 ﻿using Refit;
 using TaskTracker.Client.DTOs.Board;
+using TaskTracker.Client.DTOs.Pagination;
 
 namespace TaskTracker.Client.Services.Interfaces;
 
@@ -10,7 +11,7 @@ public interface IBoardService
 
 
     [Get("/board/by-user/{userId}")]
-    Task<List<BoardDto>> GetByUserIdAsync(Guid userId);
+    Task<PagedResult<BoardDto>> GetByUserIdAsync(Guid userId, int page = 1, int pageSize = 10);
 
 
     [Post("/board")]
@@ -33,5 +34,5 @@ public interface IBoardService
     Task RemoveUserFromBoardAsync(Guid boardId, Guid userId);
 
     [Get("/board/search")]
-    Task<List<BoardDto>> SearchAsync(string searchTerm);
+    Task<PagedResult<BoardDto>> SearchAsync(string searchTerm, int page = 1, int pageSize = 6);
 }

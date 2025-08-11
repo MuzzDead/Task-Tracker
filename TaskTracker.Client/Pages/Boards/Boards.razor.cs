@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Components;
 using Refit;
 using TaskTracker.Client.DTOs.Board;
+using TaskTracker.Client.DTOs.Pagination;
 using TaskTracker.Client.Services.Interfaces;
 
 namespace TaskTracker.Client.Pages.Boards;
@@ -17,7 +18,6 @@ public partial class Boards : ComponentBase
     private int currentPage = 1;
     private int pageSize = 6;
     private int totalBoards;
-    private List<BoardDto> allBoards = new();
     private List<BoardDto> currentPageBoards = new();
 
     private Guid currentUserId;
@@ -46,14 +46,15 @@ public partial class Boards : ComponentBase
         isLoading = true;
         try
         {
-            allBoards = await BoardService.GetByUserIdAsync(currentUserId);
-            totalBoards = allBoards.Count;
-            ApplyPaging();
+            var result = await BoardService.GetByUserIdAsync(currentUserId, currentPage, pageSize);
+            currentPageBoards = result.Items;
+            totalBoards = result.TotalCount;
         }
         catch (ApiException ex)
         {
             Console.Error.WriteLine($"Error loading boards: {ex.StatusCode} - {ex.Content}");
-            allBoards = new();
+            currentPageBoards = new();
+            totalBoards = 0;
         }
         finally
         {
@@ -67,28 +68,30 @@ public partial class Boards : ComponentBase
 
         isSearching = true;
         lastSearchTerm = searchTerm;
+        currentPage = 1; 
 
         try
         {
-            List<BoardDto> searchResults;
+            PagedResult<BoardDto> result;
 
             if (string.IsNullOrWhiteSpace(searchTerm))
             {
-                searchResults = await BoardService.GetByUserIdAsync(currentUserId);
+                result = await BoardService.GetByUserIdAsync(currentUserId, currentPage, pageSize);
             }
             else
             {
-                searchResults = await BoardService.SearchAsync(searchTerm);
+                result = await BoardService.SearchAsync(searchTerm, currentPage, pageSize);
             }
 
-            allBoards = searchResults;
-            totalBoards = allBoards.Count;
-            ApplyPaging();
+            currentPageBoards = result.Items;
+            totalBoards = result.TotalCount;
         }
         catch (ApiException ex)
         {
             Console.Error.WriteLine($"Search error: {ex.StatusCode} - {ex.Content}");
             MessageService.Error("Failed to search boards. Please try again.");
+            currentPageBoards = new();
+            totalBoards = 0;
         }
         finally
         {
@@ -97,18 +100,21 @@ public partial class Boards : ComponentBase
         }
     }
 
-    private void ApplyPaging()
-    {
-        currentPageBoards = allBoards
-            .Skip((currentPage - 1) * pageSize)
-            .Take(pageSize)
-            .ToList();
-    }
-
     private async Task OnPageChange(PaginationEventArgs args)
     {
+        if (currentPage == args.Page) return;
+
         currentPage = args.Page;
-        ApplyPaging();
+
+        if (string.IsNullOrWhiteSpace(searchTerm))
+        {
+            await LoadBoardsAsync();
+        }
+        else
+        {
+            await SearchBoardsAsync();
+        }
+
         await InvokeAsync(StateHasChanged);
     }
 
@@ -129,12 +135,11 @@ public partial class Boards : ComponentBase
         {
             var newBoard = await BoardService.CreateAsync(createBoardDto);
             var board = await BoardService.GetByIdAsync(newBoard);
-            allBoards.Insert(0, board);
-            totalBoards = allBoards.Count;
 
             currentPage = 1;
             searchTerm = string.Empty;
-            ApplyPaging();
+            lastSearchTerm = string.Empty;
+            await LoadBoardsAsync();
 
             MessageService.Success($"Board '{board.Title}' created successfully!");
             await InvokeAsync(StateHasChanged);
@@ -168,7 +173,6 @@ public partial class Boards : ComponentBase
     private async Task OnSearchClick(string searchValue)
     {
         searchTerm = searchValue;
-        currentPage = 1;
         await SearchBoardsAsync();
     }
 
