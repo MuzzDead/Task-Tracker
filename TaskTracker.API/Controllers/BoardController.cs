@@ -1,7 +1,7 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using TaskTracker.Application.DTOs;
+using System.Security.Claims;
 using TaskTracker.Application.Features.Board.Commands.Archive;
 using TaskTracker.Application.Features.Board.Commands.Create;
 using TaskTracker.Application.Features.Board.Commands.Delete;
@@ -9,6 +9,7 @@ using TaskTracker.Application.Features.Board.Commands.RemoveUser;
 using TaskTracker.Application.Features.Board.Commands.Update;
 using TaskTracker.Application.Features.Board.Queries.GetById;
 using TaskTracker.Application.Features.Board.Queries.GetByUserId;
+using TaskTracker.Application.Features.Board.Queries.Search;
 
 namespace TaskTracker.API.Controllers;
 
@@ -81,5 +82,23 @@ public class BoardController : ControllerBase
         await _mediator.Send(new RemoveUserFromBoardCommand(boardId, userId));
 
         return NoContent();
+    }
+
+    [HttpGet("search")]
+    public async Task<IActionResult> SearchAsync([FromQuery] string? searchTerm)
+    {
+        var claim = User.FindFirst(ClaimTypes.NameIdentifier);
+        if (claim == null || !Guid.TryParse(claim.Value, out Guid userId))
+        {
+            return Unauthorized("User ID is missing or invalid in token.");
+        }
+
+        var result = await _mediator.Send(new SearchBoardsQuery
+        {
+            SearchTerm = searchTerm,
+            UserId = userId
+        });
+
+        return Ok(result);
     }
 }
