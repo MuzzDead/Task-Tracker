@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using TaskTracker.Application.DTOs.Pagination;
 using TaskTracker.Application.Features.Board.Commands.Archive;
 using TaskTracker.Application.Features.Board.Commands.Create;
 using TaskTracker.Application.Features.Board.Commands.Delete;
@@ -32,9 +33,16 @@ public class BoardController : ControllerBase
     }
 
     [HttpGet("by-user/{userId:guid}")]
-    public async Task<IActionResult> GetByUserId(Guid userId)
+    public async Task<IActionResult> GetByUserIdAsync(
+        [FromRoute] Guid userId,
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 6)
     {
-        var query = new GetBoardsByUserIdQuery { UserId = userId };
+        var query = new GetBoardsByUserIdQuery
+        {
+            UserId = userId,
+            PagedRequest = new PagedRequest(page, pageSize)
+        };
 
         var boards = await _mediator.Send(query);
 
@@ -85,7 +93,10 @@ public class BoardController : ControllerBase
     }
 
     [HttpGet("search")]
-    public async Task<IActionResult> SearchAsync([FromQuery] string? searchTerm)
+    public async Task<IActionResult> SearchAsync(
+        [FromQuery] string? searchTerm,
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 6)
     {
         var claim = User.FindFirst(ClaimTypes.NameIdentifier);
         if (claim == null || !Guid.TryParse(claim.Value, out Guid userId))
@@ -93,12 +104,14 @@ public class BoardController : ControllerBase
             return Unauthorized("User ID is missing or invalid in token.");
         }
 
-        var result = await _mediator.Send(new SearchBoardsQuery
+        var query = new SearchBoardsQuery
         {
-            SearchTerm = searchTerm,
-            UserId = userId
-        });
+            SearchTerm = searchTerm ?? string.Empty,
+            UserId = userId,
+            PagedRequest = new PagedRequest(page, pageSize)
+        };
 
-        return Ok(result);
+        var boards = await _mediator.Send(query);
+        return Ok(boards);
     }
 }

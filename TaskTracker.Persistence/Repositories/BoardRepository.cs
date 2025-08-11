@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using TaskTracker.Application.Common.Interfaces;
+using TaskTracker.Application.DTOs.Pagination;
 using TaskTracker.Domain.Entities;
 using TaskTracker.Domain.Enums;
 using TaskTracker.Persistence.Repositories.Base;
@@ -25,14 +26,6 @@ public class BoardRepository : BaseRepository<Board, Guid>, IBoardRepository
         await _dbSet.AddAsync(board);
     }
 
-    public async Task<IEnumerable<Board>> GetByUserId(Guid userId)
-    {
-        var createdBoards = GetCreatedBoardsQuery(userId);
-        var memberBoards = GetMemberBoardsQuery(userId);
-
-        return await GetBoardsAsync(createdBoards, memberBoards);
-    }
-
     public async Task RemoveUserAsync(Guid boardId, Guid userId)
     {
         var boardRole = await _context.BoardRoles
@@ -43,22 +36,6 @@ public class BoardRepository : BaseRepository<Board, Guid>, IBoardRepository
             _context.BoardRoles.Remove(boardRole);
         }
     }
-
-    public async Task<IEnumerable<Board>> SearchAsync(string searchTerm, Guid userId)
-    {
-        var searchCondition = $"%{searchTerm}%";
-
-        var createdBoards = GetCreatedBoardsQuery(userId)
-            .Where(b => EF.Functions.Like(b.Title, searchCondition)
-                       || (b.Description != null && EF.Functions.Like(b.Description, searchCondition)));
-
-        var memberBoards = GetMemberBoardsQuery(userId)
-            .Where(b => EF.Functions.Like(b.Title, searchCondition)
-                       || (b.Description != null && EF.Functions.Like(b.Description, searchCondition)));
-
-        return await GetBoardsAsync(createdBoards, memberBoards);
-    }
-
 
     private IQueryable<Board> GetCreatedBoardsQuery(Guid userId)
     {
@@ -79,11 +56,45 @@ public class BoardRepository : BaseRepository<Board, Guid>, IBoardRepository
             .Select(joined => joined.Board);
     }
 
-    private async Task<IEnumerable<Board>> GetBoardsAsync(IQueryable<Board> createdBoards, IQueryable<Board> memberBoards)
+    private async Task<PagedResult<Board>> GetPagedBoardsAsync(
+        IQueryable<Board> createdBoards,
+        IQueryable<Board> memberBoards,
+        PagedRequest request)
     {
-        return await createdBoards
+        var unionQuery = createdBoards
             .Union(memberBoards)
-            .OrderByDescending(b => b.CreatedAt)
+            .OrderByDescending(b => b.CreatedAt);
+
+        var totalCount = await unionQuery.CountAsync();
+
+        var items = await unionQuery
+            .Skip(request.Skip)
+            .Take(request.PageSize)
             .ToListAsync();
+
+        return new PagedResult<Board>(items, totalCount, request.Page, request.PageSize);
+    }
+
+    public async Task<PagedResult<Board>> GetByUserIdAsync(Guid userId, PagedRequest request)
+    {
+        var createdBoards = GetCreatedBoardsQuery(userId);
+        var memberBoards = GetMemberBoardsQuery(userId);
+
+        return await GetPagedBoardsAsync(createdBoards, memberBoards, request);
+    }
+
+    public async Task<PagedResult<Board>> SearchAsync(string searchTerm, Guid userId, PagedRequest request)
+    {
+        var searchCondition = $"%{searchTerm}%";
+
+        var createdBoards = GetCreatedBoardsQuery(userId)
+            .Where(b => EF.Functions.Like(b.Title, searchCondition)
+                       || (b.Description != null && EF.Functions.Like(b.Description, searchCondition)));
+
+        var memberBoards = GetMemberBoardsQuery(userId)
+            .Where(b => EF.Functions.Like(b.Title, searchCondition)
+                       || (b.Description != null && EF.Functions.Like(b.Description, searchCondition)));
+
+        return await GetPagedBoardsAsync(createdBoards, memberBoards, request);
     }
 }
