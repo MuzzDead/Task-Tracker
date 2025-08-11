@@ -1,0 +1,166 @@
+﻿@using AntDesign
+@using TaskTracker.Client.DTOs.Board
+@using TaskTracker.Client.DTOs.Member
+
+<Modal Title="@("Invite Team Member")"
+       @bind-Visible=@Visible
+       Width="480"
+       Footer="null"
+       Closable="true"
+       MaskClosable="false"
+       OnCancel=@HandleCancel>
+
+    <div style="padding: 8px 0;">
+        @if (CurrentStep == InviteStep.Search)
+        {
+            <div style="text-align: center; margin-bottom: 24px;">
+                <Icon Type="usergroup-add" Style="font-size: 48px; color: #1890ff; margin-bottom: 16px;" />
+                <Title Level="4" Style="margin-bottom: 8px; color: #262626;">
+                    @("Find User to Invite")
+                </Title>
+                <Text Type=@TextElementType.Secondary Style="font-size: 14px;">
+                    @("Enter the email address of the user you want to invite to this board")
+                </Text>
+            </div>
+
+            <div style="margin-bottom: 24px;">
+                <Text Strong Style="display: block; margin-bottom: 8px; color: #262626;">
+                    @("Email Address"):
+                </Text>
+<Input Value=@SearchEmail
+       ValueChanged="EventCallback.Factory.Create<string>(this, OnSearchEmailChange)"
+       ValueExpression=@(() => SearchEmail)
+       Placeholder="Enter user email address"
+       Size=@InputSize.Large
+       Style="margin-bottom: 12px;"
+       OnPressEnter=@HandleSearch
+       Suffix=@SearchInputSuffix />
+
+
+                @if (!string.IsNullOrEmpty(SearchError))
+                {
+                    <Alert Type=AlertType.Error
+                           Message=@SearchError
+                           Style="margin-bottom: 16px;"
+                           ShowIcon="true" />
+                }
+            </div>
+
+            <div style="display: flex; gap: 12px; justify-content: flex-end;">
+                <Button Type=@ButtonType.Default
+                        Size=@ButtonSize.Large
+                        OnClick=@HandleCancel>
+                    @("Cancel")
+                </Button>
+                <Button Type=@ButtonType.Primary
+                        Size=@ButtonSize.Large
+                        Icon="search"
+                        Loading=@IsSearching
+                        Disabled=@(string.IsNullOrWhiteSpace(SearchEmail))
+                        OnClick=@HandleSearch>
+                    @("Search User")
+                </Button>
+            </div>
+        }
+        else if (CurrentStep == InviteStep.UserFound)
+        {
+            <div style="text-align: center; margin-bottom: 24px;">
+                <Icon Type="check-circle" Style="font-size: 48px; color: #52c41a; margin-bottom: 16px;" />
+                <Title Level="4" Style="margin-bottom: 8px; color: #262626;">
+                    @("User Found!")
+                </Title>
+                <Text Type=@TextElementType.Secondary Style="font-size: 14px;">
+                    @("Configure the role for this user and send the invitation")
+                </Text>
+            </div>
+
+            @if (FoundUser != null)
+            {
+                <div style="margin-bottom: 24px; padding: 20px; background: #fafafa; border-radius: 12px; border: 1px solid #f0f0f0;">
+                    <Flex Align=@FlexAlign.Center 
+                        Gap=@FlexGap.Middle 
+                        Style="margin-bottom: 16px;">
+                        <Avatar Src=@($"https://api.dicebear.com/7.x/identicon/svg?seed={FoundUser.Username}")
+                                Size=@AvatarSize.Large />
+                        <div style="flex: 1;">
+                            <Text Strong Style="font-size: 16px; display: block; line-height: 1.2; color: #262626;">
+                                @FoundUser.Username
+                            </Text>
+                            <Text Type=@TextElementType.Secondary Style="font-size: 14px; margin-top: 2px;">
+                                @FoundUser.Email
+                            </Text>
+                        </div>
+                        <Icon Type="user" Style="color: #52c41a; font-size: 20px;" />
+                    </Flex>
+                </div>
+
+                <div style="margin-bottom: 24px;">
+                    <Text Strong Style="display: block; margin-bottom: 12px; color: #262626;">
+                        @("Assign Role"):
+                    </Text>
+                    <Select TItemValue=@UserRole
+                            TItem=@UserRole
+                            Value=@SelectedRole
+                            ValueChanged=@OnSelectedRoleChanged
+                            Style="width: 100%; margin-bottom: 12px;"
+                            Size=@InputSize.Large
+                            Placeholder="Choose a role">
+                        <SelectOptions>
+                            <SelectOption TItemValue=@UserRole TItem=@UserRole Value=@UserRole.Admin Label="Admin" />
+                            <SelectOption TItemValue=@UserRole TItem=@UserRole Value=@UserRole.Member Label="Member" />
+                        </SelectOptions>
+                    </Select>
+
+                    <div style="padding: 12px; background: #f6ffed; border: 1px solid #b7eb8f; border-radius: 6px;">
+                        <Text Style="font-size: 13px; color: #389e0d;">
+                            <Icon Type="info-circle" Style="margin-right: 6px;" />
+                            @GetRoleDescription(SelectedRole)
+                        </Text>
+                    </div>
+                </div>
+            }
+
+            <div style="display: flex; gap: 12px;">
+                <Button Type=@ButtonType.Default
+                        Size=@ButtonSize.Large
+                        OnClick=@BackToSearch
+                        Style="flex: 1;">
+                    <Icon Type="arrow-left" Style="margin-right: 6px;" />
+                    @("Back")
+                </Button>
+                <Button Type=@ButtonType.Primary
+                        Size=@ButtonSize.Large
+                        Icon="send"
+                        Loading=@IsSendingInvite
+                        OnClick=@HandleSendInvite
+                        Style="flex: 2;">
+                    @("Send Invitation")
+                </Button>
+            </div>
+        }
+        else if (CurrentStep == InviteStep.Success)
+        {
+            <div style="text-align: center; padding: 24px 0;">
+                <Icon Type="check-circle" Style="font-size: 64px; color: #52c41a; margin-bottom: 20px;" />
+                <Title Level="3" Style="margin-bottom: 12px; color: #262626;">
+                    @("Invitation Sent!")
+                </Title>
+                <Text Type=@TextElementType.Secondary Style="font-size: 16px; margin-bottom: 24px;">
+                    @($"Successfully invited {FoundUser?.Username} as {GetRoleDisplayName(SelectedRole)} to the board")
+                </Text>
+
+                <Button Type=@ButtonType.Primary
+                        Size=@ButtonSize.Large
+                        OnClick=@HandleClose
+                        Style="min-width: 120px;">
+                    @("Done")
+                </Button>
+            </div>
+        }
+    </div>
+</Modal>
+
+@code{
+       private RenderFragment SearchInputSuffix => 
+        @<Icon Type="mail" Style="color: #bfbfbf;" />;
+}

@@ -3,17 +3,21 @@
 @using TaskTracker.Client.Components.Columns
 @using TaskTracker.Client.Components.Boards
 @using TaskTracker.Client.Components.Cards
+@using TaskTracker.Client.Components.Member
 
 <div class="board-details-container">
     <BoardsHeader Title=@(_boardState.Board?.Title ?? "Loading…")
                   ShowSearch="false"
+                  ShowMembersButton="true"
+                  OnOpenMembers=@OpenMembersDrawer
                   OnCreateClick=@ShowColumnModal
                   ButtonText="Add Column"
                   EnableTitleEdit=@(_boardState.Board != null)
                   IsTitleEditing=@_boardState.IsTitleEditing
                   OnTitleEditingChanged=@OnTitleEditingChanged
                   IsTitleSaving=@_boardState.IsTitleSaving
-                  OnTitleSave=@SaveBoardTitle />
+                  OnTitleSave=@SaveBoardTitle
+                  OnArchiveBoard=@ArchiveBoard />
 
     @if (!string.IsNullOrEmpty(_boardState.Error))
     {
@@ -28,6 +32,10 @@
         <ColumnList Columns=@_boardState.Columns
                     CardsByColumn=@_boardState.CardsByColumn
                     IsLoading="false"
+                    EditingColumnId=@_boardState.EditingColumnId
+                    EditingColumnIdChanged=@OnColumnTitleEditingChanged
+                    IsColumnTitleSaving=@_boardState.IsColumnTitleSaving
+                    OnColumnTitleSave=@SaveColumnTitle
                     OnAddCard=@OnAddCard
                     OnCardClick=@OnCardClick
                     OnEditColumn=@OnColumnEdit
@@ -54,4 +62,29 @@
                       OnCommentSubmit=@OnCommentSubmit
                       OnCommentEdit=@OnCommentEdit
                       OnCommentDelete=@OnCommentDelete />
+
+    <MemberList BoardId=@boardId
+                Members=@Members
+                CurrentUserId=@GetCurrentUserId()
+                MembersDrawerVisible=@MembersDrawerVisible
+                InviteModalVisible=@InviteModalVisible
+                IsLoading=@IsMembersLoading
+                ErrorMessage=@MembersErrorMessage
+                CurrentInviteStep=@CurrentInviteStep
+                SearchEmail=@SearchEmail
+                SearchEmailChanged=@(async (value) => SearchEmail = value)
+                SearchError=@SearchError
+                FoundUser=@FoundUser
+                SelectedRole=@SelectedRole
+                SelectedRoleChanged=@(async (value) => SelectedRole = value)
+                IsSearching=@IsSearching
+                IsSendingInvite=@IsSendingInvite
+                OnMembersDrawerClose=@OnMembersDrawerClose
+                OnOpenInviteModal=@OpenInviteModal
+                OnCloseInviteModal=@CloseInviteModal
+                OnEditRole=@HandleEditRole
+                OnRemoveMember=@HandleRemoveMember
+                OnUserSearch=@HandleUserSearch
+                OnSendInvite=@HandleSendInvite
+                OnBackToSearch=@BackToSearch />
 </div>

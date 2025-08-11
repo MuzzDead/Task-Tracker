@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TaskTracker.Application.Features.Comment.Commands.Create;
 using TaskTracker.Application.Features.Comment.Commands.Delete;
@@ -10,6 +11,7 @@ namespace TaskTracker.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
 public class CommentController : ControllerBase
 {
     private readonly IMediator _mediator;
@@ -39,7 +41,7 @@ public class CommentController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<Guid>> CreateAsync([FromBody] CreateCommentCommand command)
+    public async Task<IActionResult> CreateAsync([FromBody] CreateCommentCommand command)
     {
         var comment = await _mediator.Send(command);
 

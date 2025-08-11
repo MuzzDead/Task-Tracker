@@ -20,7 +20,7 @@ public class StateController : ControllerBase
     }
 
     [HttpGet("{id:guid}")]
-    public async Task<ActionResult<StateDto>> GetByIdAsync(Guid id)
+    public async Task<IActionResult> GetByIdAsync(Guid id)
     {
         var query = new GetStateByIdQuery { Id = id };
 
@@ -30,7 +30,7 @@ public class StateController : ControllerBase
     }
 
     [HttpGet("card/{cardId:guid}")]
-    public async Task<ActionResult<StateDto>> GetByCardIdAsync(Guid cardId)
+    public async Task<IActionResult> GetByCardIdAsync(Guid cardId)
     {
         var query = new GetStateByCardIdQuery { CardId = cardId };
         

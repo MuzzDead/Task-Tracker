@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using TaskTracker.Application.Common.Interfaces;
+using TaskTracker.Application.DTOs.Pagination;
 using TaskTracker.Domain.Entities;
 using TaskTracker.Domain.Enums;
 using TaskTracker.Persistence.Repositories.Base;
@@ -25,16 +26,6 @@ public class BoardRepository : BaseRepository<Board, Guid>, IBoardRepository
         await _dbSet.AddAsync(board);
     }
 
-    public async Task<IEnumerable<Board>> GetByUserId(Guid userId)
-    {
-        var boards = await _dbSet
-            .Where(b => b.CreatedBy == userId.ToString())
-            .OrderBy(b => b.CreatedAt)
-            .ToListAsync();
-
-        return boards;
-    }
-
     public async Task RemoveUserAsync(Guid boardId, Guid userId)
     {
         var boardRole = await _context.BoardRoles
@@ -44,5 +35,66 @@ public class BoardRepository : BaseRepository<Board, Guid>, IBoardRepository
         {
             _context.BoardRoles.Remove(boardRole);
         }
+    }
+
+    private IQueryable<Board> GetCreatedBoardsQuery(Guid userId)
+    {
+        return _dbSet
+            .AsNoTracking()
+            .Where(b => b.CreatedBy == userId.ToString() && !b.IsArchived);
+    }
+
+    private IQueryable<Board> GetMemberBoardsQuery(Guid userId)
+    {
+        return _dbSet
+            .AsNoTracking()
+            .Join(_context.Set<BoardRole>(),
+                  board => board.Id,
+                  boardRole => boardRole.BoardId,
+                  (board, boardRole) => new { Board = board, BoardRole = boardRole })
+            .Where(joined => joined.BoardRole.UserId == userId && !joined.Board.IsArchived)
+            .Select(joined => joined.Board);
+    }
+
+    private async Task<PagedResult<Board>> GetPagedBoardsAsync(
+        IQueryable<Board> createdBoards,
+        IQueryable<Board> memberBoards,
+        PagedRequest request)
+    {
+        var unionQuery = createdBoards
+            .Union(memberBoards)
+            .OrderByDescending(b => b.CreatedAt);
+
+        var totalCount = await unionQuery.CountAsync();
+
+        var items = await unionQuery
+            .Skip(request.Skip)
+            .Take(request.PageSize)
+            .ToListAsync();
+
+        return new PagedResult<Board>(items, totalCount, request.Page, request.PageSize);
+    }
+
+    public async Task<PagedResult<Board>> GetByUserIdAsync(Guid userId, PagedRequest request)
+    {
+        var createdBoards = GetCreatedBoardsQuery(userId);
+        var memberBoards = GetMemberBoardsQuery(userId);
+
+        return await GetPagedBoardsAsync(createdBoards, memberBoards, request);
+    }
+
+    public async Task<PagedResult<Board>> SearchAsync(string searchTerm, Guid userId, PagedRequest request)
+    {
+        var searchCondition = $"%{searchTerm}%";
+
+        var createdBoards = GetCreatedBoardsQuery(userId)
+            .Where(b => EF.Functions.Like(b.Title, searchCondition)
+                       || (b.Description != null && EF.Functions.Like(b.Description, searchCondition)));
+
+        var memberBoards = GetMemberBoardsQuery(userId)
+            .Where(b => EF.Functions.Like(b.Title, searchCondition)
+                       || (b.Description != null && EF.Functions.Like(b.Description, searchCondition)));
+
+        return await GetPagedBoardsAsync(createdBoards, memberBoards, request);
     }
 }

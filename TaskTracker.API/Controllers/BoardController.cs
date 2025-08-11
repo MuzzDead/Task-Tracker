@@ -1,6 +1,8 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using TaskTracker.Application.DTOs;
+using System.Security.Claims;
+using TaskTracker.Application.DTOs.Pagination;
 using TaskTracker.Application.Features.Board.Commands.Archive;
 using TaskTracker.Application.Features.Board.Commands.Create;
 using TaskTracker.Application.Features.Board.Commands.Delete;
@@ -8,18 +10,20 @@ using TaskTracker.Application.Features.Board.Commands.RemoveUser;
 using TaskTracker.Application.Features.Board.Commands.Update;
 using TaskTracker.Application.Features.Board.Queries.GetById;
 using TaskTracker.Application.Features.Board.Queries.GetByUserId;
+using TaskTracker.Application.Features.Board.Queries.Search;
 
 namespace TaskTracker.API.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
+[Authorize]
 public class BoardController : ControllerBase
 {
     private readonly IMediator _mediator;
     public BoardController(IMediator mediator) => _mediator = mediator;
 
     [HttpGet("{id:guid}")]
-    public async Task<ActionResult<BoardDto>> GetByIdAsync(Guid id)
+    public async Task<IActionResult> GetByIdAsync(Guid id)
     {
         var query = new GetBoardByIdQuery { Id = id };
 
@@ -29,9 +33,16 @@ public class BoardController : ControllerBase
     }
 
     [HttpGet("by-user/{userId:guid}")]
-    public async Task<ActionResult<IEnumerable<BoardDto>>> GetByUserId(Guid userId)
+    public async Task<IActionResult> GetByUserIdAsync(
+        [FromRoute] Guid userId,
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 6)
     {
-        var query = new GetBoardsByUserIdQuery { UserId = userId };
+        var query = new GetBoardsByUserIdQuery
+        {
+            UserId = userId,
+            PagedRequest = new PagedRequest(page, pageSize)
+        };
 
         var boards = await _mediator.Send(query);
 
@@ -39,7 +50,7 @@ public class BoardController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<Guid>> CreateAsync([FromBody] CreateBoardCommand command)
+    public async Task<IActionResult> CreateAsync([FromBody] CreateBoardCommand command)
     {
         var board = await _mediator.Send(command);
 
@@ -79,5 +90,28 @@ public class BoardController : ControllerBase
         await _mediator.Send(new RemoveUserFromBoardCommand(boardId, userId));
 
         return NoContent();
+    }
+
+    [HttpGet("search")]
+    public async Task<IActionResult> SearchAsync(
+        [FromQuery] string? searchTerm,
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 6)
+    {
+        var claim = User.FindFirst(ClaimTypes.NameIdentifier);
+        if (claim == null || !Guid.TryParse(claim.Value, out Guid userId))
+        {
+            return Unauthorized("User ID is missing or invalid in token.");
+        }
+
+        var query = new SearchBoardsQuery
+        {
+            SearchTerm = searchTerm ?? string.Empty,
+            UserId = userId,
+            PagedRequest = new PagedRequest(page, pageSize)
+        };
+
+        var boards = await _mediator.Send(query);
+        return Ok(boards);
     }
 }

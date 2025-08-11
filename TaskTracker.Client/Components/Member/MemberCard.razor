@@ -1,0 +1,131 @@
+﻿@using AntDesign
+@using TaskTracker.Client.DTOs.Board
+@using TaskTracker.Client.DTOs.Member
+
+<Card Bordered="true" Hoverable="true" Style="width: 100%; margin-bottom: 8px;">
+    <Body>
+        <Flex Justify=@FlexJustify.SpaceBetween
+              Align=@FlexAlign.Center
+              Style="width: 100%;">
+            <Flex Align=@FlexAlign.Center
+                  Gap=@FlexGap.Middle>
+                <Avatar Src=@($"https://api.dicebear.com/7.x/identicon/svg?seed={Member.Username}")
+                        Size=@AvatarSize.Large />
+                <div>
+                    <Text Strong Style="font-size: 16px; display: block; line-height: 1.2;">
+                        @Member.Username
+                        @if (IsCurrentUser)
+                        {
+                            <Tag Color=@TagColor.Blue Style="margin-left: 8px; font-size: 10px;">You</Tag>
+                        }
+                    </Text>
+                    <Tag Color=@GetRoleColor(Member.UserRole) Style="margin-top: 4px; font-size: 11px; border-radius: 12px;">
+                        @GetRoleDisplayName(Member.UserRole)
+                    </Tag>
+                </div>
+            </Flex>
+
+            @if (!IsCurrentUser)
+            {
+                <Dropdown Trigger=@(new Trigger[] { Trigger.Click })
+                          Placement=@Placement.BottomRight
+                          @bind-Visible=@dropdownVisible>
+                    <Overlay>
+                        <Menu>
+                            <MenuItem Key="edit" OnClick=@(_ => ShowRoleDrawer())>
+                                <Icon Type="user-switch" Style="margin-right: 8px;" />
+                                @("Change Role")
+                            </MenuItem>
+                            <MenuItem Key="delete" OnClick="HandleDelete" Class="delete-menu-item">
+                                <Text Type=@TextElementType.Danger>
+                                    <Icon Type="user-delete" Style="margin-right: 8px;" />
+                                    @("Remove Member")
+                                </Text>
+                            </MenuItem>
+                        </Menu>
+                    </Overlay>
+                    <ChildContent>
+                        <Button Type=@ButtonType.Text
+                                Size=@ButtonSize.Small
+                                Icon="more"
+                                Style="color: #8c8c8c;" />
+                    </ChildContent>
+                </Dropdown>
+            }
+        </Flex>
+    </Body>
+</Card>
+
+<Drawer Width="320"
+        Closable="true"
+        @bind-Visible=@roleDrawerVisible
+        Title=@("Change Member Role")
+        Placement=@DrawerPlacement.Right
+        OnClose=@CloseRoleDrawer>
+    <div style="padding: 16px 0;">
+        <div style="text-align: center; margin-bottom: 24px; padding: 16px; background: #fafafa; border-radius: 8px;">
+            <Avatar Src=@($"https://api.dicebear.com/7.x/identicon/svg?seed={Member.Username}")
+                    Size=@AvatarSize.Large
+                    Style="margin-bottom: 8px;" />
+            <div>
+                <Text Strong Style="display: block; font-size: 16px;">
+                    @Member.Username
+                    @if (IsCurrentUser)
+                    {
+                        <Tag Color=@TagColor.Blue Style="margin-left: 8px; font-size: 10px;">You</Tag>
+                    }
+                </Text>
+                <Text Type=@TextElementType.Secondary Style="font-size: 14px;">@Member.Email</Text>
+            </div>
+        </div>
+
+        @if (IsCurrentUser)
+        {
+            <Alert Type="AlertType.Warning"
+                   Message="You are editing your own role"
+                   Description="Be careful when changing your own permissions."
+                   Style="margin-bottom: 16px;" />
+        }
+
+        <div style="margin-bottom: 24px;">
+            <Text Strong Style="display: block; margin-bottom: 8px; color: #262626;">@("Select Role:"):</Text>
+            <Select TItemValue=@UserRole
+                    TItem=@UserRole
+                    @bind-Value=@selectedRole
+                    Style="width: 100%; margin-bottom: 16px;"
+                    Size=@InputSize.Large
+                    Placeholder="Choose a role">
+                <SelectOptions>
+                    <SelectOption TItemValue=@UserRole TItem=@UserRole Value=@UserRole.Owner Label="Owner" />
+                    <SelectOption TItemValue=@UserRole TItem=@UserRole Value=@UserRole.Admin Label="Admin" />
+                    <SelectOption TItemValue=@UserRole TItem=@UserRole Value=@UserRole.Member Label="Member" />
+                </SelectOptions>
+            </Select>
+
+            @if (selectedRole != Member.UserRole)
+            {
+                <Alert Type="AlertType.Info"
+                       Message=@($"Role will be changed from {GetRoleDisplayName(Member.UserRole)} to {GetRoleDisplayName(selectedRole)}")
+                       Style="margin-bottom: 16px;" />
+            }
+        </div>
+
+        <div style="display: flex; gap: 8px;">
+            <Button Type=@ButtonType.Default
+                    Block="true"
+                    Size=@ButtonSize.Large
+                    OnClick=@CloseRoleDrawer>
+                Cancel
+            </Button>
+            <Button Type=@ButtonType.Primary
+                    Block="true"
+                    Size=@ButtonSize.Large
+                    Icon="save"
+                    Loading=@isUpdatingRole
+                    Disabled=@(selectedRole == Member.UserRole)
+                    OnClick=@HandleRoleUpdate>
+                @("Save Changes")
+            </Button>
+        </div>
+    </div>
+</Drawer>

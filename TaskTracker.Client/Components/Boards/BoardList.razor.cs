@@ -37,13 +37,13 @@ public partial class BoardList : ComponentBase
     public Dictionary<Guid, List<string>> BoardMembers { get; set; } = new();
 
     private int GetBoardTasksCount(Guid boardId) =>
-      TasksCounts.TryGetValue(boardId, out var count) ? count : 0;
+        TasksCounts.TryGetValue(boardId, out var count) ? count : 0;
 
     private int GetBoardMembersCount(Guid boardId) =>
-      MembersCounts.TryGetValue(boardId, out var count) ? count : 0;
+        MembersCounts.TryGetValue(boardId, out var count) ? count : 0;
 
     private List<string> GetBoardMembers(Guid boardId) =>
-      BoardMembers.TryGetValue(boardId, out var members)
-        ? members
-        : new List<string>();
+        BoardMembers.TryGetValue(boardId, out var members)
+            ? members
+            : new List<string>();
 }
