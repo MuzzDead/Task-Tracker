@@ -18,29 +18,35 @@
     <div class="header-right">
         @if (ShowSearch)
         {
-            <Input TValue="string"
-                   @bind-Value=@SearchTerm
-                   Placeholder="Search boards..."
-                   PrefixIcon="search"
-                   Size=@InputSize.Large
-                   Class="search-input"
-                   OnChangeValue=@OnSearchChangedValue />
+            <div class="search-container">
+                <Input TValue="string"
+                       @bind-Value=@SearchTerm
+                       Placeholder="Search boards..."
+                       Size=@InputSize.Large
+                       Class="search-input"
+                       @onkeypress=@OnSearchKeyPress
+                       Disabled=@IsSearching />
+                <Button Type=@ButtonType.Default
+                        Size=@ButtonSize.Large
+                        Class="search-button"
+                        @onclick=@OnSearchButtonClick
+                        Loading=@IsSearching>
+                    <Icon Type="search" />
+                </Button>
+            </div>
         }
-
         @if (ShowMembersButton)
         {
             <Button Size=@ButtonSize.Large Type=@ButtonType.Default @onclick=@OpenMembersDrawer>
                 <Icon Type="team" />
                 @("Members")
             </Button>
-
             <Button Size=@ButtonSize.Large Type=@ButtonType.Default @onclick=@ArchiveBoard>
                 <Text Type=@TextElementType.Danger>
                     <Icon Type="file-zip" />
                 </Text>
             </Button>
         }
-
         <Button Type=@ButtonType.Primary
                 Size=@ButtonSize.Large
                 Icon="plus"
