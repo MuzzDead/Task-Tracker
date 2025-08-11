@@ -31,4 +31,7 @@ public interface IBoardService
 
     [Delete("/board/{boardId}/users/{userId}")]
     Task RemoveUserFromBoardAsync(Guid boardId, Guid userId);
+
+    [Get("/board/search")]
+    Task<List<BoardDto>> SearchAsync(string searchTerm);
 }

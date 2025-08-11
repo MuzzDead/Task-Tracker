@@ -7,13 +7,14 @@
 <div class="boards-container">
     <BoardsHeader Title="My Boards"
                   ShowSearch="true"
-                  SearchTerm="@searchTerm"
-                  OnSearchChangedValue=@OnSearchChangedValue
+                  SearchTerm=@searchTerm
+                  OnSearchClick=@OnSearchClick
                   OnCreateClick=@CreateBoard
-                  ButtonText="Add Board" />
+                  ButtonText="Add Board"
+                  IsSearching=@isSearching />
 
     <BoardList CurrentPageBoards=@currentPageBoards
-               IsLoading=@isLoading
+               IsLoading=@(isLoading || isSearching)
                CurrentPage=@currentPage
                PageSize=@pageSize
                TotalBoards=@totalBoards
