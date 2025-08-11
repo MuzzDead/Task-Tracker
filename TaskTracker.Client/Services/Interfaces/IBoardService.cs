@@ -11,7 +11,7 @@ public interface IBoardService
 
 
     [Get("/board/by-user/{userId}")]
-    Task<PagedResult<BoardDto>> GetByUserIdAsync(Guid userId, int page = 1, int pageSize = 10);
+    Task<PagedResult<BoardDto>> GetByUserIdAsync(Guid userId, int page = 1, int pageSize = 6);
 
 
     [Post("/board")]
