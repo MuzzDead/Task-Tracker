@@ -54,6 +54,12 @@ builder.Services
     .ConfigureHttpClient(c => c.BaseAddress = new Uri(apiBaseUrl))
     .AddHttpMessageHandler<AuthenticationHandler>();
 
+builder.Services
+    .AddRefitClient<IStateService>()
+    .ConfigureHttpClient(c => c.BaseAddress = new Uri(apiBaseUrl))
+    .AddHttpMessageHandler<AuthenticationHandler>();
+
+
 builder.Services.AddScoped<IBoardPageService, BoardPageService>();
 builder.Services.AddScoped<ICardModalService, CardModalService>();
 builder.Services.AddScoped<IPasswordHashingService, PasswordHashingService>();
