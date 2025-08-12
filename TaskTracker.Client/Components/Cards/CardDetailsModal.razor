@@ -6,6 +6,12 @@
     <div class="card-modal-container" @onclick:stopPropagation="true">
         <Card Class="card-details-modal" Bordered="false">
             <div class="modal-header">
+                <div class="task-status-toggle" style="margin-right: 1rem;">
+                    <Tooltip Title="@(IsTaskCompleted ? "Mark as incomplete" : "Mark as completed")" Placement=@Placement.Bottom>
+                        <Checkbox @bind-Checked=@IsTaskCompleted onclick=@HandleComplete Class="round-checkbox" />
+                    </Tooltip>
+                </div>
+
                 <EditableCardTitle Title=@(Card?.Title ?? "")
                                    IsEditing=@IsTitleEditing
                                    IsSaving=@IsTitleSaving
@@ -24,7 +30,16 @@
                         Size=@ButtonSize.Large
                         @onclick=@HandleClose
                         Class="close-button" />
+
             </div>
+            <Flex Gap=@FlexGap.Middle Direction=@FlexDirection.Horizontal>
+                <Tag Color=@TagColor.YellowInverse>
+                    Medium priority
+                </Tag>
+
+                <DatePicker TValue="DateTimeOffset?" ShowTime="@true"
+                            Format="@("yyyy-MM-dd HH:mm:ss")" />
+            </Flex>
 
             <div class="modal-content">
                 <div class="modal-right-section">

@@ -1,5 +1,6 @@
 ﻿using TaskTracker.Client.DTOs.Card;
 using TaskTracker.Client.DTOs.Comment;
+using TaskTracker.Client.DTOs.State;
 
 namespace TaskTracker.Client.States;
 
@@ -7,6 +8,7 @@ public class CardModalState
 {
     public CardDto? SelectedCard { get; set; }
     public List<CommentDto> Comments { get; set; } = new();
+    public StateDto? State { get; set; }
     public bool IsVisible { get; set; }
 
     public bool IsCommentsLoading { get; set; }
@@ -18,6 +20,8 @@ public class CardModalState
     public bool IsDescriptionSaving { get; set; }
 
     public bool IsCardDeleting { get; set; }
+    
+    public bool IsCompleted { get; set; }
 
     public static CardModalState WithCard(CardDto card) => new()
     {
@@ -30,13 +34,22 @@ public class CardModalState
     {
         IsVisible = false,
         SelectedCard = null,
-        Comments = new()
+        Comments = new(),
+        State = null,
+        IsCompleted = false
     };
 
     public void SetComments(List<CommentDto> comments)
     {
         Comments = comments;
         IsCommentsLoading = false;
+    }
+
+    public void SetCardStates(StateDto? states)
+    {
+        State = states;
+
+        IsCompleted = states?.IsCompleted ?? false;
     }
 
     public void AddComment(CommentDto comment)

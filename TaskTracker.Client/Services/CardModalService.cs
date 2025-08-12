@@ -1,6 +1,7 @@
 ﻿using Refit;
 using TaskTracker.Client.DTOs.Card;
 using TaskTracker.Client.DTOs.Comment;
+using TaskTracker.Client.DTOs.State;
 using TaskTracker.Client.Services.Interfaces;
 using TaskTracker.Client.States;
 
@@ -10,11 +11,13 @@ public class CardModalService : ICardModalService
 {
     private readonly ICardService _cardService;
     private readonly ICommentService _commentService;
+    private readonly IStateService _stateService;
 
-    public CardModalService(ICardService cardService, ICommentService commentService)
+    public CardModalService(ICardService cardService, ICommentService commentService, IStateService stateService)
     {
         _cardService = cardService;
         _commentService = commentService;
+        _stateService = stateService;
     }
 
     public async Task<CardModalState> LoadCardDetailsAsync(Guid cardId)
@@ -26,7 +29,9 @@ public class CardModalService : ICardModalService
 
         try
         {
+            var cardState = await _stateService.GetByCardIdAsync(cardId);
             var comments = (await _commentService.GetByCardIdAsync(cardId)).ToList();
+            state.SetCardStates(cardState);
             state.SetComments(comments);
             return state;
         }
@@ -160,6 +165,44 @@ public class CardModalService : ICardModalService
         {
             Console.Error.WriteLine($"Error deleting card: {ex.Message}");
             return false;
+        }
+    }
+
+    public async Task<bool> UpdateCardStateAsync(Guid cardId, bool isCompleted)
+    {
+        try
+        {
+            var updateDto = new UpdateStateDto
+            {
+                CardId = cardId,
+                IsCompleted = isCompleted
+            };
+
+            await _stateService.UpdateAsync(cardId, updateDto);
+            return true;
+        }
+        catch (ApiException apiEx)
+        {
+            Console.Error.WriteLine($"[API Error] Failed to update card state: {apiEx.StatusCode}: {apiEx.Content}");
+            return false;
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Error updating card state: {ex.Message}");
+            return false;
+        }
+    }
+
+    public async Task<StateDto?> GetStateByCardAsync(Guid cardId)
+    {
+        try
+        {
+            return await _stateService.GetByCardIdAsync(cardId);
+        }
+        catch (ApiException apiEx)
+        {
+            Console.Error.WriteLine($"[API Error] Failed to get card state: {apiEx.StatusCode}: {apiEx.Content}");
+            throw;
         }
     }
 }

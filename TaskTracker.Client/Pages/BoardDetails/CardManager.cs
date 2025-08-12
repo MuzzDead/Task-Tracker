@@ -61,7 +61,10 @@ public class CardManager
         _setCardModalState(cardModalState);
 
         var cardDetails = await _cardModalService.LoadCardDetailsAsync(card.Id);
+
         cardModalState.SetComments(cardDetails.Comments);
+        cardModalState.SetCardStates(cardDetails.State); 
+
         _setCardModalState(cardModalState);
     }
 

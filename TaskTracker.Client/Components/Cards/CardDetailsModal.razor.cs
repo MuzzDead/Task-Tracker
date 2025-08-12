@@ -25,6 +25,9 @@ public partial class CardDetailsModal : ComponentBase
     [Parameter] public bool IsDeleting { get; set; }
     [Parameter] public EventCallback<Guid> OnCardDelete { get; set; }
 
+    [Parameter] public bool IsTaskCompleted { get; set; }
+    [Parameter] public EventCallback<(Guid cardId, bool isCompleted)> OnTaskComplete { get; set; }
+
     private async Task HandleDelete()
     {
         if (Card != null)
@@ -41,5 +44,13 @@ public partial class CardDetailsModal : ComponentBase
     private async Task HandleBackdropClick()
     {
         await HandleClose();
+    }
+
+    private async Task HandleComplete()
+    {
+        if (Card == null)
+            return;
+
+        await OnTaskComplete.InvokeAsync((Card.Id, !IsTaskCompleted));
     }
 }

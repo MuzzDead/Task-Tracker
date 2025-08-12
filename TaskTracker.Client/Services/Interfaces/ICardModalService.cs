@@ -1,4 +1,5 @@
-﻿using TaskTracker.Client.States;
+﻿using TaskTracker.Client.DTOs.State;
+using TaskTracker.Client.States;
 
 namespace TaskTracker.Client.Services.Interfaces;
 
@@ -10,4 +11,6 @@ public interface ICardModalService
     Task<bool> UpdateCommentAsync(Guid commentId, string content, Guid userId);
     Task<bool> DeleteCommentAsync(Guid commentId);
     Task<bool> DeleteCardAsync(Guid cardId);
+    Task<StateDto?> GetStateByCardAsync(Guid cardId);
+    Task<bool> UpdateCardStateAsync(Guid cardId, bool isCompleted);
 }

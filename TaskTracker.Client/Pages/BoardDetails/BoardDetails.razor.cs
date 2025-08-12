@@ -27,6 +27,7 @@ namespace TaskTracker.Client.Pages.BoardDetails
         private ColumnManager _columnManager = default!;
         private CardManager _cardManager = default!;
         private MemberManager _memberManager = default!;
+        private CardStateManager _cardStateManager = default!;
 
         public void OpenMembersDrawer() => _memberManager.OpenMembersDrawer();
 
@@ -127,6 +128,13 @@ namespace TaskTracker.Client.Pages.BoardDetails
                 UserService,
                 boardId,
                 StateHasChanged);
+
+            _cardStateManager = new CardStateManager(
+                CardModalService,
+                GetCurrentUserId,
+                AuthStateService,
+                () => _cardModalState,
+                (cardState) => { _cardModalState = cardState; StateHasChanged(); });
         }
 
         private async Task LoadInitialData()
@@ -193,5 +201,9 @@ namespace TaskTracker.Client.Pages.BoardDetails
 
         private async Task OnCommentDelete(Guid commentId) =>
             await _cardManager.OnCommentDeleteAsync(commentId);
+
+
+        private async Task OnTaskComplete((Guid cardId, bool isCompleted) args) =>
+            await _cardStateManager.OnCompleteTaskAsync(args.cardId, args.isCompleted);
     }
 }
