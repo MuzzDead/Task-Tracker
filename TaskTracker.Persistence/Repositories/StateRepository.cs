@@ -1,4 +1,5 @@
-﻿using TaskTracker.Application.Common.Interfaces;
+﻿using Microsoft.EntityFrameworkCore;
+using TaskTracker.Application.Common.Interfaces;
 using TaskTracker.Domain.Entities;
 using TaskTracker.Persistence.Repositories.Base;
 
@@ -10,6 +11,6 @@ public class StateRepository : BaseRepository<State, Guid>, IStateRepository
 
     public async Task<State?> GetByCardIdAsync(Guid cardId)
     {
-        return await _dbSet.FindAsync(cardId);
+        return await _dbSet.FirstOrDefaultAsync(s => s.CardId == cardId);
     }
 }
