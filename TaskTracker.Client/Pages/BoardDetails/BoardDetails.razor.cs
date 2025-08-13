@@ -3,6 +3,7 @@ using TaskTracker.Client.DTOs.Card;
 using TaskTracker.Client.DTOs.Column;
 using TaskTracker.Client.DTOs.Comment;
 using TaskTracker.Client.DTOs.Member;
+using TaskTracker.Client.DTOs.State;
 using TaskTracker.Client.DTOs.User;
 using TaskTracker.Client.Services.Interfaces;
 using TaskTracker.Client.States;
@@ -205,5 +206,14 @@ namespace TaskTracker.Client.Pages.BoardDetails
 
         private async Task OnTaskComplete((Guid cardId, bool isCompleted) args) =>
             await _cardStateManager.OnCompleteTaskAsync(args.cardId, args.isCompleted);
+
+        private async Task OnRemoveAssignment(Guid cardId) =>
+           await _cardStateManager.RemoveAssignmentAsync(cardId);
+
+        private Task OnOpenAssignModal() =>
+            _cardStateManager.OpenAssignModal();
+
+        private async Task OnStateEdit((Guid cardId, Priority priority, DateTimeOffset? deadline) args) =>
+            await _cardStateManager.OnStateEditAsync(args.cardId, args.priority, args.deadline);
     }
 }

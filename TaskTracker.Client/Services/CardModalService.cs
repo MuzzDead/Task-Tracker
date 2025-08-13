@@ -2,6 +2,7 @@
 using TaskTracker.Client.DTOs.Card;
 using TaskTracker.Client.DTOs.Comment;
 using TaskTracker.Client.DTOs.State;
+using TaskTracker.Client.DTOs.User;
 using TaskTracker.Client.Services.Interfaces;
 using TaskTracker.Client.States;
 
@@ -12,27 +13,50 @@ public class CardModalService : ICardModalService
     private readonly ICardService _cardService;
     private readonly ICommentService _commentService;
     private readonly IStateService _stateService;
+    private readonly IUserService _userService;
 
-    public CardModalService(ICardService cardService, ICommentService commentService, IStateService stateService)
+    public CardModalService(ICardService cardService, ICommentService commentService, IStateService stateService, IUserService userService)
     {
         _cardService = cardService;
         _commentService = commentService;
         _stateService = stateService;
+        _userService = userService;
     }
 
     public async Task<CardModalState> LoadCardDetailsAsync(Guid cardId)
     {
         var state = new CardModalState
         {
-            IsCommentsLoading = true
+            IsCommentsLoading = true,
+            IsAssigneeLoading = true
         };
 
         try
         {
-            var cardState = await _stateService.GetByCardIdAsync(cardId);
-            var comments = (await _commentService.GetByCardIdAsync(cardId)).ToList();
+            var cardStateTask = _stateService.GetByCardIdAsync(cardId);
+            var commentsTask = _commentService.GetByCardIdAsync(cardId);
+
+            await Task.WhenAll(cardStateTask, commentsTask);
+
+            var cardState = await cardStateTask;
+            var comments = (await commentsTask).ToList();
+
             state.SetCardStates(cardState);
             state.SetComments(comments);
+
+            if (cardState?.AssigneeId != null)
+            {
+                var assignedUser = await GetAssignedUserAsync(cardState.AssigneeId.Value);
+                if (assignedUser != null)
+                {
+                    state.SetAssignedUser(assignedUser);
+                }
+            }
+            else
+            {
+                state.IsAssigneeLoading = false;
+            }
+
             return state;
         }
         catch (ApiException apiEx)
@@ -45,6 +69,7 @@ public class CardModalService : ICardModalService
         {
             Console.Error.WriteLine($"Error loading comments: {ex.Message}");
             state.SetComments(new List<CommentDto>());
+            state.IsAssigneeLoading = false;
             return state;
         }
     }
@@ -203,6 +228,83 @@ public class CardModalService : ICardModalService
         {
             Console.Error.WriteLine($"[API Error] Failed to get card state: {apiEx.StatusCode}: {apiEx.Content}");
             throw;
+        }
+    }
+
+    public async Task<UserDto?> GetAssignedUserAsync(Guid? assigneeId)
+    {
+        if (!assigneeId.HasValue) return null;
+
+        try
+        {
+            return await _userService.GetByIdAsync(assigneeId.Value);
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Error loading assigned user: {ex.Message}");
+            return null;
+        }
+    }
+
+    public async Task<bool> RemoveAssignmentAsync(Guid cardId)
+    {
+        try
+        {
+            var updateDto = new UpdateStateDto
+            {
+                CardId = cardId,
+                AssigneeId = Guid.Empty
+            };
+
+            await _stateService.UpdateAsync(cardId, updateDto);
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Error removing assignment: {ex.Message}");
+            return false;
+        }
+    }
+
+    public async Task<bool> AssignUserAsync(Guid cardId, Guid userId)
+    {
+        try
+        {
+            var updateDto = new UpdateStateDto
+            {
+                CardId = cardId,
+                AssigneeId = userId
+            };
+
+            await _stateService.UpdateAsync(cardId, updateDto);
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Error assigning user: {ex.Message}");
+            return false;
+        }
+    }
+
+    public async Task<bool> UpdateCardStateFieldsAsync(Guid cardId, Priority? priority, DateTimeOffset? deadline, Guid currentUserId)
+    {
+        try
+        {
+            var updateDto = new UpdateStateDto
+            {
+                CardId = cardId,
+                Priority = priority,
+                Deadline = deadline,
+                UpdatedBy = currentUserId
+            };
+
+            await _stateService.UpdateAsync(cardId, updateDto);
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Error updating card state fields: {ex.Message}");
+            return false;
         }
     }
 }

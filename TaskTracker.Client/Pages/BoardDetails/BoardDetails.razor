@@ -50,6 +50,7 @@
     <CardDetailsModal IsVisible=@_cardModalState.IsVisible
                       IsVisibleChanged=@HideCardDetailsModal
                       Card=@_cardModalState.SelectedCard
+                      State=@_cardModalState.State
                       Comments=@_cardModalState.Comments
                       IsTitleEditing=@_cardModalState.IsTitleEditing
                       IsTitleSaving=@_cardModalState.IsTitleSaving
@@ -59,6 +60,13 @@
                       OnCardDelete=@OnCardDelete
                       IsTaskCompleted=@_cardModalState.IsCompleted
                       OnTaskComplete=@OnTaskComplete
+                      OnStateEdit=@OnStateEdit
+                      AssignedUser=@_cardModalState.AssignedUser
+                      IsAssigneeLoading=@_cardModalState.IsAssigneeLoading
+                      IsRemovingAssignment=@_cardModalState.IsRemovingAssignment
+                      IsCurrentUserAssigned=@_cardModalState.IsCurrentUserAssigned
+                      OnRemoveAssignment=@OnRemoveAssignment
+                      OnOpenAssignModal=@OnOpenAssignModal
                       IsCommentsLoading=@_cardModalState.IsCommentsLoading
                       IsCommentSubmitting=@_cardModalState.IsCommentSubmitting
                       OnCommentSubmit=@OnCommentSubmit

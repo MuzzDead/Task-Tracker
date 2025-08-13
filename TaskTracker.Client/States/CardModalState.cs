@@ -1,6 +1,7 @@
 ﻿using TaskTracker.Client.DTOs.Card;
 using TaskTracker.Client.DTOs.Comment;
 using TaskTracker.Client.DTOs.State;
+using TaskTracker.Client.DTOs.User;
 
 namespace TaskTracker.Client.States;
 
@@ -20,14 +21,21 @@ public class CardModalState
     public bool IsDescriptionSaving { get; set; }
 
     public bool IsCardDeleting { get; set; }
-    
+
     public bool IsCompleted { get; set; }
+    public UserDto? AssignedUser { get; set; }
+    public bool IsAssigningUser { get; set; }
+    public bool IsAssigneeLoading { get; set; }
+    public bool IsRemovingAssignment { get; set; }
+    public bool IsCurrentUserAssigned { get; set; }
+    public bool IsAssignModalVisible { get; set; }
 
     public static CardModalState WithCard(CardDto card) => new()
     {
         SelectedCard = card,
         IsVisible = true,
-        IsCommentsLoading = true
+        IsCommentsLoading = true,
+        IsAssigneeLoading = true
     };
 
     public static CardModalState Hidden() => new()
@@ -39,17 +47,31 @@ public class CardModalState
         IsCompleted = false
     };
 
-    public void SetComments(List<CommentDto> comments)
-    {
-        Comments = comments;
-        IsCommentsLoading = false;
-    }
 
     public void SetCardStates(StateDto? states)
     {
         State = states;
 
         IsCompleted = states?.IsCompleted ?? false;
+    }
+
+    public void SetAssignedUser(UserDto? user, bool isCurrentUser = false)
+    {
+        AssignedUser = user;
+        IsCurrentUserAssigned = isCurrentUser;
+        IsAssigneeLoading = false;
+    }
+
+    public void RemoveAssignedUser()
+    {
+        AssignedUser = null;
+        IsCurrentUserAssigned = false;
+        IsRemovingAssignment = false;
+    }
+    public void SetComments(List<CommentDto> comments)
+    {
+        Comments = comments;
+        IsCommentsLoading = false;
     }
 
     public void AddComment(CommentDto comment)

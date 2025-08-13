@@ -57,15 +57,33 @@ public class CardManager
 
     public async Task OnCardClickAsync(CardDto card)
     {
-        var cardModalState = CardModalState.WithCard(card);
-        _setCardModalState(cardModalState);
+        var initialState = CardModalState.WithCard(card);
+        _setCardModalState(initialState);
 
-        var cardDetails = await _cardModalService.LoadCardDetailsAsync(card.Id);
+        try
+        {
+            var cardDetails = await _cardModalService.LoadCardDetailsAsync(card.Id);
 
-        cardModalState.SetComments(cardDetails.Comments);
-        cardModalState.SetCardStates(cardDetails.State); 
+            cardDetails.SelectedCard = card;
+            cardDetails.IsVisible = true;
 
-        _setCardModalState(cardModalState);
+            if (cardDetails.AssignedUser != null)
+            {
+                var currentUserId = _getCurrentUserId();
+                cardDetails.IsCurrentUserAssigned = cardDetails.State?.AssigneeId == currentUserId;
+            }
+
+            _setCardModalState(cardDetails);
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Error loading card details: {ex.Message}");
+
+            initialState.IsCommentsLoading = false;
+            initialState.IsAssigneeLoading = false;
+            initialState.SetComments(new List<CommentDto>());
+            _setCardModalState(initialState);
+        }
     }
 
     public Task HideCardDetailsModal()
