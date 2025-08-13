@@ -1,5 +1,6 @@
 ﻿using TaskTracker.Client.DTOs.Card;
 using TaskTracker.Client.DTOs.Comment;
+using TaskTracker.Client.DTOs.Member;
 using TaskTracker.Client.DTOs.State;
 using TaskTracker.Client.DTOs.User;
 
@@ -29,6 +30,9 @@ public class CardModalState
     public bool IsRemovingAssignment { get; set; }
     public bool IsCurrentUserAssigned { get; set; }
     public bool IsAssignModalVisible { get; set; }
+
+    public List<MemberDto> BoardMembers { get; set; } = new();
+    public bool IsMembersLoading { get; set; }
 
     public static CardModalState WithCard(CardDto card) => new()
     {
@@ -72,6 +76,12 @@ public class CardModalState
     {
         Comments = comments;
         IsCommentsLoading = false;
+    }
+
+    public void SetBoardMembers(List<MemberDto> members)
+    {
+        BoardMembers = members;
+        IsMembersLoading = false;
     }
 
     public void AddComment(CommentDto comment)

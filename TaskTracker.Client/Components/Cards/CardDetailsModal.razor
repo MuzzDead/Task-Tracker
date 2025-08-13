@@ -9,7 +9,7 @@
             <div class="modal-header">
                 <div class="task-status-toggle" style="margin-right: 1rem;">
                     <Tooltip Title="@(IsTaskCompleted ? "Mark as incomplete" : "Mark as completed")" Placement=@Placement.Bottom>
-                        <Checkbox @bind-Checked=@IsTaskCompleted onclick=@HandleComplete Class="round-checkbox" />
+                        <Checkbox @bind-Checked=@IsTaskCompleted @onclick=@HandleComplete Class="round-checkbox" />
                     </Tooltip>
                 </div>
 
@@ -99,12 +99,56 @@
                     }
                     else
                     {
-                        <Button Type=@ButtonType.Dashed
-                                Icon="user-add"
-                                OnClick=@HandleOpenAssignModal
-                                Style="margin-right: 8px;">
-                            Assign user
-                        </Button>
+                        <Dropdown Trigger="@(new Trigger[] { Trigger.Click })"
+                                  @bind-Visible=@IsAssignModalVisible
+                                  OnVisibleChange=@HandleAssignModalVisibleChange>
+                            <Overlay>
+                                <Menu Style="max-height: 300px; overflow-y: auto;">
+                                    @if (IsMembersLoading)
+                                    {
+                                        <MenuItem Disabled="true">
+                                            <Flex Align=@FlexAlign.Center Gap=@FlexGap.Small>
+                                                <Spin Size=@SpinSize.Small />
+                                                <span>Loading members...</span>
+                                            </Flex>
+                                        </MenuItem>
+                                    }
+                                    else if (BoardMembers?.Any() == true)
+                                    {
+                                        @foreach (var member in BoardMembers)
+                                        {
+                                            <MenuItem Key=@member.UserId.ToString()
+                                                      OnClick=@(() => HandleAssignMember(member.UserId))>
+                                                <Flex Align=@FlexAlign.Center Gap=@FlexGap.Small>
+                                                    <Avatar Src=@($"https://api.dicebear.com/7.x/identicon/svg?seed={member.Username}")
+                                                            Size=@AvatarSize.Small />
+                                                    <div>
+                                                        <div style="font-weight: 500;">@member.Username</div>
+                                                        <Text Type=@TextElementType.Secondary Style="font-size: 12px;">
+                                                            @member.Email
+                                                        </Text>
+                                                    </div>
+                                                </Flex>
+                                            </MenuItem>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <MenuItem Disabled="true">
+                                            <Text Type=@TextElementType.Secondary>No members found</Text>
+                                        </MenuItem>
+                                    }
+                                </Menu>
+                            </Overlay>
+                            <ChildContent>
+                                <Button Type=@ButtonType.Dashed
+                                        Icon="user-add"
+                                        Loading=@IsAssigningUser
+                                        Style="margin-right: 8px;">
+                                    Assign user
+                                </Button>
+                            </ChildContent>
+                        </Dropdown>
                     }
                 </Flex>
             </Flex>

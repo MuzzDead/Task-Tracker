@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Components;
 using TaskTracker.Client.DTOs.Card;
 using TaskTracker.Client.DTOs.Comment;
+using TaskTracker.Client.DTOs.Member;
 using TaskTracker.Client.DTOs.State;
 using TaskTracker.Client.DTOs.User;
 
@@ -32,8 +33,14 @@ public partial class CardDetailsModal : ComponentBase
     [Parameter] public bool IsCurrentUserAssigned { get; set; }
     [Parameter] public EventCallback<Guid> OnRemoveAssignment { get; set; }
     [Parameter] public EventCallback OnOpenAssignModal { get; set; }
-
     [Parameter] public EventCallback<(Guid cardId, Priority priority, DateTimeOffset? deadline)> OnStateEdit { get; set; }
+
+    [Parameter] public bool IsAssignModalVisible { get; set; }
+    [Parameter] public List<MemberDto> BoardMembers { get; set; } = new();
+    [Parameter] public bool IsMembersLoading { get; set; }
+    [Parameter] public bool IsAssigningUser { get; set; }
+    [Parameter] public EventCallback<Guid> OnAssignUser { get; set; }
+    [Parameter] public EventCallback OnCloseAssignModal { get; set; }
 
     private CardStateEditModal StateEditModal = default!;
 
@@ -70,9 +77,24 @@ public partial class CardDetailsModal : ComponentBase
         }
     }
 
-    private async Task HandleOpenAssignModal()
+    private async Task HandleAssignMember(Guid userId)
     {
-        await OnOpenAssignModal.InvokeAsync();
+        if (Card != null)
+        {
+            await OnAssignUser.InvokeAsync(userId);
+        }
+    }
+
+    private async Task HandleAssignModalVisibleChange(bool visible)
+    {
+        if (visible && !IsAssignModalVisible)
+        {
+            await OnOpenAssignModal.InvokeAsync();
+        }
+        else if (!visible && IsAssignModalVisible)
+        {
+            await OnCloseAssignModal.InvokeAsync();
+        }
     }
 
     private void HandleOpenStateEditModal()

@@ -1,4 +1,4 @@
-﻿using TaskTracker.Client.DTOs.User;
+﻿using TaskTracker.Client.DTOs.Member;
 using TaskTracker.Client.DTOs.State;
 using TaskTracker.Client.Services.Interfaces;
 using TaskTracker.Client.States;
@@ -8,23 +8,29 @@ namespace TaskTracker.Client.Pages.BoardDetails;
 public class CardStateManager
 {
     private readonly ICardModalService _cardModalService;
+    private readonly IBoardRoleService _boardRoleService;
     private readonly Func<Guid> _getCurrentUserId;
     private readonly IAuthStateService _authStateService;
     private readonly Func<CardModalState> _getCardModalState;
     private readonly Action<CardModalState> _setCardModalState;
+    private readonly Guid _boardId;
 
     public CardStateManager(
         ICardModalService cardModalService,
         Func<Guid> getCurrentUserId,
         IAuthStateService authStateService,
         Func<CardModalState> getCardModalState,
-        Action<CardModalState> setCardModalState)
+        Action<CardModalState> setCardModalState,
+        IBoardRoleService boardRoleService,
+        Guid boardId)
     {
         _cardModalService = cardModalService;
         _getCurrentUserId = getCurrentUserId;
         _authStateService = authStateService;
         _getCardModalState = getCardModalState;
         _setCardModalState = setCardModalState;
+        _boardRoleService = boardRoleService;
+        _boardId = boardId;
     }
 
     public async Task OnCompleteTaskAsync(Guid cardId, bool isCompleted)
@@ -167,13 +173,32 @@ public class CardStateManager
         }
     }
 
-    public Task OpenAssignModal()
+    public async Task OpenAssignModalAsync()
     {
         var cardModalState = _getCardModalState();
         cardModalState.IsAssignModalVisible = true;
+        cardModalState.IsMembersLoading = true;
         _setCardModalState(cardModalState);
 
-        return Task.CompletedTask;
+        try
+        {
+            Console.WriteLine($"Loading members for board: {_boardId}");
+            var members = await _boardRoleService.GetMemberByBoardIdAsync(_boardId);
+            var membersList = members.ToList();
+            Console.WriteLine($"Loaded {membersList.Count} members");
+
+            cardModalState.SetBoardMembers(membersList);
+            Console.WriteLine($"BoardMembers count in state: {cardModalState.BoardMembers.Count}");
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Error loading board members: {ex.Message}");
+            cardModalState.SetBoardMembers(new List<MemberDto>());
+        }
+        finally
+        {
+            _setCardModalState(cardModalState);
+        }
     }
 
     public void CloseAssignModal()
