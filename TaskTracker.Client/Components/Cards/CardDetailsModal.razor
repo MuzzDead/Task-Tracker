@@ -1,5 +1,6 @@
 ﻿@using AntDesign
 @using TaskTracker.Client.Components.Comment
+@using TaskTracker.Client.DTOs.Member
 
 <div class="card-modal-backdrop @(IsVisible ? "visible" : "")"
      @onclick=@HandleBackdropClick>
@@ -25,20 +26,87 @@
                         Loading=@IsDeleting
                         Class="delete-button me-2" />
 
+                <Dropdown Trigger="@(new Trigger[] { Trigger.Click })">
+                    <Overlay>
+                        <Menu>
+                            <MenuItem Key="edit-state" OnClick=@HandleOpenStateEditModal>
+                                <Icon Type="edit" />
+                                <span style="margin-left: 8px;">Edit state</span>
+                            </MenuItem>
+                        </Menu>
+                    </Overlay>
+                    <ChildContent>
+                        <Button Type=@ButtonType.Text
+                                Icon="more"
+                                Size=@ButtonSize.Large
+                                Class="more-button me-2" />
+                    </ChildContent>
+                </Dropdown>
+
                 <Button Type=@ButtonType.Text
                         Icon="close"
                         Size=@ButtonSize.Large
                         @onclick=@HandleClose
                         Class="close-button" />
-
             </div>
-            <Flex Gap=@FlexGap.Middle Direction=@FlexDirection.Horizontal>
-                <Tag Color=@TagColor.YellowInverse>
-                    Medium priority
-                </Tag>
 
-                <DatePicker TValue="DateTimeOffset?" ShowTime="@true"
-                            Format="@("yyyy-MM-dd HH:mm:ss")" />
+            <Flex Justify=@FlexJustify.SpaceBetween Align=@FlexAlign.Center Gap=@FlexGap.Middle
+                  Style="margin-top: 1rem; padding: 0 24px;">
+                <Flex Gap=@FlexGap.Small Align=@FlexAlign.Center>
+                    <DatePicker TValue="DateTimeOffset?"
+                                ShowTime="@true"
+                                Format=@("yyyy-MM-dd HH:mm:ss")
+                                Value=@GetDeadline()
+                                Disabled="true"
+                                Style="width: 180px; cursor: pointer;" />
+
+                    <Tag Color=@GetPriorityColor()
+                         Style="font-size: 16px; padding: 4px 8px; margin: 0; cursor: pointer;">
+                        @GetPriorityText()
+                    </Tag>
+                </Flex>
+
+                <Flex Justify=@FlexJustify.FlexEnd Align=@FlexAlign.Center Style="flex: 1 1 auto;">
+                    @if (AssignedUser != null && !IsAssigneeLoading)
+                    {
+                        <Card BodyStyle="padding: 8px 12px; margin-right: 8px;">
+                            <Flex Align=@FlexAlign.Center Gap=@FlexGap.Small>
+                                <Avatar Src=@($"https://api.dicebear.com/7.x/identicon/svg?seed={AssignedUser.Username}")
+                                        Size=@AvatarSize.Small />
+                                <div>
+                                    <Text Strong Style="font-size: 16px; display: block; line-height: 1.2;">
+                                        @AssignedUser.Username
+                                        @if (IsCurrentUserAssigned)
+                                        {
+                                            <Tag Color=@TagColor.Blue Style="margin-left: 8px; font-size: 10px;">You</Tag>
+                                        }
+                                    </Text>
+                                </div>
+                                <Button Type=@ButtonType.Text
+                                        Icon="close"
+                                        Size=@ButtonSize.Small
+                                        OnClick=@HandleRemoveAssignment
+                                        Loading=@IsRemovingAssignment
+                                        Style="margin-left: 8px;" />
+                            </Flex>
+                        </Card>
+                    }
+                    else if (IsAssigneeLoading)
+                    {
+                        <div style="margin-right: 8px;">
+                            <Spin Size=@SpinSize.Small />
+                        </div>
+                    }
+                    else
+                    {
+                        <Button Type=@ButtonType.Dashed
+                                Icon="user-add"
+                                OnClick=@HandleOpenAssignModal
+                                Style="margin-right: 8px;">
+                            Assign user
+                        </Button>
+                    }
+                </Flex>
             </Flex>
 
             <div class="modal-content">
@@ -62,3 +130,9 @@
         </Card>
     </div>
 </div>
+
+<CardStateEditModal @ref=@StateEditModal
+                    Card=@Card
+                    CardState=@State
+                    OnSave=@OnStateEdit
+                    OnCancel="@HandleStateEditCancel" />

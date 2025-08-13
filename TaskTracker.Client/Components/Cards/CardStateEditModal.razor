@@ -1,0 +1,141 @@
+﻿@using AntDesign
+@using TaskTracker.Client.DTOs.Card
+@using TaskTracker.Client.DTOs.State
+
+<div class="state-edit-modal-backdrop @(_visible ? "visible" : "")"
+     @onclick=@HandleBackdropClick>
+    <div class="state-edit-modal-container" @onclick:stopPropagation="true">
+        <Card Class="state-edit-card" Bordered="true">
+            <div class="state-card-header">
+                <h3>Edit Card State</h3>
+                <Button Type=@ButtonType.Text
+                        Icon="close"
+                        Size=@ButtonSize.Small
+                        OnClick="@HandleCancel"
+                        Class="close-button" />
+            </div>
+
+            <div class="state-card-body">
+                <Flex Direction=@FlexDirection.Vertical Gap=@FlexGap.Middle>
+                    <Form Model=@_formModel>
+                        <FormItem Label="Deadline">
+                            <DatePicker TValue="DateTimeOffset?"
+                                        ShowTime="true"
+                                        Format="yyyy-MM-dd HH:mm:ss"
+                                        @bind-Value=@_formModel.Deadline
+                                        Style="width: 100%;"
+                                        AllowClear="true" />
+                        </FormItem>
+                        <FormItem Label="Priority">
+                            <Select Value=@_formModel.Priority
+                                    OnSelectedItemChanged=@OnPriorityChanged
+                                    Loading=@IsPriorityUpdating
+                                    Style="width: 100%;"
+                                    TItem="Priority"
+                                    TItemValue="Priority">
+                                <SelectOption Value=@Priority.Low Label="Low priority" />
+                                <SelectOption Value=@Priority.Medium Label="Medium priority" />
+                                <SelectOption Value=@Priority.High Label="High priority" />
+                                <SelectOption Value=@Priority.Critical Label="Critical priority" />
+                            </Select>
+                        </FormItem>
+                    </Form>
+                </Flex>
+            </div>
+
+            <div class="state-card-footer">
+                <div class="state-card-actions">
+                    <Button OnClick=@HandleCancel>Cancel</Button>
+                    <Button Type=@ButtonType.Primary
+                            Disabled="@(!IsDirty || IsSaving || Card is null)"
+                            Loading=@IsSaving
+                            OnClick=@HandleSave>
+                        Save
+                    </Button>
+                </div>
+            </div>
+        </Card>
+    </div>
+</div>
+
+<style>
+    .state-edit-modal-backdrop {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.45);
+        z-index: 1000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.3s ease, visibility 0.3s ease;
+    }
+
+        .state-edit-modal-backdrop.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+
+    .state-edit-modal-container {
+        max-width: 480px;
+        width: 90%;
+        max-height: 90%;
+        overflow: auto;
+        transform: scale(0.9);
+        transition: transform 0.3s ease;
+    }
+
+    .state-edit-modal-backdrop.visible .state-edit-modal-container {
+        transform: scale(1);
+    }
+
+    .state-edit-card {
+        width: 100%;
+        box-shadow: 0 6px 16px 0 rgba(0, 0, 0, 0.08), 0 3px 6px -4px rgba(0, 0, 0, 0.12), 0 9px 28px 8px rgba(0, 0, 0, 0.05);
+    }
+
+    .state-card-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 16px 24px 0;
+        border-bottom: 1px solid #f0f0f0;
+        margin-bottom: 16px;
+    }
+
+        .state-card-header h3 {
+            margin: 0;
+            font-size: 16px;
+            font-weight: 600;
+            color: rgba(0, 0, 0, 0.88);
+        }
+
+    .state-card-body {
+        padding: 0 24px 16px;
+    }
+
+    .state-card-footer {
+        padding: 16px 24px;
+        border-top: 1px solid #f0f0f0;
+        background: #fafafa;
+    }
+
+    .state-card-actions {
+        display: flex;
+        width: 100%;
+        justify-content: flex-end;
+        gap: 8px;
+    }
+
+    .close-button {
+        color: rgba(0, 0, 0, 0.45);
+    }
+
+        .close-button:hover {
+            color: rgba(0, 0, 0, 0.75);
+        }
+</style>
