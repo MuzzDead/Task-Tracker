@@ -21,7 +21,7 @@ public class UpdateStateCommandHandler : IRequestHandler<UpdateStateCommand>
         if (state == null)
             throw new NotFoundException($"State with ID {request.CardId} was not found.");
 
-        if (request.Description != null)
+        if (!string.IsNullOrEmpty(request.Description))
             state.Description = request.Description;
 
         if (request.IsCompleted.HasValue)
@@ -30,14 +30,18 @@ public class UpdateStateCommandHandler : IRequestHandler<UpdateStateCommand>
         if (request.Priority.HasValue)
             state.Priority = request.Priority.Value;
 
-        if (request.Deadline != null)
-            state.Deadline = request.Deadline;
+        if (request.Deadline.HasValue)
+            state.Deadline = request.Deadline.Value;
 
-        if (request.AssigneeId != null)
-            state.AssigneeId = request.AssigneeId;
+        if (request.AssigneeId.HasValue)
+        {
+            state.AssigneeId = request.AssigneeId.Value == Guid.Empty ? null : request.AssigneeId.Value;
+        }
 
         state.UpdatedAt = DateTimeOffset.UtcNow;
-        state.UpdatedBy = request.UpdatedBy.ToString();
+
+        if (request.UpdatedBy.HasValue)
+            state.UpdatedBy = request.UpdatedBy.Value.ToString();
 
         await uow.States.UpdateAsync(state);
         await uow.SaveChangesAsync(cancellationToken);
