@@ -86,7 +86,7 @@ public partial class EditProfileInfo : ComponentBase
 
             var authResponse = new AuthResponse
             {
-                Token = AuthStateService.Token!,
+                AccessToken = AuthStateService.AccessToken!,
                 User = updatedUser
             };
 
