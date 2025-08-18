@@ -1,7 +1,4 @@
-﻿using TaskTracker.Domain.Enums;
-
-
-namespace TaskTracker.Application.DTOs;
+﻿namespace TaskTracker.Client.DTOs.State;
 
 public class StateDto
 {

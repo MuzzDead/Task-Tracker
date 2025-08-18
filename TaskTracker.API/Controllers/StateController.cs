@@ -47,10 +47,10 @@ public class StateController : ControllerBase
         return Ok(state);
     }
 
-    [HttpPut("{id:guid}")]
-    public async Task<IActionResult> UpdateAsync(Guid id, [FromBody] UpdateStateCommand command)
+    [HttpPut("{cardId:guid}")]
+    public async Task<IActionResult> UpdateAsync(Guid cardId, [FromBody] UpdateStateCommand command)
     {
-        if (id != command.Id)
+        if (cardId != command.CardId)
             return BadRequest("Route ID does not match body ID.");
 
         await _mediator.Send(command);

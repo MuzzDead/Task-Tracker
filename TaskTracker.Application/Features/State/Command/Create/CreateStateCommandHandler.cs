@@ -1,11 +1,13 @@
 ﻿using MediatR;
 using TaskTracker.Application.Common.Interfaces.UnitOfWork;
+using TaskTracker.Domain.Enums;
 
 namespace TaskTracker.Application.Features.State.Command.Create;
 
 public class CreateStateCommandHandler : IRequestHandler<CreateStateCommand, Guid>
 {
     private readonly IUnitOfWorkFactory _unitOfWorkFactory;
+
     public CreateStateCommandHandler(IUnitOfWorkFactory unitOfWorkFactory)
     {
         _unitOfWorkFactory = unitOfWorkFactory;
@@ -17,14 +19,17 @@ public class CreateStateCommandHandler : IRequestHandler<CreateStateCommand, Gui
 
         var state = new Domain.Entities.State
         {
-            Description = request.Description,
-            Status = request.Status,
-            Priority = request.Priority,
-            CardId = request.CardId
+            Description = request.Description ?? string.Empty,
+            IsCompleted = request.IsCompleted ?? false,
+            Priority = request.Priority ?? Priority.Low,
+            Deadline = request.Deadline,
+            AssigneeId = request.AssigneeId,
+            CardId = request.CardId,
+            CreatedBy = request.CreatedBy.ToString()
         };
 
         await uow.States.AddAsync(state);
-        await uow.SaveChangesAsync();
+        await uow.SaveChangesAsync(cancellationToken);
 
         return state.Id;
     }

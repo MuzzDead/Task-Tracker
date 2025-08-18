@@ -3,6 +3,7 @@ using TaskTracker.Client.DTOs.Card;
 using TaskTracker.Client.DTOs.Column;
 using TaskTracker.Client.DTOs.Comment;
 using TaskTracker.Client.DTOs.Member;
+using TaskTracker.Client.DTOs.State;
 using TaskTracker.Client.DTOs.User;
 using TaskTracker.Client.Services.Interfaces;
 using TaskTracker.Client.States;
@@ -27,6 +28,7 @@ namespace TaskTracker.Client.Pages.BoardDetails
         private ColumnManager _columnManager = default!;
         private CardManager _cardManager = default!;
         private MemberManager _memberManager = default!;
+        private CardStateManager _cardStateManager = default!;
 
         public void OpenMembersDrawer() => _memberManager.OpenMembersDrawer();
 
@@ -127,6 +129,15 @@ namespace TaskTracker.Client.Pages.BoardDetails
                 UserService,
                 boardId,
                 StateHasChanged);
+
+            _cardStateManager = new CardStateManager(
+                CardModalService,
+                GetCurrentUserId,
+                AuthStateService,
+                () => _cardModalState,
+                (cardState) => { _cardModalState = cardState; StateHasChanged(); },
+                BoardRoleService,
+                boardId);
         }
 
         private async Task LoadInitialData()
@@ -193,5 +204,38 @@ namespace TaskTracker.Client.Pages.BoardDetails
 
         private async Task OnCommentDelete(Guid commentId) =>
             await _cardManager.OnCommentDeleteAsync(commentId);
+
+
+        private async Task OnTaskComplete((Guid cardId, bool isCompleted) args) =>
+            await _cardStateManager.OnCompleteTaskAsync(args.cardId, args.isCompleted);
+
+        private async Task OnRemoveAssignment(Guid cardId) =>
+            await _cardStateManager.RemoveAssignmentAsync(cardId);
+
+        private async Task OnStateEdit((Guid cardId, Priority priority, DateTimeOffset? deadline) args) =>
+            await _cardStateManager.OnStateEditAsync(args.cardId, args.priority, args.deadline);
+
+        private async Task OnAssignUser(Guid userId)
+        {
+            if (_cardModalState.SelectedCard != null)
+            {
+                await _cardStateManager.AssignUserAsync(_cardModalState.SelectedCard.Id, userId);
+            }
+        }
+
+        private async Task OnOpenAssignModal() =>
+            await _cardStateManager.OpenAssignModalAsync();
+
+        private Task OnCloseAssignModal()
+        {
+            _cardStateManager.CloseAssignModal();
+            return Task.CompletedTask;
+        }
+
+        private async Task OnCardModalVisibleChanged(bool isVisible) =>
+            await HideCardDetailsModal();
+
+        private async Task OnTitleSave(string newTitle) =>
+            await SaveCardTitle(newTitle);
     }
 }

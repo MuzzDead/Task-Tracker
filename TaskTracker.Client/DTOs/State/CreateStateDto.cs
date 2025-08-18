@@ -1,9 +1,6 @@
-﻿using MediatR;
-using TaskTracker.Domain.Enums;
+﻿namespace TaskTracker.Client.DTOs.State;
 
-namespace TaskTracker.Application.Features.State.Command.Create;
-
-public class CreateStateCommand : IRequest<Guid>
+public class CreateStateDto
 {
     public string? Description { get; set; }
     public bool? IsCompleted { get; set; }
