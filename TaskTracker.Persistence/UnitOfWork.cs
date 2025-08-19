@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore.Storage;
 using TaskTracker.Application.Common.Interfaces;
+using TaskTracker.Application.Common.Interfaces.Auth;
 using TaskTracker.Application.Common.Interfaces.UnitOfWork;
 using TaskTracker.Persistence.Repositories;
 
@@ -17,6 +18,7 @@ public class UnitOfWork : IUnitOfWork
     private ICommentRepository _comments;
     private IStateRepository _states;
     private IUserRepository _users;
+    private IRefreshTokenRepository _refreshToken;
     public UnitOfWork(ApplicationDbContext context)
     {
         _context = context;
@@ -42,6 +44,9 @@ public class UnitOfWork : IUnitOfWork
 
     public IUserRepository Users =>
         _users ??= new UserRepository(_context);
+
+    public IRefreshTokenRepository RefreshTokens => 
+        _refreshToken ??= new RefreshTokenRepository(_context);
 
     public async Task BeginTransactionAsync()
     {

@@ -1,4 +1,6 @@
-﻿namespace TaskTracker.Application.Common.Interfaces.UnitOfWork;
+﻿using TaskTracker.Application.Common.Interfaces.Auth;
+
+namespace TaskTracker.Application.Common.Interfaces.UnitOfWork;
 
 public interface IUnitOfWork : IDisposable
 {
@@ -9,6 +11,7 @@ public interface IUnitOfWork : IDisposable
     ICommentRepository Comments { get; }
     IStateRepository States { get; }
     IUserRepository Users { get; }
+    IRefreshTokenRepository RefreshTokens { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
     Task BeginTransactionAsync();

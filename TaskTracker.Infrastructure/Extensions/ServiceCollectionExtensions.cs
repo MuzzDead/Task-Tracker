@@ -7,6 +7,7 @@ using TaskTracker.Application.Common.Interfaces.Auth;
 using TaskTracker.Application.Common.Interfaces.Services;
 using TaskTracker.Domain.Options;
 using TaskTracker.Infrastructure.Auth;
+using TaskTracker.Infrastructure.BackgroundServices;
 using TaskTracker.Infrastructure.Services;
 
 namespace TaskTracker.Infrastructure.Extensions;
@@ -34,7 +35,7 @@ public static class ServiceCollectionExtensions
         .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
         {
             options.RequireHttpsMetadata = true;
-            options.SaveToken = true;
+            options.SaveToken = false;
             options.TokenValidationParameters = new TokenValidationParameters
             {
                 ValidateIssuer = true,
@@ -46,13 +47,28 @@ public static class ServiceCollectionExtensions
                 ValidateIssuerSigningKey = true,
                 IssuerSigningKey = new SymmetricSecurityKey(secretKey)
             };
-    });
+
+            options.Events = new JwtBearerEvents
+            {
+                OnAuthenticationFailed = context =>
+                {
+                    if (context.Exception.GetType() == typeof(SecurityTokenExpiredException))
+                    {
+                        context.Response.Headers.Add("X-Token-Expired", "true");
+                    }
+                    return Task.CompletedTask;
+                }
+            };
+        });
 
         services.AddAuthorization();
 
         services.AddScoped<IJwtTokenProvider, JwtTokenProvider>();
         services.AddScoped<IPasswordHasher, PasswordHasher>();
         services.AddScoped<ICurrentUserService, CurrentUserService>();
+        
+        services.AddHostedService<CleanupExpiredTokensService>();
+
         services.AddHttpContextAccessor();
 
         return services;

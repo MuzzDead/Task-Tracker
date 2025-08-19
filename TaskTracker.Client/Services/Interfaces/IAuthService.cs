@@ -14,4 +14,10 @@ public interface IAuthService
 
     [Get("/auth/me")]
     Task<UserDto> GetCurrentUserAsync();
+
+    [Post("/auth/refresh-token")]
+    Task<AuthResponse> RefreshTokenAsync([Body] RefreshTokenRequest request);
+
+    [Post("/auth/revoke-token")]
+    Task RevokeTokenAsync(RevokeTokenCommand command);
 }
