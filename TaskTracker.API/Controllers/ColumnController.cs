@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TaskTracker.Application.Features.Column.Commands.Create;
 using TaskTracker.Application.Features.Column.Commands.Delete;
+using TaskTracker.Application.Features.Column.Commands.Move;
 using TaskTracker.Application.Features.Column.Commands.Update;
 using TaskTracker.Application.Features.Column.Queries.GetByBoardId;
 using TaskTracker.Application.Features.Column.Queries.GetById;
@@ -56,6 +57,17 @@ public class ColumnController : ControllerBase
     public async Task<IActionResult> DeleteAsync(Guid id)
     {
         await _mediator.Send(new DeleteColumnCommand { Id = id });
+        return NoContent();
+    }
+
+    [HttpPut("move/{id:guid}")]
+    public async Task<IActionResult> MoveAsync(Guid id, [FromBody]MoveColumnCommand command)
+    {
+        if (id != command.ColumnId)
+            return BadRequest("Route ID does not match body ID.");
+
+        await _mediator.Send(command);
+
         return NoContent();
     }
 }

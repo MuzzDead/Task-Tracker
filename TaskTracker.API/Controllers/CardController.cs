@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using TaskTracker.Application.DTOs;
 using TaskTracker.Application.Features.Card.Commands.Create;
 using TaskTracker.Application.Features.Card.Commands.Delete;
+using TaskTracker.Application.Features.Card.Commands.Move;
 using TaskTracker.Application.Features.Card.Commands.Update;
 using TaskTracker.Application.Features.Card.Queries.GetByColumnId;
 using TaskTracker.Application.Features.Card.Queries.GetById;
@@ -63,5 +64,16 @@ public class CardController : ControllerBase
         var cards = await _mediator.Send(query);
 
         return Ok(cards);
+    }
+
+    [HttpPut("move/{id:guid}")]
+    public async Task<IActionResult> MoveAsync(Guid id, [FromBody] MoveCardCommand command)
+    {
+        if (id != command.CardId)
+            return BadRequest("Route ID does not match body ID.");
+
+        await _mediator.Send(command);
+
+        return NoContent();
     }
 }

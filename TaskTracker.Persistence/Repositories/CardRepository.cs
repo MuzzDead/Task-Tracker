@@ -26,4 +26,14 @@ public class CardRepository : BaseRepository<Card, Guid>, ICardRepository
 
         return maxRowIndex ?? -1;
     }
+
+    public async Task MoveAsync(Guid cardId, Guid columnId, int index)
+    {
+        var card = await _dbSet.FirstOrDefaultAsync(cr => cr.Id == cardId);
+        if (card != null)
+        {
+            card.ColumnId = columnId;
+            card.RowIndex = index;
+        }
+    }
 }
