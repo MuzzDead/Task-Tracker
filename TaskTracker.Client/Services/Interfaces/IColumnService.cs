@@ -23,4 +23,8 @@ public interface IColumnService
 
     [Delete("/column/{id}")]
     Task DeleteAsync(Guid id);
+
+
+    [Put("/column/move/{id}")]
+    Task MoveAsync(Guid id, [Body] MoveColumnDto command);
 }

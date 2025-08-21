@@ -1,4 +1,5 @@
-﻿using TaskTracker.Client.DTOs.State;
+﻿using TaskTracker.Client.DTOs.Card;
+using TaskTracker.Client.DTOs.State;
 using TaskTracker.Client.DTOs.User;
 using TaskTracker.Client.States;
 
@@ -18,4 +19,5 @@ public interface ICardModalService
     Task<bool> RemoveAssignmentAsync(Guid cardId);
     Task<bool> AssignUserAsync(Guid cardId, Guid userId);
     Task<bool> UpdateCardStateFieldsAsync(Guid cardId, Priority? priority, DateTimeOffset? dateTime, Guid currentUserId);
+    Task<bool> MoveCardAsync(MoveCardDto card);
 }

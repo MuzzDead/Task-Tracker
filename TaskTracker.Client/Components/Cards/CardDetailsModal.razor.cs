@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Components;
 using TaskTracker.Client.DTOs.Card;
+using TaskTracker.Client.DTOs.Column;
 using TaskTracker.Client.DTOs.Comment;
 using TaskTracker.Client.DTOs.Member;
 using TaskTracker.Client.DTOs.State;
@@ -42,7 +43,11 @@ public partial class CardDetailsModal : ComponentBase
     [Parameter] public EventCallback<Guid> OnAssignUser { get; set; }
     [Parameter] public EventCallback OnCloseAssignModal { get; set; }
 
+    [Parameter] public List<ColumnDto>? BoardColumns { get; set; }
+    [Parameter] public EventCallback<MoveCardDto> OnCardMove { get; set; }
+
     private CardStateEditModal StateEditModal = default!;
+    private MoveCard moveCardModal = default!;
 
     private async Task HandleDelete()
     {
@@ -139,5 +144,29 @@ public partial class CardDetailsModal : ComponentBase
     private DateTimeOffset? GetDeadline()
     {
         return State?.Deadline;
+    }
+
+    private async Task HandleMove()
+    {
+        if (Card == null || BoardColumns == null || !BoardColumns.Any())
+        {
+            Console.WriteLine("Card or BoardColumns are null/empty, modal won't open");
+            return;
+        }
+
+        var currentColumn = BoardColumns.FirstOrDefault(c => c.Id == Card.ColumnId);
+        if (currentColumn == null)
+        {
+            Console.WriteLine($"Current column not found for card {Card.Id} with ColumnId {Card.ColumnId}");
+            currentColumn = BoardColumns.OrderBy(c => c.ColumnIndex).First();
+        }
+
+        var sortedColumns = BoardColumns.OrderBy(c => c.ColumnIndex).ToList();
+        moveCardModal.Open(Card, currentColumn, sortedColumns);
+    }
+
+    private async Task HandleMoveSave(MoveCardDto moveDto)
+    {
+        await OnCardMove.InvokeAsync(moveDto);
     }
 }

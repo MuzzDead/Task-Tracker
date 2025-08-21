@@ -1,0 +1,60 @@
+﻿@using AntDesign
+@using TaskTracker.Client.DTOs.Card
+@using TaskTracker.Client.DTOs.Column
+
+<div class="card-move-modal-backdrop @(_visible ? "visible" : "")"
+     @onclick=@HandleBackdropClick>
+    <div class="card-move-modal-container" @onclick:stopPropagation="true">
+        <Card Class="card-move-card" Bordered="true">
+            <div class="card-card-header">
+                <h3>Move Card</h3>
+                <Button Type=@ButtonType.Text
+                        Icon="close"
+                        Size=@ButtonSize.Small
+                        OnClick=@HandleCancel
+                        Class="close-button" />
+            </div>
+            <div class="card-card-body">
+                <Flex Direction=@FlexDirection.Vertical Gap=@FlexGap.Middle>
+                    <Form Model=@_formModel>
+                        <FormItem Label="Card Name">
+                            <Input @bind-Value=@_formModel.CardName
+                                   Disabled="true"
+                                   Style="width: 100%;" />
+                        </FormItem>
+
+                        <FormItem Label="Move To Column">
+                            <Select Value=@_formModel.TargetColumnId
+                                    OnSelectedItemChanged=@OnTargetColumnChanged
+                                    Loading=@IsPositionUpdating
+                                    Style="width: 100%;"
+                                    TItem="Guid"
+                                    TItemValue="Guid"
+                                    Placeholder="Select target column">
+                                @if (BoardColumns != null)
+                                {
+                                    @foreach (var column in BoardColumns)
+                                    {
+                                        <SelectOption Value=@column.Id
+                                                      Label=@column.Title />
+                                    }
+                                }
+                            </Select>
+                        </FormItem>
+                    </Form>
+                </Flex>
+            </div>
+            <div class="card-card-footer">
+                <div class="card-card-actions">
+                    <Button OnClick=@HandleCancel>Cancel</Button>
+                    <Button Type=@ButtonType.Primary
+                            Disabled=@(!IsDirty || IsSaving || Card is null)
+                            Loading=@IsSaving
+                            OnClick=@HandleSave>
+                        Move
+                    </Button>
+                </div>
+            </div>
+        </Card>
+    </div>
+</div>

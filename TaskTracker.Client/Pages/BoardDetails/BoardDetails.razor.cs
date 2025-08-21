@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Components;
 using TaskTracker.Client.DTOs.Card;
 using TaskTracker.Client.DTOs.Column;
-using TaskTracker.Client.DTOs.Comment;
 using TaskTracker.Client.DTOs.Member;
 using TaskTracker.Client.DTOs.State;
 using TaskTracker.Client.DTOs.User;
@@ -178,6 +177,9 @@ namespace TaskTracker.Client.Pages.BoardDetails
         private async Task OnColumnEdit((Guid columnId, string newTitle) data) =>
             await _columnManager.OnColumnEditAsync(data);
 
+        private async Task OnColumnMove(MoveColumnDto column) =>
+            await _columnManager.OnColumnMoveAsync(column);
+
 
         private async Task OnAddCard((string title, Guid columnId) data) =>
             await _cardManager.OnAddCardAsync(data);
@@ -195,6 +197,9 @@ namespace TaskTracker.Client.Pages.BoardDetails
 
         private async Task OnCardDelete(Guid cardId) =>
             await _cardManager.OnCardDeleteAsync(cardId);
+
+        private async Task OnCardMove(MoveCardDto card) =>
+            await _cardManager.OnCardMoveAsync(card);
 
         private async Task OnCommentSubmit(string commentContent) =>
             await _cardManager.OnCommentSubmitAsync(commentContent);

@@ -7,7 +7,9 @@
 <div class="column-list">
     @if (IsLoading)
     {
-        <Spin Tip="Loading columns..." />
+        <div class="loading-state">
+            <Spin Size=@SpinSize.Large />
+        </div>
     }
     else if (Columns?.Any() == true)
     {
@@ -15,6 +17,7 @@
         {
             <ColumnCard Column=@column
                         Cards=@GetCards(column.Id)
+                        IsLoading=@IsLoading
                         IsTitleEditing=@IsColumnTitleEditing(column.Id)
                         OnTitleEditingChanged=@(async (isEditing) => await OnColumnTitleEditingChanged(column.Id, isEditing))
                         IsTitleSaving=@IsColumnTitleSaving
@@ -22,7 +25,9 @@
                         OnCardClick=@OnCardClick
                         OnAddCard=@HandleAddCard
                         OnEditColumn=@(EventCallback.Factory.Create<ColumnDto>(this, async (col) => await OnEditColumn.InvokeAsync((col.Id, col.Title))))
-                        OnDeleteColumn=@OnDeleteColumn />
+                        OnDeleteColumn=@OnDeleteColumn
+                        OnColumnMove=@HandleColumnMove
+                        BoardColumns=@Columns />
         }
     }
     else

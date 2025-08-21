@@ -26,6 +26,10 @@
                         <Icon Type="delete" />
                         Delete
                     </MenuItem>
+                    <MenuItem Key="move" OnClick=@HandleMove>
+                        <Icon Type="swap" />
+                        Move
+                    </MenuItem>
                 </Menu>
             </Overlay>
             <ChildContent>
@@ -42,3 +46,7 @@
                       OnAddCard=@HandleAddCard />
     </div>
 </div>
+
+<MoveColumn @ref=@moveColumnModal
+            OnSave=@HandleColumnMove
+            OnCancel=@HandleMoveCancel />
