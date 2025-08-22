@@ -31,7 +31,7 @@ public partial class MoveColumn
         StateHasChanged();
     }
 
-    private bool IsDirty =>
+    private bool IsPositionSelected =>
         _formModel.BeforeColumnId != _initialBeforeColumnId;
 
     private void InitializeFromColumn()
