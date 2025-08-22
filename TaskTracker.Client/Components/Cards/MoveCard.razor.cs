@@ -40,7 +40,7 @@ public partial class MoveCard
         StateHasChanged();
     }
 
-    private bool IsDirty =>
+    private bool IsTargetColumnSelected =>
         _formModel.TargetColumnId != _initialTargetColumnId;
 
     private void InitializeFromCard()

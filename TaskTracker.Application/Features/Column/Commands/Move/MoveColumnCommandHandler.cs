@@ -21,19 +21,17 @@ public class MoveColumnCommandHandler : IRequestHandler<MoveColumnCommand>
 
         try
         {
-            var currentColumn = await uow.Columns.GetByIdAsync(request.ColumnId);
-            if (currentColumn == null)
-                throw new NotFoundException($"Column {request.ColumnId} not found");
+            var currentColumn = await uow.Columns.GetByIdAsync(request.ColumnId)
+                       ?? throw new NotFoundException($"Column {request.ColumnId} not found");
 
-            var targetColumn = await uow.Columns.GetByIdAsync(request.BeforeColumnId);
-            if (targetColumn == null)
-                throw new NotFoundException($"Column {request.BeforeColumnId} not found");
+            var targetColumn = await uow.Columns.GetByIdAsync(request.BeforeColumnId)
+                ?? throw new NotFoundException($"Column {request.BeforeColumnId} not found");
 
             if (currentColumn.Id == targetColumn.Id)
                 throw new InvalidOperationException("Cannot move column before itself");
 
-            await uow.Columns.ShiftIndexesRightAsync(currentColumn.BoardId, targetColumn.ColumnIndex, cancellationToken);
 
+            await uow.Columns.ShiftIndexesRightAsync(currentColumn.BoardId, targetColumn.ColumnIndex, cancellationToken);
             await uow.Columns.SetColumnIndexAsync(currentColumn.Id, targetColumn.ColumnIndex, cancellationToken);
 
             await uow.CommitTransactionAsync();

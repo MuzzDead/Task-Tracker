@@ -16,9 +16,8 @@ public class MoveCardCommandHandler : IRequestHandler<MoveCardCommand>
     {
         using var uow = _unitOfWorkFactory.CreateUnitOfWork();
 
-        var card = await uow.Cards.GetByIdAsync(request.CardId);
-        if (card == null)
-            throw new NotFoundException($"Card with id {request.CardId} not found");
+        var card = await uow.Cards.GetByIdAsync(request.CardId)
+                    ?? throw new NotFoundException($"Card with id {request.CardId} not found");
 
         int currentIndex = await uow.Cards.GetMaxRowIndexByColumnIdAsync(request.ColumnId);
 

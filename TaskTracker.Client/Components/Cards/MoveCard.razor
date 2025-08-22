@@ -48,7 +48,7 @@
                 <div class="card-card-actions">
                     <Button OnClick=@HandleCancel>Cancel</Button>
                     <Button Type=@ButtonType.Primary
-                            Disabled=@(!IsDirty || IsSaving || Card is null)
+                            Disabled=@(!IsTargetColumnSelected || IsSaving || Card is null)
                             Loading=@IsSaving
                             OnClick=@HandleSave>
                         Move
