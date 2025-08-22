@@ -307,4 +307,18 @@ public class CardModalService : ICardModalService
             return false;
         }
     }
+
+    public async Task<bool> MoveCardAsync(MoveCardDto card)
+    {
+        try
+        {
+            await _cardService.MoveAsync(card.CardId, card);
+            return true;
+        }
+        catch (ApiException apiEx)
+        {
+            Console.Error.WriteLine($"[API Error] Failed to move card: {apiEx.StatusCode}: {apiEx.Content}");
+            throw;
+        }
+    }
 }

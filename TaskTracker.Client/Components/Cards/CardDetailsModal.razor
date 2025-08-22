@@ -33,6 +33,10 @@
                                 <Icon Type="edit" />
                                 <span style="margin-left: 8px;">Edit state</span>
                             </MenuItem>
+   <MenuItem Key="move" OnClick=@HandleMove>
+    <Icon Type="swap" />
+    Move
+</MenuItem>
                         </Menu>
                     </Overlay>
                     <ChildContent>
@@ -180,3 +184,7 @@
                     CardState=@State
                     OnSave=@OnStateEdit
                     OnCancel="@HandleStateEditCancel" />
+
+<MoveCard @ref=@moveCardModal
+          OnSave=@HandleMoveSave
+          OnCancel=@(()=> moveCardModal.Close()) />

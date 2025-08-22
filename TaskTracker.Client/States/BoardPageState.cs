@@ -83,4 +83,65 @@ public class BoardPageState
             columnCards.RemoveAll(c => c.Id == cardId);
         }
     }
+
+    public void MoveColumn(Guid columnId, Guid beforeColumnId)
+    {
+        var column = Columns.FirstOrDefault(c => c.Id == columnId);
+        if (column == null) return;
+
+        Columns.Remove(column);
+
+        var targetIndex = Columns.FindIndex(c => c.Id == beforeColumnId);
+
+        if (targetIndex == -1)
+        {
+            Columns.Add(column);
+        }
+        else
+        {
+            Columns.Insert(targetIndex, column);
+        }
+    }
+
+    public Guid? FindCardColumn(Guid cardId)
+    {
+        foreach (var kvp in CardsByColumn)
+        {
+            if (kvp.Value.Any(card => card.Id == cardId))
+            {
+                return kvp.Key;
+            }
+        }
+        return null;
+    }
+
+    public void MoveCardToColumn(Guid cardId, Guid toColumnId)
+    {
+        var fromColumnId = FindCardColumn(cardId);
+        if (fromColumnId == null || !CardsByColumn.TryGetValue(fromColumnId.Value, out var fromCards))
+            return;
+
+        var card = fromCards.FirstOrDefault(c => c.Id == cardId);
+        if (card == null) return;
+
+        if (fromColumnId == toColumnId) return;
+
+        fromCards.Remove(card);
+
+        if (!CardsByColumn.TryGetValue(toColumnId, out var toCards))
+        {
+            toCards = new List<CardDto>();
+            CardsByColumn[toColumnId] = toCards;
+        }
+
+        card.ColumnId = toColumnId;
+        card.RowIndex = toCards.Count;
+
+        toCards.Add(card);
+
+        for (int i = 0; i < fromCards.Count; i++)
+        {
+            fromCards[i].RowIndex = i;
+        }
+    }
 }

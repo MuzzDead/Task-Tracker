@@ -23,5 +23,9 @@ public interface ICardService
 
     [Get("/card/column/{columnId}")]
     Task<List<CardDto>> GetByColumnIdAsync(Guid columnId);
+
+
+    [Put("/card/move/{id}")]
+    Task MoveAsync(Guid id, [Body] MoveCardDto command);
 }
 

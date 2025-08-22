@@ -219,4 +219,23 @@ public class BoardPageService : IBoardPageService
             return false;
         }
     }
+
+    public async Task<bool> MoveColumnAsync(MoveColumnDto model)
+    {
+        try
+        {
+            await _columnService.MoveAsync(model.ColumnId, model);
+            return true;
+        }
+        catch (ApiException apiEx)
+        {
+            Console.Error.WriteLine($"[API Error] Failed to move column: {apiEx.StatusCode}: {apiEx.Content}");
+            return false;
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Error moving column: {ex.Message}");
+            return false;
+        }
+    }
 }

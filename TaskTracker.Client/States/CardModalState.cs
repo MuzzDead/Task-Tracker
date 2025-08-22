@@ -118,4 +118,13 @@ public class CardModalState
         IsDescriptionEditing = false;
         IsDescriptionSaving = false;
     }
+
+    public void UpdateCardPosition(Guid newColumnId, int newRowIndex)
+    {
+        if (SelectedCard != null)
+        {
+            SelectedCard.ColumnId = newColumnId;
+            SelectedCard.RowIndex = newRowIndex;
+        }
+    }
 }

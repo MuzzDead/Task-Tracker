@@ -121,4 +121,15 @@ public class ColumnManager
             _setBoardState(boardState);
         }
     }
+
+    public async Task OnColumnMoveAsync(MoveColumnDto model)
+    {
+        var success = await _boardPageService.MoveColumnAsync(model);
+        if (success)
+        {
+            var boardState = _getBoardState();
+            boardState.MoveColumn(model.ColumnId, model.BeforeColumnId);
+            _setBoardState(boardState);
+        }
+    }
 }

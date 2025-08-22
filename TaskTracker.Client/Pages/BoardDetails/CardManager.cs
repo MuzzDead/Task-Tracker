@@ -1,4 +1,5 @@
-﻿using TaskTracker.Client.DTOs.Card;
+﻿using AntDesign;
+using TaskTracker.Client.DTOs.Card;
 using TaskTracker.Client.DTOs.Comment;
 using TaskTracker.Client.Services.Interfaces;
 using TaskTracker.Client.States;
@@ -176,6 +177,43 @@ public class CardManager
             _setCardModalState(cardModalState);
         }
     }
+
+    public async Task OnCardMoveAsync(MoveCardDto card)
+    {
+        var cardModalState = _getCardModalState();
+        var boardState = _getBoardState();
+
+        try
+        {
+            var success = await _cardModalService.MoveCardAsync(card);
+            if (success)
+            {
+                boardState.MoveCardToColumn(card.CardId, card.ColumnId);
+                _setBoardState(boardState);
+
+                if (cardModalState.SelectedCard?.Id == card.CardId)
+                {
+                    cardModalState.SelectedCard.ColumnId = card.ColumnId;
+                    var updatedCard = boardState.CardsByColumn[card.ColumnId]
+                        .FirstOrDefault(c => c.Id == card.CardId);
+                    if (updatedCard != null)
+                    {
+                        cardModalState.SelectedCard.RowIndex = updatedCard.RowIndex;
+                    }
+                }
+                _setCardModalState(cardModalState);
+            }
+            else
+            {
+                Console.Error.WriteLine("Failed to move card on backend");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Error moving card: {ex.Message}");
+        }
+    }
+
 
     public async Task OnCommentSubmitAsync(string commentContent)
     {

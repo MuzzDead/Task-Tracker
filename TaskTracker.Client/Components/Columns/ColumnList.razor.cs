@@ -9,17 +9,17 @@ public partial class ColumnList : ComponentBase
     [Parameter] public List<ColumnDto>? Columns { get; set; }
     [Parameter] public Dictionary<Guid, List<CardDto>>? CardsByColumn { get; set; }
     [Parameter] public bool IsLoading { get; set; }
-
     [Parameter] public Guid? EditingColumnId { get; set; }
     [Parameter] public EventCallback<Guid?> EditingColumnIdChanged { get; set; }
     [Parameter] public bool IsColumnTitleSaving { get; set; }
     [Parameter] public EventCallback<(Guid ColumnId, string NewTitle)> OnColumnTitleSave { get; set; }
-
-    [Parameter] public EventCallback<string> OnAddColumn { get; set; }
+    [Parameter] public EventCallback OnAddColumn { get; set; }
     [Parameter] public EventCallback<(string title, Guid columnId)> OnAddCard { get; set; }
     [Parameter] public EventCallback<CardDto> OnCardClick { get; set; }
     [Parameter] public EventCallback<(Guid columnId, string newTitle)> OnEditColumn { get; set; }
     [Parameter] public EventCallback<ColumnDto> OnDeleteColumn { get; set; }
+
+    [Parameter] public EventCallback<MoveColumnDto> OnMoveColumn { get; set; }
 
     private List<CardDto> GetCards(Guid columnId)
     {
@@ -53,5 +53,10 @@ public partial class ColumnList : ComponentBase
     private async Task HandleColumnTitleSave((Guid ColumnId, string NewTitle) data)
     {
         await OnColumnTitleSave.InvokeAsync(data);
+    }
+
+    private async Task HandleColumnMove(MoveColumnDto moveDto)
+    {
+        await OnMoveColumn.InvokeAsync(moveDto);
     }
 }
