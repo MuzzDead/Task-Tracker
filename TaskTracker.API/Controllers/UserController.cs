@@ -4,8 +4,11 @@ using Microsoft.AspNetCore.Mvc;
 using TaskTracker.Application.DTOs;
 using TaskTracker.Application.Features.User.Command.ChangePassword;
 using TaskTracker.Application.Features.User.Command.Delete;
+using TaskTracker.Application.Features.User.Command.DeleteAvatar;
 using TaskTracker.Application.Features.User.Command.RegisterUser;
 using TaskTracker.Application.Features.User.Command.Update;
+using TaskTracker.Application.Features.User.Command.UploadAvatar;
+using TaskTracker.Application.Features.User.Queries.GetAvatar;
 using TaskTracker.Application.Features.User.Queries.GetByEmail;
 using TaskTracker.Application.Features.User.Queries.GetById;
 
@@ -66,5 +69,29 @@ public class UserController : ControllerBase
         await _mediator.Send(new DeleteUserCommand { Id = id });
 
         return NoContent();
+    }
+
+    [HttpPost("{id:guid}/avatar")]
+    public async Task<IActionResult> UploadAvatarAsync(Guid id, IFormFile avatar)
+    {
+        var command = new UploadAvatarCommand { UserId = id, Avatar = avatar };
+        var result = await _mediator.Send(command);
+        return Ok(result);
+    }
+
+    [HttpDelete("{id:guid}/avatar")]
+    public async Task<IActionResult> DeleteAvatarAsync(Guid id)
+    {
+        var command = new DeleteAvatarCommand { UserId = id };
+        var result = await _mediator.Send(command);
+        return Ok(result);
+    }
+
+    [HttpGet("{id:guid}/avatar")]
+    [AllowAnonymous]
+    public async Task<IActionResult> GetAvatarAsync(Guid id)
+    {
+        var fileResponse = await _mediator.Send(new GetUserAvatarQuery { UserId = id });
+        return File(fileResponse.Stream, fileResponse.ContentType);
     }
 }
