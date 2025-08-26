@@ -11,6 +11,7 @@ public partial class Profile
     [Inject] IAuthStateService AuthStateService { get; set; } = default!;
     [Inject] IAuthService AuthService { get; set; } = default!;
     [Inject] MessageService MessageService { get; set; } = default!;
+    [Inject] IConfiguration Config { get; set; } = default!;
 
     private UserDto? User;
     private bool IsLoading = true;
@@ -53,12 +54,9 @@ public partial class Profile
             StateHasChanged();
         }
     }
-
-
-    private void OnChangeAvatar()
-    {
-        Console.WriteLine("Change avatar - TODO");
-    }
+    private string? currentAvatarUrl => User?.AvatarId != null
+        ? $"{Config["ApiBaseUrl"]}/user/{User.Id}/avatar"
+        : $"https://api.dicebear.com/7.x/identicon/svg?seed={User?.Username ?? "user"}";
 
     private void OnEditInfo() => Navigation.NavigateTo("/editprofile");
 

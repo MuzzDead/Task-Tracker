@@ -19,4 +19,16 @@ public interface IUserService
 
     [Put("/user/{id}/change-password")]
     Task ChangePasswordAsync(Guid id, [Body] ChangePasswordDto model);
+
+    [Multipart]
+    [Post("/user/{id}/avatar")]
+
+    Task<UserDto> UploadAvatarAsync(Guid id, [AliasAs("avatar")] StreamPart avatar);
+
+    [Delete("/user/{id}/avatar")]
+    Task<UserDto> DeleteAvatarAsync(Guid id);
+
+
+    [Get("/user/{id}/avatar")]
+    Task<Stream> GetAvatarAsync(Guid id);
 }

@@ -1,23 +1,25 @@
 ﻿using Azure;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
-using System.ComponentModel;
+using Microsoft.Extensions.Options;
 using TaskTracker.Application.Storage;
+using TaskTracker.Domain.Options;
 
 namespace TaskTracker.Infrastructure.Services;
 
 public class BlobService : IBlobService
 {
     private readonly BlobServiceClient _blobServiceClient;
-    private const string ContainerName = "files";
-    public BlobService(BlobServiceClient blobServiceClient)
+    private readonly string _containerName;
+    public BlobService(BlobServiceClient blobServiceClient, IOptions<BlobStorageOptions> options)
     {
         _blobServiceClient = blobServiceClient;
+        _containerName = options.Value.Container;
     }
 
     public async Task DeleteAsync(Guid fileId, CancellationToken cancellationToken = default)
     {
-        BlobContainerClient containerClient = _blobServiceClient.GetBlobContainerClient(ContainerName);
+        BlobContainerClient containerClient = _blobServiceClient.GetBlobContainerClient(_containerName);
 
         BlobClient blobClient = containerClient.GetBlobClient(fileId.ToString());
 
@@ -26,7 +28,7 @@ public class BlobService : IBlobService
 
     public async Task<FileResponse> DownloadAsync(Guid fileId, CancellationToken cancellationToken = default)
     {
-        BlobContainerClient containerClient = _blobServiceClient.GetBlobContainerClient(ContainerName);
+        BlobContainerClient containerClient = _blobServiceClient.GetBlobContainerClient(_containerName);
 
         BlobClient blobClient = containerClient.GetBlobClient(fileId.ToString());
 
@@ -36,7 +38,7 @@ public class BlobService : IBlobService
 
     public async Task<Guid> UploadAsync(Stream stream, string conntentType, CancellationToken cancellationToken = default)
     {
-        BlobContainerClient containerClient = _blobServiceClient.GetBlobContainerClient(ContainerName);
+        BlobContainerClient containerClient = _blobServiceClient.GetBlobContainerClient(_containerName);
 
         await containerClient.CreateIfNotExistsAsync();
 

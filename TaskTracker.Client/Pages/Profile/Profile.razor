@@ -16,13 +16,9 @@
                 <TypographyTitle Level="3">👤 User Profile</TypographyTitle>
             </div>
             <div class="avatar-section">
-                <Avatar Size=@AvatarSize.Large Src="https://api.dicebear.com/7.x/identicon/svg?seed=smbd" />
-                <Button Type=@ButtonType.Link
-                        Icon="upload"
-                        Size=@ButtonSize.Default
-                        OnClick=@OnChangeAvatar>
-                    Change Avatar
-                </Button>
+                <Avatar Style="width: 100px; height: 100px;"
+                        Size=@AvatarSize.Large
+                        Src=@currentAvatarUrl />
             </div>
             <div class="user-info">
                 <TypographyText class="info-item"><strong>Username:</strong> @($"@{User.Username}")</TypographyText>

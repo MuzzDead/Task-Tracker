@@ -22,24 +22,44 @@
                        Size=@SpaceSize.Middle
                        Style="width:100%; padding:0 16px;">
                     <SpaceItem>
-                        <div class="avatar-section">
+                        <div class="avatar-section" style="display: flex; flex-direction: column; align-items: center; gap: 16px;">
                             <Avatar Style="width: 100px; height: 100px;"
                                     Size=@AvatarSize.Large
-                                    Src="https://api.dicebear.com/7.x/identicon/svg?seed=smbd"/>
-                                <Button Type=@ButtonType.Link
-                                        Icon="upload"
-                                        Size=@ButtonSize.Large
-                                        OnClick="@ChangeAvatar">
-                                    Change Avatar
-                                </Button>
+                                    Src=@currentAvatarUrl />
+
+                            <Space Size=@SpaceSize.Small>
+                                <SpaceItem>
+                                    <InputFile id="fileInput" OnChange=@OnAvatarInputChange hidden multiple />
+
+                                    <Upload>
+                                        <label class="ant-btn" for="fileInput">
+                                            <Icon Type=@IconType.Outline.Upload />
+                                            Change Avatar
+                                        </label>
+                                    </Upload>
+                                </SpaceItem>
+
+                                @if (originalUser?.AvatarId != null)
+                                {
+                                    <SpaceItem>
+                                        <Button Icon=@IconType.Outline.Delete
+                                                Danger="true"
+                                                Size=@ButtonSize.Small
+                                                Loading=@isAvatarUploading
+                                                Disabled=@(isAvatarUploading || isSubmitting)
+                                                OnClick=@RemoveAvatar>
+                                            Remove
+                                        </Button>
+                                    </SpaceItem>
+                                }
+                            </Space>
                         </div>
                     </SpaceItem>
-
                     <SpaceItem>
                         <Input @bind-Value=@model.Username
                                Placeholder="Username"
                                Size=@InputSize.Large
-                               Disabled="@isSubmitting"
+                               Disabled=@isSubmitting
                                OnPressEnter=@HandleEnterPress />
                     </SpaceItem>
 
