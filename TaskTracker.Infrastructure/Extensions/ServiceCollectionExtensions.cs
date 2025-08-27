@@ -71,7 +71,7 @@ public static class ServiceCollectionExtensions
 
 
         services.Configure<BlobStorageOptions>(configuration.GetSection(BlobStorageOptions.SectionName));
-        services.AddSingleton<IBlobService, BlobService>();
+        services.AddScoped<IBlobService, BlobService>();
         services.AddSingleton(_ => new BlobServiceClient(configuration.GetConnectionString("BlobStorage")));
 
         services.AddHostedService<CleanupExpiredTokensService>();

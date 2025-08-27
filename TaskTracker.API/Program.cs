@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.OpenApi.Models;
-using TaskTracker.API.Extensions;
 using TaskTracker.API.Middlewares;
 using TaskTracker.Application.Extensions;
 using TaskTracker.Database;
@@ -86,7 +85,5 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
-
-app.MapEndpoints();
 
 app.Run();
