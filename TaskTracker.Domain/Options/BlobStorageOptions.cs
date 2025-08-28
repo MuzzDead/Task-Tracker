@@ -2,6 +2,8 @@
 
 public class BlobStorageOptions
 {
-    public const string SectionName = "Blob";
-    public string Container { get; set; } = string.Empty;
+    public string ConnectionString { get; set; }
+    public string ContainerName { get; set; }
+    public string AccountName { get; set; }
+    public string AccountKey { get; set; }
 }

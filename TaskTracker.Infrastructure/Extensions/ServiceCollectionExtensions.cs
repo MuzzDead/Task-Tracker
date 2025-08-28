@@ -70,9 +70,8 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ICurrentUserService, CurrentUserService>();
 
 
-        services.Configure<BlobStorageOptions>(configuration.GetSection(BlobStorageOptions.SectionName));
+        services.Configure<BlobStorageOptions>(configuration.GetSection("AzureBlobStorage"));
         services.AddScoped<IBlobService, BlobService>();
-        services.AddSingleton(_ => new BlobServiceClient(configuration.GetConnectionString("BlobStorage")));
 
         services.AddHostedService<CleanupExpiredTokensService>();
 

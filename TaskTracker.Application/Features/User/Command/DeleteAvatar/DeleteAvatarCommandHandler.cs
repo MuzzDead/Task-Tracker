@@ -7,7 +7,7 @@ using TaskTracker.Application.Storage;
 
 namespace TaskTracker.Application.Features.User.Command.DeleteAvatar;
 
-public class DeleteAvatarCommandHandler : IRequestHandler<DeleteAvatarCommand, UserDto>
+public class DeleteAvatarCommandHandler : IRequestHandler<DeleteAvatarCommand>
 {
     private readonly IUnitOfWorkFactory _unitOfWorkFactory;
     private readonly IBlobService _blobService;
@@ -23,7 +23,7 @@ public class DeleteAvatarCommandHandler : IRequestHandler<DeleteAvatarCommand, U
         _mapper = mapper;
     }
 
-    public async Task<UserDto> Handle(DeleteAvatarCommand request, CancellationToken cancellationToken)
+    public async Task Handle(DeleteAvatarCommand request, CancellationToken cancellationToken)
     {
         using var uow = _unitOfWorkFactory.CreateUnitOfWork();
 
@@ -35,11 +35,9 @@ public class DeleteAvatarCommandHandler : IRequestHandler<DeleteAvatarCommand, U
             throw new BadRequestException("User doesn't have an avatar");
         }
 
-        await _blobService.DeleteAsync(user.AvatarId.Value, cancellationToken);
+        await _blobService.DeleteAsync(user.AvatarId.Value);
 
         user.AvatarId = null;
         await uow.SaveChangesAsync();
-
-        return _mapper.Map<UserDto>(user);
     }
 }

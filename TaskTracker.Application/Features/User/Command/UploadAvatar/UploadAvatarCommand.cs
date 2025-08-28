@@ -1,11 +1,12 @@
 ﻿using MediatR;
-using Microsoft.AspNetCore.Http;
 using TaskTracker.Application.DTOs;
 
 namespace TaskTracker.Application.Features.User.Command.UploadAvatar;
 
-public class UploadAvatarCommand : IRequest<UserDto>
+public class UploadAvatarCommand : IRequest<Guid>
 {
     public Guid UserId { get; set; }
-    public IFormFile Avatar { get; set; } = null!;
+    public Stream FileStream { get; set; }
+    public string ContentType { get; set; }
+    public string FileName { get; set; }
 }

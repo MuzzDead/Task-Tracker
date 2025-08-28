@@ -1,32 +1,25 @@
-﻿using AutoMapper;
-using MediatR;
+﻿using MediatR;
+using Microsoft.Extensions.Logging;
 using TaskTracker.Application.Common.Interfaces.UnitOfWork;
-using TaskTracker.Application.DTOs;
 using TaskTracker.Application.Exceptions;
 using TaskTracker.Application.Storage;
 
 namespace TaskTracker.Application.Features.User.Command.UploadAvatar;
 
-public class UploadAvatarCommandHandler : IRequestHandler<UploadAvatarCommand, UserDto>
+public class UploadAvatarCommandHandler : IRequestHandler<UploadAvatarCommand, Guid>
 {
     private readonly IUnitOfWorkFactory _unitOfWorkFactory;
     private readonly IBlobService _blobService;
-    private readonly IMapper _mapper;
-
     public UploadAvatarCommandHandler(
         IUnitOfWorkFactory unitOfWorkFactory,
-        IBlobService blobService,
-        IMapper mapper)
+        IBlobService blobService)
     {
         _unitOfWorkFactory = unitOfWorkFactory;
         _blobService = blobService;
-        _mapper = mapper;
     }
 
-    public async Task<UserDto> Handle(UploadAvatarCommand request, CancellationToken cancellationToken)
+    public async Task<Guid> Handle(UploadAvatarCommand request, CancellationToken cancellationToken)
     {
-        ValidateAvatarFile.ValidateFile(request.Avatar);
-
         using var uow = _unitOfWorkFactory.CreateUnitOfWork();
 
         var user = await uow.Users.GetByIdAsync(request.UserId)
@@ -34,18 +27,15 @@ public class UploadAvatarCommandHandler : IRequestHandler<UploadAvatarCommand, U
 
         if (user.AvatarId.HasValue)
         {
-            await _blobService.DeleteAsync(user.AvatarId.Value, cancellationToken);
+            await _blobService.DeleteAsync(user.AvatarId.Value);
         }
 
-        using var stream = request.Avatar.OpenReadStream();
         var newAvatarId = await _blobService.UploadAsync(
-            stream,
-            request.Avatar.ContentType,
-            cancellationToken);
+            request.FileStream, request.ContentType);
 
         user.AvatarId = newAvatarId;
-        await uow.SaveChangesAsync();
+        await uow.SaveChangesAsync(cancellationToken);
 
-        return _mapper.Map<UserDto>(user);
+        return newAvatarId;
     }
 }

@@ -1,6 +1,8 @@
 ﻿using Azure;
+using Azure.Storage;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
+using Azure.Storage.Sas;
 using Microsoft.Extensions.Options;
 using TaskTracker.Application.Storage;
 using TaskTracker.Domain.Options;
@@ -11,45 +13,51 @@ public class BlobService : IBlobService
 {
     private readonly BlobServiceClient _blobServiceClient;
     private readonly string _containerName;
-    public BlobService(BlobServiceClient blobServiceClient, IOptions<BlobStorageOptions> options)
+    private readonly string _accountName;
+    private readonly string _accountKey;
+
+    public BlobService(IOptions<BlobStorageOptions> options)
     {
-        _blobServiceClient = blobServiceClient;
-        _containerName = options.Value.Container;
+        _containerName = options.Value.ContainerName;
+        _accountName = options.Value.AccountName;
+        _accountKey = options.Value.AccountKey;
+        _blobServiceClient = new BlobServiceClient(options.Value.ConnectionString);
     }
 
-    public async Task DeleteAsync(Guid fileId, CancellationToken cancellationToken = default)
+    public async Task DeleteAsync(Guid blobId)
     {
-        BlobContainerClient containerClient = _blobServiceClient.GetBlobContainerClient(_containerName);
-
-        BlobClient blobClient = containerClient.GetBlobClient(fileId.ToString());
-
-        await blobClient.DeleteIfExistsAsync(cancellationToken: cancellationToken);
+        var containerClient = _blobServiceClient.GetBlobContainerClient(_containerName);
+        var blobClient = containerClient.GetBlobClient(blobId.ToString());
+        await blobClient.DeleteIfExistsAsync();
     }
 
-    public async Task<FileResponse> DownloadAsync(Guid fileId, CancellationToken cancellationToken = default)
+    public string GenerateSasToken(Guid blobId, int expiresInMinutes = 5)
     {
-        BlobContainerClient containerClient = _blobServiceClient.GetBlobContainerClient(_containerName);
+        var blobSasBuilder = new BlobSasBuilder
+        {
+            BlobContainerName = _containerName,
+            BlobName = blobId.ToString(),
+            Resource = "b",
+            ExpiresOn = DateTimeOffset.UtcNow.AddMinutes(expiresInMinutes)
+        };
 
-        BlobClient blobClient = containerClient.GetBlobClient(fileId.ToString());
+        blobSasBuilder.SetPermissions(BlobSasPermissions.Read);
+        var sasToken = blobSasBuilder.ToSasQueryParameters(
+            new StorageSharedKeyCredential(_accountName, _accountKey)).ToString();
 
-        Response<BlobDownloadResult> response = await blobClient.DownloadContentAsync(cancellationToken: cancellationToken);
-        return new FileResponse(response.Value.Content.ToStream(), response.Value.Details.ContentType);
+        var baseUrl = $"https://{_accountName}.blob.core.windows.net";
+        return $"{baseUrl}/{_containerName}/{blobId}?{sasToken}";
     }
-
-    public async Task<Guid> UploadAsync(Stream stream, string conntentType, CancellationToken cancellationToken = default)
+    
+    public async Task<Guid> UploadAsync(Stream content, string contentType)
     {
-        BlobContainerClient containerClient = _blobServiceClient.GetBlobContainerClient(_containerName);
-
+        var containerClient = _blobServiceClient.GetBlobContainerClient(_containerName);
         await containerClient.CreateIfNotExistsAsync();
 
-        var fileId = Guid.NewGuid();
-        BlobClient blobClient = containerClient.GetBlobClient(fileId.ToString());
+        var blobId = Guid.NewGuid();
+        var blobClient = containerClient.GetBlobClient(blobId.ToString());
 
-        await blobClient.UploadAsync(
-            stream,
-            new BlobHttpHeaders { ContentType = conntentType },
-            cancellationToken: cancellationToken);
-
-        return fileId;
+        await blobClient.UploadAsync(content, new BlobHttpHeaders { ContentType = contentType });
+        return blobId;
     }
 }

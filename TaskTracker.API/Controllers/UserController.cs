@@ -1,11 +1,9 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using TaskTracker.Application.DTOs;
 using TaskTracker.Application.Features.User.Command.ChangePassword;
 using TaskTracker.Application.Features.User.Command.Delete;
 using TaskTracker.Application.Features.User.Command.DeleteAvatar;
-using TaskTracker.Application.Features.User.Command.RegisterUser;
 using TaskTracker.Application.Features.User.Command.Update;
 using TaskTracker.Application.Features.User.Command.UploadAvatar;
 using TaskTracker.Application.Features.User.Queries.GetAvatar;
@@ -72,26 +70,33 @@ public class UserController : ControllerBase
     }
 
     [HttpPost("{id:guid}/avatar")]
-    public async Task<IActionResult> UploadAvatarAsync(Guid id, IFormFile avatar)
+    [RequestSizeLimit(5 * 1024 * 1024)] // 5MB
+    public async Task<IActionResult> UploadAvatarAsync(Guid id, IFormFile file)
     {
-        var command = new UploadAvatarCommand { UserId = id, Avatar = avatar };
-        var result = await _mediator.Send(command);
-        return Ok(result);
+        using var stream = file.OpenReadStream();
+        var avatarId = await _mediator.Send(new UploadAvatarCommand
+        {
+            UserId = id,
+            FileStream = stream,
+            ContentType = file.ContentType,
+            FileName = file.FileName
+        });
+
+        return Ok(new { AvatarId = avatarId });
     }
 
     [HttpDelete("{id:guid}/avatar")]
     public async Task<IActionResult> DeleteAvatarAsync(Guid id)
     {
-        var command = new DeleteAvatarCommand { UserId = id };
-        var result = await _mediator.Send(command);
-        return Ok(result);
+        await _mediator.Send(new DeleteAvatarCommand { UserId = id });
+        return NoContent();
     }
 
-    [HttpGet("{id:guid}/avatar")]
+    [HttpGet("{id:guid}/avatar-url")]
     [AllowAnonymous]
-    public async Task<IActionResult> GetAvatarAsync(Guid id)
+    public async Task<IActionResult> GetAvatarUrlAsync(Guid id)
     {
-        var fileResponse = await _mediator.Send(new GetUserAvatarQuery { UserId = id });
-        return File(fileResponse.Stream, fileResponse.ContentType);
+        var avatarUrl = await _mediator.Send(new GetAvatarQuery { UserId = id });
+        return Ok(new { AvatarUrl = avatarUrl });
     }
 }

@@ -2,7 +2,7 @@
 
 public interface IBlobService
 {
-    Task<Guid> UploadAsync(Stream stream, string conntentType, CancellationToken cancellationToken = default);
-    Task<FileResponse> DownloadAsync(Guid fileId, CancellationToken cancellationToken = default);
-    Task DeleteAsync(Guid fileId, CancellationToken cancellationToken = default);
+    Task<Guid> UploadAsync(Stream content, string contentType);
+    string GenerateSasToken(Guid blobId, int expiresInMinutes = 5);
+    Task DeleteAsync(Guid blobId);
 }
