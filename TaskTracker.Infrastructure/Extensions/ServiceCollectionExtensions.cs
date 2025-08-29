@@ -1,10 +1,12 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using Azure.Storage.Blobs;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using TaskTracker.Application.Common.Interfaces.Auth;
 using TaskTracker.Application.Common.Interfaces.Services;
+using TaskTracker.Application.Storage;
 using TaskTracker.Domain.Options;
 using TaskTracker.Infrastructure.Auth;
 using TaskTracker.Infrastructure.BackgroundServices;
@@ -66,7 +68,11 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IJwtTokenProvider, JwtTokenProvider>();
         services.AddScoped<IPasswordHasher, PasswordHasher>();
         services.AddScoped<ICurrentUserService, CurrentUserService>();
-        
+
+
+        services.Configure<BlobStorageOptions>(configuration.GetSection("AzureBlobStorage"));
+        services.AddScoped<IBlobService, BlobService>();
+
         services.AddHostedService<CleanupExpiredTokensService>();
 
         services.AddHttpContextAccessor();

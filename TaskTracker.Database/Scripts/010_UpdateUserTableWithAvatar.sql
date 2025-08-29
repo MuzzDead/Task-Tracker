@@ -1,0 +1,5 @@
+IF COL_LENGTH('dbo.Users', 'AvatarId') IS NULL
+BEGIN
+    ALTER TABLE dbo.Users
+        ADD AvatarId UNIQUEIDENTIFIER NULL;
+END
