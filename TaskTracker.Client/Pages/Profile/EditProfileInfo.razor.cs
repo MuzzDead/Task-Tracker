@@ -65,22 +65,27 @@ public partial class EditProfileInfo : ComponentBase
 
     private async Task LoadAvatar()
     {
-        if (originalUser?.AvatarId == null)
-        {
-            currentAvatarUrl = GeneratePlaceholderAvatar();
-            return;
-        }
-
         try
         {
-            var avatarStream = await UserService.GetAvatarAsync(originalUser.Id);
-            using var memoryStream = new MemoryStream();
-            await avatarStream.CopyToAsync(memoryStream);
-            var bytes = memoryStream.ToArray();
-            currentAvatarUrl = $"data:image/jpeg;base64,{Convert.ToBase64String(bytes)}";
+            if (string.IsNullOrEmpty(originalUser?.AvatarUrl))
+            {
+                currentAvatarUrl = GeneratePlaceholderAvatar();
+                return;
+            }
+
+            currentAvatarUrl = originalUser.AvatarUrl;
+
+            if (currentAvatarUrl.Contains("sig="))
+            {
+                var separator = currentAvatarUrl.Contains('?') ? '&' : '?';
+                currentAvatarUrl = $"{currentAvatarUrl}{separator}t={DateTime.UtcNow.Ticks}";
+            }
+
+            StateHasChanged();
         }
-        catch
+        catch (Exception ex)
         {
+            Console.WriteLine($"Error loading avatar: {ex.Message}");
             currentAvatarUrl = GeneratePlaceholderAvatar();
         }
         finally
@@ -106,11 +111,13 @@ public partial class EditProfileInfo : ComponentBase
             isAvatarUploading = true;
             StateHasChanged();
 
-            using var stream = file.OpenReadStream(maxAllowedSize: 5 * 1024 * 1024); // 5MB max
+            using var stream = file.OpenReadStream(maxAllowedSize: 5 * 1024 * 1024);
             var streamPart = new StreamPart(stream, file.Name, file.ContentType);
 
-            var updatedUser = await UserService.UploadAvatarAsync(originalUser!.Id, streamPart);
+            var response = await UserService.UploadAvatarAsync(originalUser!.Id, streamPart);
+            var newAvatarId = response.AvatarId;
 
+            var updatedUser = await UserService.GetByIdAsync(originalUser.Id);
             originalUser = updatedUser;
 
             var authResponse = new AuthResponse
@@ -122,8 +129,23 @@ public partial class EditProfileInfo : ComponentBase
             };
             await AuthStateService.SetAuthDataAsync(authResponse);
 
-            await LoadAvatar();
+            if (!string.IsNullOrEmpty(updatedUser.AvatarUrl))
+            {
+                var separator = updatedUser.AvatarUrl.Contains('?') ? '&' : '?';
+                currentAvatarUrl = $"{updatedUser.AvatarUrl}{separator}t={DateTime.UtcNow.Ticks}";
+            }
+            else
+            {
+                currentAvatarUrl = GeneratePlaceholderAvatar();
+            }
+
+            StateHasChanged();
             MessageService.Success("Avatar updated successfully!");
+        }
+        catch (ApiException ex)
+        {
+            MessageService.Error($"Failed to upload avatar: {ex.Content}");
+            Console.WriteLine($"API Error: {ex.Message}");
         }
         catch (Exception ex)
         {
@@ -137,7 +159,6 @@ public partial class EditProfileInfo : ComponentBase
         }
     }
 
-
     protected async Task RemoveAvatar()
     {
         try
@@ -145,19 +166,27 @@ public partial class EditProfileInfo : ComponentBase
             isAvatarUploading = true;
             StateHasChanged();
 
-            var updatedUser = await UserService.DeleteAvatarAsync(originalUser!.Id);
+            await UserService.DeleteAvatarAsync(originalUser!.Id);
 
+            var updatedUser = await UserService.GetByIdAsync(originalUser.Id);
             originalUser = updatedUser;
-            currentAvatarUrl = GeneratePlaceholderAvatar();
 
             var authResponse = new AuthResponse
             {
                 AccessToken = AuthStateService.AccessToken!,
-                User = updatedUser
+                RefreshToken = AuthStateService.RefreshToken!,
+                User = originalUser,
+                ExpiresAt = AuthStateService.TokenExpiresAt ?? DateTime.UtcNow.AddMinutes(30)
             };
             await AuthStateService.SetAuthDataAsync(authResponse);
 
+            currentAvatarUrl = GeneratePlaceholderAvatar();
             MessageService.Success("Avatar removed successfully!");
+        }
+        catch (ApiException ex)
+        {
+            MessageService.Error($"Failed to remove avatar: {ex.Content}");
+            Console.WriteLine($"API Error: {ex.Message}");
         }
         catch (Exception ex)
         {
@@ -205,7 +234,9 @@ public partial class EditProfileInfo : ComponentBase
             var authResponse = new AuthResponse
             {
                 AccessToken = AuthStateService.AccessToken!,
-                User = updatedUser
+                RefreshToken = AuthStateService.RefreshToken!,
+                User = updatedUser,
+                ExpiresAt = AuthStateService.TokenExpiresAt ?? DateTime.UtcNow.AddMinutes(30)
             };
 
             await AuthStateService.SetAuthDataAsync(authResponse);

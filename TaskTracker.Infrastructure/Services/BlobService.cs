@@ -28,7 +28,7 @@ public class BlobService : IBlobService
     {
         var containerClient = _blobServiceClient.GetBlobContainerClient(_containerName);
         var blobClient = containerClient.GetBlobClient(blobId.ToString());
-        await blobClient.DeleteIfExistsAsync();
+        await blobClient.DeleteIfExistsAsync(DeleteSnapshotsOption.IncludeSnapshots);
     }
 
     public string GenerateSasToken(Guid blobId, int expiresInMinutes = 5)

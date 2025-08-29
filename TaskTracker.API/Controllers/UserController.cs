@@ -97,6 +97,12 @@ public class UserController : ControllerBase
     public async Task<IActionResult> GetAvatarUrlAsync(Guid id)
     {
         var avatarUrl = await _mediator.Send(new GetAvatarQuery { UserId = id });
+        
+        if (string.IsNullOrEmpty(avatarUrl))
+        {
+            return NotFound();
+        }
+
         return Ok(new { AvatarUrl = avatarUrl });
     }
 }
