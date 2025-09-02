@@ -25,6 +25,11 @@
                 }
             </div>
         </div>
+
+        <div class="menu-item @(IsActive("/chat") ? "active" : "")" @onclick="@(() => NavigateTo("/chat"))">
+            <Icon Type="question-circle" class="menu-icon" />
+            <TypographyText Class="menu-text">Assistant[AI]</TypographyText>
+        </div>
     </div>
 
     <div class="navbar-footer">

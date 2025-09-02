@@ -59,6 +59,10 @@ builder.Services
     .ConfigureHttpClient(c => c.BaseAddress = new Uri(apiBaseUrl))
     .AddHttpMessageHandler<AuthenticationHandler>();
 
+builder.Services
+    .AddRefitClient<IAssistantService>()
+    .ConfigureHttpClient(c => c.BaseAddress = new Uri(apiBaseUrl));
+
 
 builder.Services.AddScoped<IBoardPageService, BoardPageService>();
 builder.Services.AddScoped<ICardModalService, CardModalService>();

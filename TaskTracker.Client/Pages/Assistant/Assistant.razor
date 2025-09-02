@@ -1,0 +1,32 @@
+﻿@page "/chat"
+@using AntDesign
+
+<Flex Vertical Align=@FlexAlign.Center Justify=@FlexJustify.Center Class="chat-container">
+    <div class="chat-wrapper">
+        <Card Title="AI Assistant Chat" Class="chat-card">
+            <div class="chat-messages">
+                @foreach (var msg in Messages)
+                {
+                    <div class="chat-message @(msg.IsUser ? "user" : "assistant")">
+                        <div class=@($"chat-bubble {(msg.IsUser ? "user-bubble" : "assistant-bubble")}")>
+                            @msg.Text
+                        </div>
+                    </div>
+                }
+                @if (Messages.Count > 0)
+                {
+                    <div class="scroll-anchor"></div>
+                }
+            </div>
+            <div class="chat-input">
+                <Input @bind-Value="UserInput"
+                       Placeholder="Type your message..."
+                       OnKeyUp="HandleEnter"
+                       Class="chat-textbox" />
+                <Button Type=@ButtonType.Primary OnClick=@SendMessage Class="chat-send">
+                    Send
+                </Button>
+            </div>
+        </Card>
+    </div>
+</Flex>
