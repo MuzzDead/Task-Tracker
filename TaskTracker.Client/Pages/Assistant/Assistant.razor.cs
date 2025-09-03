@@ -10,12 +10,68 @@ public partial class Assistant : ComponentBase
 {
     [Inject] private IAssistantService AssistantService { get; set; } = null!;
     [Inject] private IMessageService MessageService { get; set; } = null!;
+    [Inject] private ISessionStorageService SessionStorageService { get; set; } = null!;
 
     private string UserInput { get; set; } = string.Empty;
     private List<ChatMessage> Messages { get; set; } = new();
     private bool IsLoading { get; set; } = false;
     private string? CurrentSessionId { get; set; }
     private bool IsLoadingHistory { get; set; } = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadInitialHistory();
+        await base.OnInitializedAsync();
+    }
+
+    private async Task LoadInitialHistory()
+    {
+        IsLoadingHistory = true;
+        StateHasChanged();
+
+        try
+        {
+            CurrentSessionId = await SessionStorageService.GetSessionIdAsync();
+
+            if (!string.IsNullOrWhiteSpace(CurrentSessionId))
+            {
+                await LoadHistoryForSession(CurrentSessionId);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Failed to load initial history: {ex.Message}");
+        }
+        finally
+        {
+            IsLoadingHistory = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task LoadHistoryForSession(string sessionId)
+    {
+        try
+        {
+            var history = await AssistantService.GetHistoryAsync(sessionId);
+            Messages.Clear();
+
+            foreach (var msg in history.Messages)
+            {
+                Messages.Add(new ChatMessage
+                {
+                    Text = msg.Content,
+                    IsUser = msg.Role.Equals("User", StringComparison.OrdinalIgnoreCase),
+                    IsLoading = false
+                });
+            }
+        }
+        catch (Exception)
+        {
+            Messages.Clear();
+            CurrentSessionId = null;
+        }
+    }
 
     private async Task SendMessage()
     {
@@ -60,6 +116,8 @@ public partial class Assistant : ComponentBase
                 IsUser = false,
                 IsLoading = false
             });
+
+            await SessionStorageService.SetSessionIdAsync(CurrentSessionId);
         }
         catch (Exception ex)
         {
@@ -80,46 +138,11 @@ public partial class Assistant : ComponentBase
         }
     }
 
-    private async Task LoadHistory()
-    {
-        if (string.IsNullOrWhiteSpace(CurrentSessionId) || IsLoadingHistory)
-            return;
-
-        IsLoadingHistory = true;
-        StateHasChanged();
-
-        try
-        {
-            var history = await AssistantService.GetHistoryAsync(CurrentSessionId);
-
-            Messages.Clear();
-
-            foreach (var msg in history.Messages)
-            {
-                Messages.Add(new ChatMessage
-                {
-                    Text = msg.Content,
-                    IsUser = msg.Role == "User",
-                    IsLoading = false
-                });
-            }
-        }
-        catch (Exception ex)
-        {
-            MessageService.Error($"Failed to load history: {ex.Message}");
-            ClearChat();
-        }
-        finally
-        {
-            IsLoadingHistory = false;
-            StateHasChanged();
-        }
-    }
-
-    private void ClearChat()
+    private async Task ClearChat()
     {
         Messages.Clear();
         CurrentSessionId = null;
+        await SessionStorageService.ClearSessionIdAsync();
         StateHasChanged();
     }
 

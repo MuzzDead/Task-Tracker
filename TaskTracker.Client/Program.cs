@@ -18,6 +18,7 @@ builder.Services.AddBlazoredLocalStorage();
 var apiBaseUrl = builder.Configuration["ApiBaseUrl"];
 
 builder.Services.AddScoped<IAuthStateService, AuthStateService>();
+builder.Services.AddScoped<ISessionStorageService, SessionStorageService>();
 builder.Services.AddScoped<AuthenticationHandler>();
 
 builder.Services
