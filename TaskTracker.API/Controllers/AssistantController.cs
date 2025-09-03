@@ -20,4 +20,11 @@ public class AssistantController : ControllerBase
         var response = await _chatService.ChatAsync(request);
         return Ok(response);
     }
+
+    [HttpGet("history/{sessionId}")]
+    public async Task<IActionResult> GetHistory(string sessionId)
+    {
+        var response = await _chatService.GetHistoryAsync(sessionId);
+        return Ok(response);
+    }
 }

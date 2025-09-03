@@ -5,4 +5,5 @@ namespace TaskTracker.Application.OpenAi;
 public interface IChatService
 {
     Task<ChatResponse> ChatAsync(ChatRequest request, CancellationToken cancellationToken = default);
+    Task<ChatHistoryApiResponse> GetHistoryAsync(string sessionId);
 }

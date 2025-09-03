@@ -74,7 +74,9 @@ public static class ServiceCollectionExtensions
         services.Configure<BlobStorageOptions>(configuration.GetSection("AzureBlobStorage"));
         services.AddScoped<IBlobService, BlobService>();
 
+        services.AddMemoryCache();
         services.Configure<AzureOpenAIOptions>(configuration.GetSection(AzureOpenAIOptions.SectionName));
+        services.AddSingleton<IChatSessionStore, MemoryChatSessionStore>();
         services.AddScoped<IChatService, AzureOpenAIChatService>();
 
         services.AddHostedService<CleanupExpiredTokensService>();
