@@ -1,0 +1,104 @@
+﻿@page "/chat"
+@using AntDesign
+
+<link href="css/Assistant.css" rel="stylesheet" />
+
+<div class="chat-container">
+    <div class="chat-header">
+        <div class="chat-title">
+            <Icon Type="message" Theme=@IconThemeType.Outline class="chat-icon" />
+            <h2>AI Assistant</h2>
+        </div>
+    </div>
+
+    <div class="chat-content">
+        <div class="chat-messages" id="messages-container">
+            @if (IsLoadingHistory && Messages.Count == 0)
+            {
+                <div class="history-loading">
+                    <Spin Size=@SpinSize.Large />
+                    <Text Class="loading-text">Loading chat history...</Text>
+                </div>
+            }
+            else if (Messages.Count == 0)
+            {
+                <div class="welcome-message">
+                    <div class="welcome-content">
+                        <Icon Type="robot" Theme=@IconThemeType.Outline class="welcome-icon" />
+                        <Title Level="3">Welcome to AI Assistant</Title>
+                        <Text Type=@TextElementType.Secondary>How can I help you today?</Text>
+                    </div>
+                </div>
+            }
+            else
+            {
+                @foreach (var msg in Messages)
+                {
+                    <div class="message-wrapper @(msg.IsUser ? "user-message" : "assistant-message")">
+                        <div class="message-avatar">
+                            @if (msg.IsUser)
+                            {
+                                <Avatar Size=@AvatarSize.Default Style="background-color: #1677ff; color: white;">
+                                    <Icon Type="user" Theme=@IconThemeType.Outline />
+                                </Avatar>
+                            }
+                            else
+                            {
+                                <Avatar Size=@AvatarSize.Default Style="background-color: #667eea; color: white;">
+                                    <Icon Type="robot" Theme=@IconThemeType.Outline />
+                                </Avatar>
+                            }
+                        </div>
+                        <div class="message-content">
+                            <div class="message-bubble @(msg.IsUser ? "user-bubble" : "assistant-bubble") @(msg.IsError ? "error-bubble" : "") @(msg.IsLoading ? "loading-bubble" : "")">
+                                @if (msg.IsLoading)
+                                {
+                                    <div class="typing-indicator">
+                                        <span></span>
+                                        <span></span>
+                                        <span></span>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="message-text">@msg.Text</div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                }
+                <div class="scroll-anchor"></div>
+            }
+        </div>
+
+        <div class="chat-input-container">
+            <div class="chat-input-wrapper">
+                <TextArea @bind-Value="UserInput"
+                          Placeholder="Type your message here..."
+                          OnKeyUp=@HandleEnter
+                          Disabled=@(IsLoading || IsLoadingHistory)
+                          Class="chat-textarea" />
+                <Button Type=@ButtonType.Primary
+                        OnClick=@SendMessage
+                        Shape=@ButtonShape.Circle
+                        Size=@ButtonSize.Large
+                        Class="send-button">
+                    <Icon Type="send" Theme=@IconThemeType.Outline />
+                </Button>
+            </div>
+            @if (Messages.Count > 0)
+            {
+                <div class="chat-actions">
+                    <Button OnClick=@ClearChat
+                            Disabled="@(IsLoading || IsLoadingHistory)"
+                            Type=@ButtonType.Text
+                            Size=@ButtonSize.Small
+                            Class="clear-button">
+                        <Icon Type="delete" Theme=@IconThemeType.Outline />
+                        Clear Chat
+                    </Button>
+                </div>
+            }
+        </div>
+    </div>
+</div>

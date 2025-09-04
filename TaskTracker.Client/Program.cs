@@ -18,6 +18,7 @@ builder.Services.AddBlazoredLocalStorage();
 var apiBaseUrl = builder.Configuration["ApiBaseUrl"];
 
 builder.Services.AddScoped<IAuthStateService, AuthStateService>();
+builder.Services.AddScoped<ISessionStorageService, SessionStorageService>();
 builder.Services.AddScoped<AuthenticationHandler>();
 
 builder.Services
@@ -58,6 +59,10 @@ builder.Services
     .AddRefitClient<IStateService>()
     .ConfigureHttpClient(c => c.BaseAddress = new Uri(apiBaseUrl))
     .AddHttpMessageHandler<AuthenticationHandler>();
+
+builder.Services
+    .AddRefitClient<IAssistantService>()
+    .ConfigureHttpClient(c => c.BaseAddress = new Uri(apiBaseUrl));
 
 
 builder.Services.AddScoped<IBoardPageService, BoardPageService>();

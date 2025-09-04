@@ -6,6 +6,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using TaskTracker.Application.Common.Interfaces.Auth;
 using TaskTracker.Application.Common.Interfaces.Services;
+using TaskTracker.Application.OpenAi;
 using TaskTracker.Application.Storage;
 using TaskTracker.Domain.Options;
 using TaskTracker.Infrastructure.Auth;
@@ -72,6 +73,11 @@ public static class ServiceCollectionExtensions
 
         services.Configure<BlobStorageOptions>(configuration.GetSection("AzureBlobStorage"));
         services.AddScoped<IBlobService, BlobService>();
+
+        services.AddMemoryCache();
+        services.Configure<AzureOpenAIOptions>(configuration.GetSection(AzureOpenAIOptions.SectionName));
+        services.AddSingleton<IChatSessionStore, MemoryChatSessionStore>();
+        services.AddScoped<IChatService, AzureOpenAIChatService>();
 
         services.AddHostedService<CleanupExpiredTokensService>();
 
