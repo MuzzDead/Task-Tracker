@@ -103,35 +103,32 @@
                     {
                         <Card Title="@($"Users ({_connectedUsers.Count + 1})")" Size=@CardSize.Small Class="mt-4">
                             <ChildContent>
-                                <List Size="small">
-                                    <ListItem>
-                                        <Space>
-                                            <Avatar Size=@AvatarSize.Small Icon="user" />
-                                            <Text Strong>You</Text>
-                                            <Space Size=@SpaceSize.Small>
-                                                <Icon Type=@(_isCameraEnabled ? "video-camera" : "eye-invisible")
-                                                      Theme=@(_isCameraEnabled ? IconThemeType.Fill : IconThemeType.Outline) />
-                                                <Icon Type=@(_isMicrophoneEnabled ? "audio" : "audio-muted")
-                                                      Theme=@(_isMicrophoneEnabled ? IconThemeType.Fill : IconThemeType.Outline) />
-                                            </Space>
+                                <div class="user-list">
+                                    <div class="user-item">
+                                        <Avatar Size=@AvatarSize.Small Icon="user" />
+                                        <Text Strong>You</Text>
+                                        <Space Size=@SpaceSize.Small>
+                                            <Icon Type=@(_isCameraEnabled ? "video-camera" : "eye-invisible")
+                                                  Theme=@(_isCameraEnabled ? IconThemeType.Fill : IconThemeType.Outline) />
+                                            <Icon Type=@(_isMicrophoneEnabled ? "audio" : "audio-muted")
+                                                  Theme=@(_isMicrophoneEnabled ? IconThemeType.Fill : IconThemeType.Outline) />
                                         </Space>
-                                    </ListItem>
+                                    </div>
+
                                     @foreach (var user in _connectedUsers)
                                     {
-                                        <ListItem>
-                                            <Space>
-                                                <Avatar Size=@AvatarSize.Small Icon="user" />
-                                                <Text>@user.Value.Name</Text>
-                                                <Space Size=@SpaceSize.Small>
-                                                    <Icon Type=@(user.Value.CameraEnabled ? "video-camera" : "eye-invisible")
-                                                          Theme=@(user.Value.CameraEnabled ? IconThemeType.Fill : IconThemeType.Outline) />
-                                                    <Icon Type=@(user.Value.MicEnabled ? "audio" : "audio-muted")
-                                                          Theme=@(user.Value.MicEnabled ? IconThemeType.Fill : IconThemeType.Outline) />
-                                                </Space>
+                                        <div class="user-item">
+                                            <Avatar Size=@AvatarSize.Small Icon="user" />
+                                            <Text>@user.Value.Name</Text>
+                                            <Space Size=@SpaceSize.Small>
+                                                <Icon Type=@(user.Value.CameraEnabled ? "video-camera" : "eye-invisible")
+                                                      Theme=@(user.Value.CameraEnabled ? IconThemeType.Fill : IconThemeType.Outline) />
+                                                <Icon Type=@(user.Value.MicEnabled ? "audio" : "audio-muted")
+                                                      Theme=@(user.Value.MicEnabled ? IconThemeType.Fill : IconThemeType.Outline) />
                                             </Space>
-                                        </ListItem>
+                                        </div>
                                     }
-                                </List>
+                                </div>
                             </ChildContent>
                         </Card>
                     }
@@ -193,6 +190,25 @@
         padding: 20px;
         text-align: center;
     }
+
+    .user-list {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .user-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 0;
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+        .user-item:last-child {
+            border-bottom: none;
+        }
+
 </style>
 
 @code {
@@ -284,6 +300,20 @@
         {
             _connectedUsers[userId] = new UserInfo { Name = userName };
             await InvokeAsync(StateHasChanged);
+
+            await Task.Delay(100);
+
+            if (_module != null)
+            {
+                try
+                {
+                    await _module.InvokeVoidAsync("onRemoteElementReady", userId);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error notifying remote element ready: {ex.Message}");
+                }
+            }
         }
     }
 

@@ -1,244 +1,355 @@
 ﻿console.log('[VideoChat] module loaded');
 
-const { HubConnectionBuilder, HubConnectionState } = window.signalR;
+const { HubConnectionBuilder, HubConnectionState } = window.signalR || {};
 if (!HubConnectionBuilder) {
-    console.error('[VideoChat] SignalR client not found! ' +
-        'Додайте <script src="_content/Microsoft.AspNetCore.SignalR.Client.js"></script>');
+    console.error('[VideoChat] SignalR client not found!');
 }
 
-let connection = null;
-let localStream = null;
-const peers = new Map();
+class VideoChat {
+    constructor() {
+        this.connection = null;
+        this.localStream = new MediaStream();
+        this.peers = new Map();
+        this.pendingCandidates = new Map();
+        this.sendersByUser = new Map();
 
-const ICE_CONFIG = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] };
-const MEDIA_CONSTRAINTS = { video: true, audio: true };
+        this.ICE_CONFIG = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] };
 
-let dotNetHelper = null;
-let boardId = null;
-let isCameraEnabled = false;
-let isMicEnabled = false;
+        this.dotNetHelper = null;
+        this.boardId = null;
+        this.myUserId = null;
 
-export async function initVideo(dotNetRef, hubUrl, id) {
-    dotNetHelper = dotNetRef;
-    boardId = id;
-
-    connection = new HubConnectionBuilder()
-        .withUrl(`${hubUrl}?boardId=${boardId}`)
-        .withAutomaticReconnect()
-        .build();
-
-    registerHandlers();
-
-    console.log('[VideoChat] starting SignalR connection...');
-    await connection.start();
-    console.log('[VideoChat] SignalR connected');
-
-    await connection.invoke('JoinConference', boardId, 'Current User');
-    console.log('[VideoChat] joined conference');
-
-    await setupLocalStream();
-    console.log('[VideoChat] local stream ready');
-
-    await dotNetHelper.invokeMethodAsync(
-        'OnConnectionInitialized',
-        isCameraEnabled,
-        isMicEnabled
-    );
-}
-
-async function setupLocalStream() {
-    localStream = await navigator.mediaDevices.getUserMedia(MEDIA_CONSTRAINTS);
-
-    localStream.getVideoTracks().forEach(track => (track.enabled = false));
-    localStream.getAudioTracks().forEach(track => (track.enabled = false));
-
-    const el = document.getElementById('localVideo');
-    if (el) {
-        el.srcObject = localStream;
-        console.log('[VideoChat] localVideo attached (cam off, mic off)');
-    } else {
-        console.warn('[VideoChat] #localVideo not found at setupLocalStream');
+        this.isCameraEnabled = false;
+        this.isMicEnabled = false;
     }
-}
 
-export async function connectLocalVideo() {
-    if (!localStream) return;
-    const el = document.getElementById('localVideo');
-    if (el && !el.srcObject) {
-        el.srcObject = localStream;
-        console.log('[VideoChat] connectLocalVideo: attached');
+    log(...args) {
+        console.log('[VideoChat]', ...args);
     }
-}
 
-export async function toggleCamera(on) {
-    isCameraEnabled = on;
-    if (localStream) {
-        localStream.getVideoTracks().forEach(t => (t.enabled = isCameraEnabled));
+    warn(...args) {
+        console.warn('[VideoChat]', ...args);
     }
-    console.log('[VideoChat] camera toggled:', isCameraEnabled);
-    await updateMediaStatus();
-}
 
-export async function toggleMicrophone(on) {
-    isMicEnabled = on;
-    if (localStream) {
-        localStream.getAudioTracks().forEach(t => (t.enabled = isMicEnabled));
+    error(...args) {
+        console.error('[VideoChat]', ...args);
     }
-    console.log('[VideoChat] mic toggled:', isMicEnabled);
-    await updateMediaStatus();
-}
 
-async function updateMediaStatus() {
-    if (connection && connection.state === HubConnectionState.Connected) {
-        try {
-            await connection.invoke(
-                'UpdateMediaStatus',
-                boardId,
-                isCameraEnabled,
-                isMicEnabled
-            );
-        } catch (e) {
-            console.error('[VideoChat] updateMediaStatus error:', e);
+    async init(dotNetRef, hubUrl, boardId) {
+        this.dotNetHelper = dotNetRef;
+        this.boardId = boardId;
+
+        this.connection = new HubConnectionBuilder()
+            .withUrl(`${hubUrl}?boardId=${boardId}`)
+            .withAutomaticReconnect()
+            .build();
+
+        this.registerHandlers();
+
+        this.log('starting SignalR connection...');
+        await this.connection.start();
+        this.log('SignalR connected');
+
+        this.myUserId = this.connection.connectionId;
+
+        await this.connection.invoke('JoinConference', this.boardId, 'Current User');
+        this.log('joined conference');
+
+        const localEl = document.getElementById('localVideo');
+        if (localEl) localEl.srcObject = this.localStream;
+
+        await this._notifyInitialized();
+    }
+
+    async _notifyInitialized() {
+        if (this.dotNetHelper) {
+            try {
+                await this.dotNetHelper.invokeMethodAsync(
+                    'OnConnectionInitialized',
+                    this.isCameraEnabled,
+                    this.isMicEnabled
+                );
+            } catch (e) {
+                this.warn('OnConnectionInitialized error', e);
+            }
         }
     }
-}
 
-export async function leaveConference() {
-    if (connection && connection.state === HubConnectionState.Connected) {
-        await connection.invoke('LeaveConference', boardId);
-        await connection.stop();
-    }
-    cleanup();
-}
+    async toggleMedia(kind, enabled) {
+        const constraints = kind === 'video' ? { video: true } : { audio: true };
+        const flagName = kind === 'video' ? 'isCameraEnabled' : 'isMicEnabled';
 
-function cleanup() {
-    if (localStream) {
-        localStream.getTracks().forEach(t => t.stop());
-        localStream = null;
-    }
-    peers.forEach(pc => pc.close());
-    peers.clear();
-    connection = null;
-}
+        this[flagName] = !!enabled;
 
-function registerHandlers() {
-    connection.on('UserJoined', async (userId, userName) => {
-        console.log('[VideoChat] UserJoined:', userId);
-        await createPeer(userId);
-        await dotNetHelper.invokeMethodAsync('OnUserJoined', userId, userName);
-    });
+        if (this[flagName]) {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia(constraints);
+                const track = stream.getTracks()[0];
+                if (!track) throw new Error(`No ${kind} track`);
 
-    connection.on('UserLeft', async userId => {
-        console.log('[VideoChat] UserLeft:', userId);
-        closePeer(userId);
-        await dotNetHelper.invokeMethodAsync('OnUserLeft', userId);
-    });
+                this.localStream.addTrack(track);
 
-    connection.on('ReceiveOffer', (userId, offer) => {
-        console.log('[VideoChat] ReceiveOffer from', userId);
-        handleOffer(userId, JSON.parse(offer));
-    });
+                this.peers.forEach((pc, userId) => {
+                    try {
+                        const sender = pc.addTrack(track, this.localStream);
+                        this._storeSender(userId, sender, kind);
+                    } catch (e) {
+                        this.warn(`addTrack ${kind} error for`, userId, e);
+                    }
+                });
 
-    connection.on('ReceiveAnswer', (userId, answer) => {
-        console.log('[VideoChat] ReceiveAnswer from', userId);
-        handleAnswer(userId, JSON.parse(answer));
-    });
-
-    connection.on('ReceiveIceCandidate', (userId, candidate) => {
-        console.log('[VideoChat] ReceiveIceCandidate from', userId);
-        handleIceCandidate(userId, JSON.parse(candidate));
-    });
-
-    connection.on('UserMediaStatusChanged', (userId, cam, mic) => {
-        dotNetHelper.invokeMethodAsync('OnMediaStatusChanged', userId, cam, mic);
-    });
-}
-
-async function createPeer(userId) {
-    if (peers.has(userId)) {
-        return peers.get(userId);
-    }
-
-    const pc = new RTCPeerConnection(ICE_CONFIG);
-    peers.set(userId, pc);
-
-    if (localStream) {
-        localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
-    }
-
-    pc.onicecandidate = event => {
-        if (event.candidate && connection.state === HubConnectionState.Connected) {
-            connection.invoke(
-                'SendIceCandidate',
-                boardId,
-                userId,
-                JSON.stringify(event.candidate)
-            );
-        }
-    };
-
-    pc.ontrack = async event => {
-        const selector = `#remoteVideo_${userId}`;
-        const remoteEl = await waitForElement(selector, 10000);
-        if (remoteEl) {
-            remoteEl.srcObject = event.streams[0];
-            console.log('[VideoChat] remoteVideo attached for', userId);
+                this.log(`${kind} ON`);
+            } catch (err) {
+                this.error(`${kind} ON error:`, err);
+                if (this.dotNetHelper) {
+                    try {
+                        await this.dotNetHelper.invokeMethodAsync(
+                            'OnDeviceError',
+                            kind,
+                            err.name || err.message
+                        );
+                    } catch { }
+                }
+                this[flagName] = false;
+            }
         } else {
-            console.warn('[VideoChat] cannot find remoteVideo element for', userId);
+            const toStop = this.localStream.getTracks().filter(t => t.kind === kind);
+            for (const t of toStop) {
+                try { t.stop(); } catch { }
+                this.localStream.removeTrack(t);
+            }
+            this.peers.forEach((pc, userId) => {
+                this._removeSendersOfKind(pc, userId, kind);
+            });
+            this.log(`${kind} OFF`);
         }
-    };
 
-    const offer = await pc.createOffer();
-    await pc.setLocalDescription(offer);
-    if (connection.state === HubConnectionState.Connected) {
-        await connection.invoke(
-            'SendOffer',
-            boardId,
-            userId,
-            JSON.stringify(offer)
-        );
+        const localEl = document.getElementById('localVideo');
+        if (localEl) localEl.srcObject = this.localStream;
+
+        await this._updateMediaStatus();
     }
 
-    return pc;
-}
+    toggleCamera(on) { return this.toggleMedia('video', on); }
+    toggleMicrophone(on) { return this.toggleMedia('audio', on); }
 
-async function handleOffer(userId, offer) {
-    const pc = await createPeer(userId);
-    await pc.setRemoteDescription(offer);
-    const answer = await pc.createAnswer();
-    await pc.setLocalDescription(answer);
-    if (connection.state === HubConnectionState.Connected) {
-        await connection.invoke(
-            'SendAnswer',
-            boardId,
-            userId,
-            JSON.stringify(answer)
-        );
+    async _updateMediaStatus() {
+        if (this.connection?.state === HubConnectionState.Connected) {
+            try {
+                await this.connection.invoke(
+                    'UpdateMediaStatus',
+                    this.boardId,
+                    this.isCameraEnabled,
+                    this.isMicEnabled
+                );
+            } catch (e) {
+                this.error('updateMediaStatus error:', e);
+            }
+        }
     }
-}
 
-async function handleAnswer(userId, answer) {
-    const pc = peers.get(userId);
-    if (pc) {
+    _storeSender(userId, sender, kind) {
+        if (!this.sendersByUser.has(userId))
+            this.sendersByUser.set(userId, { audio: [], video: [] });
+        this.sendersByUser.get(userId)[kind].push(sender);
+    }
+
+    _removeSendersOfKind(pc, userId, kind) {
+        const obj = this.sendersByUser.get(userId);
+        if (!obj) return;
+        for (const sender of obj[kind] || []) {
+            try { pc.removeTrack(sender); } catch { }
+        }
+        obj[kind] = [];
+    }
+
+    async leaveConference() {
+        if (this.connection?.state === HubConnectionState.Connected) {
+            try {
+                await this.connection.invoke('LeaveConference', this.boardId);
+                await this.connection.stop();
+            } catch (e) {
+                this.warn('leaveConference error:', e);
+            }
+        }
+        this.cleanup();
+    }
+
+    cleanup() {
+        this.localStream?.getTracks().forEach(t => { try { t.stop(); } catch { } });
+        this.localStream = new MediaStream();
+
+        this.peers.forEach(pc => { try { pc.close(); } catch { } });
+        this.peers.clear();
+
+        this.pendingCandidates.clear();
+        this.sendersByUser.clear();
+        this.connection = null;
+    }
+
+    registerHandlers() {
+        this.connection.on('UserJoined', async (userId, userName) => {
+            this.log('UserJoined:', userId, userName);
+
+            await this._createPeer(userId);
+
+            this.log('Creating offer for', userId);
+            await this._createOffer(userId);
+
+            if (this.dotNetHelper) {
+                try { await this.dotNetHelper.invokeMethodAsync('OnUserJoined', userId, userName); } catch { }
+            }
+        });
+
+        this.connection.on('UserLeft', userId => {
+            this.log('UserLeft:', userId);
+            this._closePeer(userId);
+            if (this.dotNetHelper) {
+                try { this.dotNetHelper.invokeMethodAsync('OnUserLeft', userId); } catch { }
+            }
+        });
+
+        this.connection.on('ReceiveOffer', (userId, offerJson) => {
+            this.log('ReceiveOffer from', userId);
+            this._handleOffer(userId, JSON.parse(offerJson));
+        });
+
+        this.connection.on('ReceiveAnswer', (userId, answerJson) => {
+            this.log('ReceiveAnswer from', userId);
+            this._handleAnswer(userId, JSON.parse(answerJson));
+        });
+
+        this.connection.on('ReceiveIceCandidate', (userId, candidateJson) => {
+            this.log('ReceiveIceCandidate from', userId);
+            this._handleIceCandidate(userId, JSON.parse(candidateJson));
+        });
+
+        this.connection.on('UserMediaStatusChanged', (userId, cam, mic) => {
+            if (this.dotNetHelper) {
+                try { this.dotNetHelper.invokeMethodAsync('OnMediaStatusChanged', userId, cam, mic); } catch { }
+            }
+        });
+    }
+
+    async _createPeer(userId) {
+        if (this.peers.has(userId)) return this.peers.get(userId);
+
+        const pc = new RTCPeerConnection(this.ICE_CONFIG);
+        this.peers.set(userId, pc);
+        this.sendersByUser.set(userId, { audio: [], video: [] });
+
+        this.localStream.getTracks().forEach(track => {
+            try {
+                const sender = pc.addTrack(track, this.localStream);
+                this._storeSender(userId, sender, track.kind);
+            } catch (e) {
+                this.warn('addTrack failed on createPeer', userId, e);
+            }
+        });
+
+        pc.onicecandidate = event => {
+            if (event.candidate && this.connection?.state === HubConnectionState.Connected) {
+                this.connection.invoke(
+                    'SendIceCandidate',
+                    this.boardId,
+                    userId,
+                    JSON.stringify(event.candidate)
+                ).catch(e => this.warn('SendIceCandidate error:', e));
+            }
+        };
+
+        pc.ontrack = event => this._handleTrack(userId, event);
+
+        return pc;
+    }
+
+    async _createOffer(userId) {
+        const pc = this.peers.get(userId);
+        if (!pc) return;
+
+        const offer = await pc.createOffer({ offerToReceiveAudio: true, offerToReceiveVideo: true });
+        await pc.setLocalDescription(offer);
+
+        if (this.connection?.state === HubConnectionState.Connected) {
+            await this.connection.invoke('SendOffer', this.boardId, userId, JSON.stringify(offer));
+        }
+    }
+
+    _closePeer(userId) {
+        const pc = this.peers.get(userId);
+        if (pc) { try { pc.close(); } catch { } }
+        this.peers.delete(userId);
+        this.pendingCandidates.delete(userId);
+        this.sendersByUser.delete(userId);
+
+        const el = document.getElementById(`remoteVideo_${userId}`);
+        if (el?.parentNode) el.parentNode.removeChild(el);
+    }
+
+    async _handleOffer(userId, offer) {
+        const pc = await this._createPeer(userId);
+        await pc.setRemoteDescription(offer);
+
+        await this._flushCandidates(userId, pc);
+
+        const answer = await pc.createAnswer();
+        await pc.setLocalDescription(answer);
+
+        if (this.connection?.state === HubConnectionState.Connected) {
+            await this.connection.invoke('SendAnswer', this.boardId, userId, JSON.stringify(answer));
+        }
+    }
+
+    async _handleAnswer(userId, answer) {
+        const pc = this.peers.get(userId);
+        if (!pc) return;
+
         await pc.setRemoteDescription(answer);
+        await this._flushCandidates(userId, pc);
+    }
+
+    async _handleIceCandidate(userId, candidate) {
+        const pc = this.peers.get(userId);
+        if (!pc || !pc.remoteDescription?.type) {
+            if (!this.pendingCandidates.has(userId)) this.pendingCandidates.set(userId, []);
+            this.pendingCandidates.get(userId).push(candidate);
+            return;
+        }
+        await pc.addIceCandidate(candidate).catch(e => this.error('addIceCandidate error:', e));
+    }
+
+    async _flushCandidates(userId, pc) {
+        const list = this.pendingCandidates.get(userId) || [];
+        for (const c of list) {
+            try { await pc.addIceCandidate(c); } catch (e) { this.warn('flush candidate error', e); }
+        }
+        this.pendingCandidates.set(userId, []);
+    }
+
+    _handleTrack(userId, event) {
+        this.log('ontrack for', userId, event.track.kind);
+        let remoteEl = document.getElementById(`remoteVideo_${userId}`);
+        if (!remoteEl) {
+            this.warn(`Remote video element for ${userId} not found!`);
+            return;
+        }
+
+        if (event.streams?.[0]) {
+            this.log(`Attaching stream to remoteVideo_${userId}`);
+            remoteEl.srcObject = event.streams[0];
+        } else {
+            this.warn('No streams in ontrack event for', userId);
+        }
     }
 }
 
-async function handleIceCandidate(userId, candidate) {
-    const pc = peers.get(userId);
-    if (pc) {
-        await pc.addIceCandidate(candidate);
-    }
-}
+let videoChat = new VideoChat();
 
-function waitForElement(selector, timeout = 5000, interval = 200) {
-    return new Promise(resolve => {
-        const endTime = Date.now() + timeout;
-        (function check() {
-            const el = document.querySelector(selector);
-            if (el) return resolve(el);
-            if (Date.now() < endTime) setTimeout(check, interval);
-            else resolve(null);
-        })();
-    });
+export function initVideo(dotNetRef, hubUrl, id) { return videoChat.init(dotNetRef, hubUrl, id); }
+export function connectLocalVideo() {
+    const el = document.getElementById('localVideo');
+    if (el) el.srcObject = videoChat.localStream;
 }
+export function toggleCamera(on) { return videoChat.toggleCamera(on); }
+export function toggleMicrophone(on) { return videoChat.toggleMicrophone(on); }
+export function leaveConference() { return videoChat.leaveConference(); }
