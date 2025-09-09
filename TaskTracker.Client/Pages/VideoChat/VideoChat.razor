@@ -1,0 +1,323 @@
+﻿@page "/boards/{boardId:guid}/videoconference"
+@using Microsoft.JSInterop
+@using AntDesign
+@inject IJSRuntime JS
+@inject NavigationManager Navigation
+@inject IMessageService MessageService
+@implements IAsyncDisposable
+
+<PageTitle>Videoconference</PageTitle>
+
+<div class="video-conference-page">
+    <Card Title=@($"Videoconference - Board {BoardId}") Class="h-full">
+        <ChildContent>
+            <Extra>
+                <Button Type=@ButtonType.Default Icon="arrow-left" OnClick=@GoBack>
+                    Back to board
+                </Button>
+            </Extra>
+
+            @if (!_isConnected)
+            {
+                <Body>
+                    <div class="flex items-center justify-center h-96">
+                        <Space Direction=@SpaceDirection.Vertical Align=@SpaceAlign.Center>
+                            <SpaceItem><Spin Size=@SpinSize.Large /></SpaceItem>
+                            <SpaceItem><Text>Підключення...</Text></SpaceItem>
+                        </Space>
+                    </div>
+                </Body>
+            }
+            else
+            {
+                <Body>
+                    <div class="video-grid mb-6">
+                        <div class="video-container local">
+                            <video id="localVideo" autoplay playsinline muted class="video-element"></video>
+                            <div class="video-overlay">
+                                <Text Strong Class="text-white">You</Text>
+                                <Space Class="ml-auto">
+                                    @if (!_isCameraEnabled)
+                                    {
+                                        <SpaceItem><Icon Type="video-camera-slash" Class="text-red-500" /></SpaceItem>
+                                    }
+                                    @if (!_isMicrophoneEnabled)
+                                    {
+                                        <SpaceItem><Icon Type="audio-muted" Class="text-red-500" /></SpaceItem>
+                                    }
+                                </Space>
+                            </div>
+                        </div>
+
+                        @foreach (var user in _connectedUsers)
+                        {
+                            <div class="video-container remote">
+                                <video id="remoteVideo_@user.Key" autoplay playsinline class="video-element"></video>
+                                <div class="video-overlay">
+                                    <Text Strong Class="text-white">@user.Value.Name</Text>
+                                    <Space Class="ml-auto">
+                                        @if (!user.Value.CameraEnabled)
+                                        {
+                                            <SpaceItem><Icon Type="video-camera-slash" Class="text-red-500" /></SpaceItem>
+                                        }
+                                        @if (!user.Value.MicEnabled)
+                                        {
+                                            <SpaceItem><Icon Type="audio-muted" Class="text-red-500" /></SpaceItem>
+                                        }
+                                    </Space>
+                                </div>
+                            </div>
+                        }
+                    </div>
+
+                    <div class="control-panel">
+                        <Space Size=@SpaceSize.Large Class="justify-center">
+                            <SpaceItem>
+                                <Button Type=@(_isCameraEnabled? ButtonType.Primary: ButtonType.Dashed)
+                                        Shape=@ButtonShape.Circle
+                                        Size=@ButtonSize.Large
+                                        Icon=@(_isCameraEnabled ? "video-camera" : "eye-invisible")
+                                        OnClick=@ToggleCamera />
+                            </SpaceItem>
+
+                            <SpaceItem>
+                                <Button Type=@(_isMicrophoneEnabled? ButtonType.Primary: ButtonType.Dashed)
+                                        Shape=@ButtonShape.Circle
+                                        Size=@ButtonSize.Large
+                                        Icon=@(_isMicrophoneEnabled ? "audio" : "audio-muted")
+                                        OnClick="@ToggleMicrophone" />
+                            </SpaceItem>
+
+                            <SpaceItem>
+                                <Button Danger="true"
+                                        Shape=@ButtonShape.Circle
+                                        Size=@ButtonSize.Large
+                                        Icon="phone"
+                                        OnClick=@LeaveConference />
+
+                            </SpaceItem>
+                        </Space>
+                    </div>
+
+                    @if (_connectedUsers.Any())
+                    {
+                        <Card Title="@($"Users ({_connectedUsers.Count + 1})")" Size=@CardSize.Small Class="mt-4">
+                            <ChildContent>
+                                <List Size="small">
+                                    <ListItem>
+                                        <Space>
+                                            <Avatar Size=@AvatarSize.Small Icon="user" />
+                                            <Text Strong>You</Text>
+                                            <Space Size=@SpaceSize.Small>
+                                                <Icon Type=@(_isCameraEnabled ? "video-camera" : "eye-invisible")
+                                                      Theme=@(_isCameraEnabled ? IconThemeType.Fill : IconThemeType.Outline) />
+                                                <Icon Type=@(_isMicrophoneEnabled ? "audio" : "audio-muted")
+                                                      Theme=@(_isMicrophoneEnabled ? IconThemeType.Fill : IconThemeType.Outline) />
+                                            </Space>
+                                        </Space>
+                                    </ListItem>
+                                    @foreach (var user in _connectedUsers)
+                                    {
+                                        <ListItem>
+                                            <Space>
+                                                <Avatar Size=@AvatarSize.Small Icon="user" />
+                                                <Text>@user.Value.Name</Text>
+                                                <Space Size=@SpaceSize.Small>
+                                                    <Icon Type=@(user.Value.CameraEnabled ? "video-camera" : "eye-invisible")
+                                                          Theme=@(user.Value.CameraEnabled ? IconThemeType.Fill : IconThemeType.Outline) />
+                                                    <Icon Type=@(user.Value.MicEnabled ? "audio" : "audio-muted")
+                                                          Theme=@(user.Value.MicEnabled ? IconThemeType.Fill : IconThemeType.Outline) />
+                                                </Space>
+                                            </Space>
+                                        </ListItem>
+                                    }
+                                </List>
+                            </ChildContent>
+                        </Card>
+                    }
+                </Body>
+            }
+        </ChildContent>
+    </Card>
+</div>
+
+<style>
+    .video-conference-page {
+        height: calc(100vh - 100px);
+        padding: 20px;
+    }
+
+    .video-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 16px;
+        min-height: 300px;
+    }
+
+    .video-container {
+        position: relative;
+        background: #000;
+        border-radius: 8px;
+        overflow: hidden;
+        aspect-ratio: 16/9;
+    }
+
+        .video-container.local {
+            border: 3px solid #1890ff;
+        }
+
+        .video-container.remote {
+            border: 2px solid #d9d9d9;
+        }
+
+    .video-element {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .video-overlay {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: linear-gradient(transparent, rgba(0,0,0,0.8));
+        padding: 12px;
+        display: flex;
+        align-items: center;
+    }
+
+    .control-panel {
+        background: rgba(0,0,0,0.05);
+        border-radius: 12px;
+        padding: 20px;
+        text-align: center;
+    }
+</style>
+
+@code {
+    [Parameter] public Guid BoardId { get; set; }
+
+    private IJSObjectReference? _module;
+    private Dictionary<string, UserInfo> _connectedUsers = new();
+    private bool _isConnected = false;
+    private bool _isCameraEnabled = true;
+    private bool _isMicrophoneEnabled = true;
+    private bool _isInitializing = false;
+
+    public class UserInfo
+    {
+        public string Name { get; set; } = "";
+        public bool CameraEnabled { get; set; } = true;
+        public bool MicEnabled { get; set; } = true;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _isInitializing = true;
+            StateHasChanged();
+
+            _module = await JS.InvokeAsync<IJSObjectReference>(
+                "import", "/js/videochat/videochat.js"
+            );
+
+            await _module.InvokeVoidAsync("initVideo",
+                DotNetObjectReference.Create(this),
+                "https://localhost:7045/videoHub",
+                BoardId.ToString());
+        }
+        else if (_isConnected)
+        {
+            await _module.InvokeVoidAsync("connectLocalVideo");
+        }
+    }
+
+    [JSInvokable]
+    public async Task OnConnectionInitialized(bool cameraEnabled, bool micEnabled)
+    {
+        _isCameraEnabled = cameraEnabled;
+        _isMicrophoneEnabled = micEnabled;
+        _isConnected = true;
+        _isInitializing = false;
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task ToggleCamera()
+    {
+        _isCameraEnabled = !_isCameraEnabled;
+        await _module.InvokeVoidAsync("toggleCamera", _isCameraEnabled);
+    }
+
+    private async Task ToggleMicrophone()
+    {
+        _isMicrophoneEnabled = !_isMicrophoneEnabled;
+        await _module.InvokeVoidAsync("toggleMicrophone", _isMicrophoneEnabled);
+    }
+
+    private async Task LeaveConference()
+    {
+        if (_module != null)
+        {
+            try
+            {
+                await _module.InvokeVoidAsync("leaveConference", BoardId.ToString());
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error leaving conference: {ex.Message}");
+            }
+        }
+        GoBack();
+    }
+
+    private void GoBack()
+    {
+        Navigation.NavigateTo($"/boards/{BoardId}");
+    }
+
+    [JSInvokable]
+    public async Task OnUserJoined(string userId, string userName)
+    {
+        if (!_connectedUsers.ContainsKey(userId))
+        {
+            _connectedUsers[userId] = new UserInfo { Name = userName };
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    [JSInvokable]
+    public async Task OnUserLeft(string userId)
+    {
+        _connectedUsers.Remove(userId);
+        await InvokeAsync(StateHasChanged);
+    }
+
+    [JSInvokable]
+    public async Task OnMediaStatusChanged(string userId, bool cameraEnabled, bool micEnabled)
+    {
+        if (_connectedUsers.ContainsKey(userId))
+        {
+            _connectedUsers[userId].CameraEnabled = cameraEnabled;
+            _connectedUsers[userId].MicEnabled = micEnabled;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_module != null)
+        {
+            try
+            {
+                await _module.InvokeVoidAsync("cleanup");
+                await _module.DisposeAsync();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error during cleanup: {ex.Message}");
+            }
+        }
+    }
+}
