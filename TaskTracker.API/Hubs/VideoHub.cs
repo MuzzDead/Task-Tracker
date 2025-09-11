@@ -15,7 +15,7 @@ public class VideoHub : Hub
         public bool MicEnabled { get; set; } = false;
     }
 
-    public async Task JoinConference(string boardId, string userName)
+    public async Task JoinConference(string boardId, string userName, bool cameraEnabled, bool micEnabled)
     {
         var userId = Context.ConnectionId;
 
@@ -28,8 +28,8 @@ public class VideoHub : Hub
         _userMediaStatus[userId] = new UserMediaStatus
         {
             UserName = userName,
-            CameraEnabled = false,
-            MicEnabled = false
+            CameraEnabled = cameraEnabled,
+            MicEnabled = micEnabled
         };
 
         var existingUsers = _roomUsers.GetValueOrDefault(boardId, new HashSet<string>())
