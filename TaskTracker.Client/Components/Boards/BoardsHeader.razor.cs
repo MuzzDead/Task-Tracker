@@ -22,6 +22,8 @@ public partial class BoardsHeader
     [Parameter] public EventCallback OnOpenMembers { get; set; }
     [Parameter] public EventCallback OnArchiveBoard { get; set; }
 
+    [Parameter] public EventCallback OnGoToVideoconference { get; set; }
+
     private async Task OnSearchButtonClick()
     {
         await OnSearchClick.InvokeAsync(SearchTerm);
@@ -44,5 +46,10 @@ public partial class BoardsHeader
     private async Task ArchiveBoard()
     {
         await OnArchiveBoard.InvokeAsync();
+    }
+
+    private async Task GoToVideoconference()
+    {
+        await OnGoToVideoconference.InvokeAsync();
     }
 }
