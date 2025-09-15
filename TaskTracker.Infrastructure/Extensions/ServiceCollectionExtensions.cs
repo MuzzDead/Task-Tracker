@@ -86,23 +86,9 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IServiceBusService>(provider =>
             new ServiceBusService(configuration["ServiceBus:ConnectionString"]));
 
-        services.Configure<CosmosDbOptions>(configuration.GetSection("CosmosDb"));
-        services.AddSingleton<CosmosClient>(sp =>
-        {
-            var opts = sp.GetRequiredService<IOptions<CosmosDbOptions>>().Value;
-            return new CosmosClient(opts.ConnectionString);
-        });
-
-        services.AddScoped<ICosmosDbService, CosmosDbService>();
-
-
         services.AddScoped<IJwtTokenProvider, JwtTokenProvider>();
         services.AddScoped<IPasswordHasher, PasswordHasher>();
         services.AddScoped<ICurrentUserService, CurrentUserService>();
-
-
-        services.Configure<BlobStorageOptions>(configuration.GetSection("AzureBlobStorage"));
-        services.AddScoped<IBlobService, BlobService>();
 
         services.AddMemoryCache();
         services.Configure<AzureOpenAIOptions>(configuration.GetSection(AzureOpenAIOptions.SectionName));
@@ -112,6 +98,25 @@ public static class ServiceCollectionExtensions
         services.AddHostedService<CleanupExpiredTokensService>();
 
         services.AddHttpContextAccessor();
+
+        return services;
+    }
+
+    public static IServiceCollection AddFunctionServices(
+    this IServiceCollection services,
+    IConfiguration configuration)
+    {
+        services.Configure<CosmosDbOptions>(configuration.GetSection("CosmosDb"));
+        services.AddSingleton<CosmosClient>(sp =>
+        {
+            var opts = sp.GetRequiredService<IOptions<CosmosDbOptions>>().Value;
+            return new CosmosClient(opts.ConnectionString);
+        });
+
+        services.AddScoped<ICosmosDbService, CosmosDbService>();
+
+        services.Configure<BlobStorageOptions>(configuration.GetSection("AzureBlobStorage"));
+        services.AddScoped<IBlobService, BlobService>();
 
         return services;
     }
