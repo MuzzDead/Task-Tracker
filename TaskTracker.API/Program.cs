@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using Hangfire;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.OpenApi.Models;
 using TaskTracker.API.Middlewares;
+using TaskTracker.Application.Archice;
 using TaskTracker.Application.Extensions;
 using TaskTracker.Database;
 using TaskTracker.Infrastructure.Extensions;
@@ -29,6 +31,7 @@ builder.Services.AddControllers();
 
 builder.Services.AddApplicationServices();
 builder.Services.AddInfrastructureServices(builder.Configuration);
+builder.Services.AddFunctionServices(builder.Configuration);
 builder.Services.AddPersistenceServices(builder.Configuration);
 
 builder.Services.AddEndpointsApiExplorer();
@@ -83,6 +86,13 @@ app.UseCors("AllowBlazorClient");
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.UseHangfireDashboard("/hangfire");
+
+RecurringJob.AddOrUpdate<IArchiveBoardsJob>(
+    "process-archived-boards",
+    job => job.ProcessArchivedBoards(),
+    Cron.Daily(2, 0));
 
 app.MapControllers();
 

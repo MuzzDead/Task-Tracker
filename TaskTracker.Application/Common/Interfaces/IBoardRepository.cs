@@ -12,4 +12,5 @@ public interface IBoardRepository : IRepository<Board, Guid>
     Task ArchiveAsync(Guid boardId);
     Task<PagedResult<Board>> GetByUserIdAsync(Guid userId, PagedRequest request);
     Task<PagedResult<Board>> SearchAsync(string searchTerm, Guid userId, PagedRequest request);
+    Task<IEnumerable<Board>> GetArchivedBoardsAsync();
 }
