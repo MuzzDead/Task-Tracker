@@ -4,6 +4,9 @@ using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using Azure.Storage.Sas;
 using Microsoft.Extensions.Options;
+using System.Text;
+using System.Text.Json;
+using TaskTracker.Application.DTOs;
 using TaskTracker.Application.Storage;
 using TaskTracker.Domain.Options;
 
@@ -59,5 +62,40 @@ public class BlobService : IBlobService
 
         await blobClient.UploadAsync(content, new BlobHttpHeaders { ContentType = contentType });
         return blobId;
+    }
+
+    public async Task<string> UploadBoardJsonAsync(
+     BoardDto board,
+     string containerName = "archived-boards")
+    {
+        var containerClient = _blobServiceClient
+            .GetBlobContainerClient(containerName);
+
+        await containerClient.CreateIfNotExistsAsync();
+
+        var fileName = $"{board.Id}.json";
+        var blobClient = containerClient.GetBlobClient(fileName);
+
+        var json = JsonSerializer.Serialize(
+            board,
+            new JsonSerializerOptions
+            {
+                WriteIndented = true,
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            });
+
+        var uploadOptions = new BlobUploadOptions
+        {
+            HttpHeaders = new BlobHttpHeaders
+            {
+                ContentType = "application/json"
+            }
+        };
+
+        using var stream = new MemoryStream(Encoding.UTF8.GetBytes(json));
+
+        await blobClient.UploadAsync(stream, uploadOptions);
+
+        return blobClient.Uri.ToString();
     }
 }

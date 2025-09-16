@@ -97,4 +97,12 @@ public class BoardRepository : BaseRepository<Board, Guid>, IBoardRepository
 
         return await GetPagedBoardsAsync(createdBoards, memberBoards, request);
     }
+
+    public async Task<IEnumerable<Board>> GetArchivedBoardsAsync()
+    {
+        return await _dbSet
+            .AsNoTracking()
+            .Where(b => b.IsArchived)
+            .ToListAsync();
+    }
 }
