@@ -1,6 +1,9 @@
-﻿using MediatR;
+﻿using AutoMapper;
+using Azure.Core;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using TaskTracker.Application.DTOs.Attach;
 using TaskTracker.Application.Features.Comment.Commands.Create;
 using TaskTracker.Application.Features.Comment.Commands.Delete;
 using TaskTracker.Application.Features.Comment.Commands.Update;
@@ -15,9 +18,11 @@ namespace TaskTracker.API.Controllers;
 public class CommentController : ControllerBase
 {
     private readonly IMediator _mediator;
-    public CommentController(IMediator mediator)
+    private readonly IMapper _mapper;
+    public CommentController(IMediator mediator, IMapper mapper)
     {
         _mediator = mediator;
+        _mapper = mapper;
     }
 
     [HttpGet("{id:guid}")]
@@ -41,11 +46,12 @@ public class CommentController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> CreateAsync([FromBody] CreateCommentCommand command)
+    public async Task<IActionResult> CreateAsync([FromForm] CreateCommentRequest request)
     {
-        var comment = await _mediator.Send(command);
+        var command = _mapper.Map<CreateCommentCommand>(request);
+        var result = await _mediator.Send(command);
 
-        return Ok(comment);
+        return Ok(result);
     }
 
     [HttpPut("{id:guid}")]
