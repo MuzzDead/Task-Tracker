@@ -35,7 +35,7 @@ public class DeleteAvatarCommandHandler : IRequestHandler<DeleteAvatarCommand>
             throw new BadRequestException("User doesn't have an avatar");
         }
 
-        await _blobService.DeleteAsync(user.AvatarId.Value);
+        await _blobService.DeleteAsync(user.AvatarId.Value, "avatars");
 
         user.AvatarId = null;
         await uow.SaveChangesAsync();

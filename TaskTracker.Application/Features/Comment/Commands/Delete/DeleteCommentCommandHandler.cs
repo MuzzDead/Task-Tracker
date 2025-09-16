@@ -31,7 +31,7 @@ public class DeleteCommentCommandHandler : IRequestHandler<DeleteCommentCommand>
 
         foreach (var attachment in attachments)
         {
-            await _blobService.DeleteAsync(attachment.BlobId);
+            await _blobService.DeleteAsync(attachment.BlobId, "files");
         }
 
         await uow.CommentAttachments.DeleteByCommentIdAsync(request.Id);

@@ -33,7 +33,7 @@ public class GetCommentsByCardIdQueryHandler : IRequestHandler<GetCommentsByCard
             foreach (var attachmentDto in attachmentDtos)
             {
                 var attachment = attachments.First(a => a.Id == attachmentDto.Id);
-                attachmentDto.DownloadUrl = _blobService.GenerateSasToken(attachment.BlobId, 60);
+                attachmentDto.DownloadUrl = _blobService.GenerateSasToken(attachment.BlobId, "files", 60);
             }
 
             commentDto.Attachments = attachmentDtos;

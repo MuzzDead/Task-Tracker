@@ -4,11 +4,13 @@ public static class FileValidation
 {
     public static readonly string[] AllowedContentTypes =
     {
-    "image/jpeg", "image/png", "image/gif", "image/webp",
-    "application/pdf",
-    "text/plain",
-    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        "image/jpeg", "image/png", "image/gif", "image/webp",
+        "application/pdf",
+        "text/plain",
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        "application/pdf",
+        "text/plain"
     };
 
     public const long MaxFileSize = 10 * 1024 * 1024; // 10MB

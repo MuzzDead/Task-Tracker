@@ -44,13 +44,14 @@ public class CreateCommentCommandHandler : IRequestHandler<CreateCommentCommand,
         };
 
         await uow.Comments.AddAsync(comment);
+        await uow.SaveChangesAsync(cancellationToken);
 
         var uploadedBlobIds = new List<Guid>();
         try
         {
             foreach (var attachment in request.Attachments)
             {
-                var blobId = await _blobService.UploadAsync(attachment.Content, attachment.ContentType);
+                var blobId = await _blobService.UploadAsync(attachment.Content, attachment.ContentType, "files");
                 uploadedBlobIds.Add(blobId);
 
                 var attachmentEntity = new CommentAttachment
@@ -72,7 +73,7 @@ public class CreateCommentCommandHandler : IRequestHandler<CreateCommentCommand,
         {
             foreach (var blobId in uploadedBlobIds)
             {
-                await _blobService.DeleteAsync(blobId);
+                await _blobService.DeleteAsync(blobId, "files");
             }
             throw;
         }
