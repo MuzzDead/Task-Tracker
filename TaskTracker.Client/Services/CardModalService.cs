@@ -1,4 +1,6 @@
-﻿using Refit;
+﻿using AntDesign;
+using Microsoft.AspNetCore.Components.Forms;
+using Refit;
 using TaskTracker.Client.DTOs.Card;
 using TaskTracker.Client.DTOs.Comment;
 using TaskTracker.Client.DTOs.State;
@@ -102,19 +104,35 @@ public class CardModalService : ICardModalService
         }
     }
 
-    public async Task<Guid> CreateCommentAsync(Guid cardId, string content, Guid userId, string username)
+    public async Task<Guid> CreateCommentAsync(Guid cardId, string content, Guid userId, string username, List<IBrowserFile>? files = null)
     {
         try
         {
-            var createDto = new CreateCommentDto
-            {
-                Text = content,
-                CardId = cardId,
-                UserId = userId,
-                CreatedBy = username
-            };
+            var streamParts = new List<StreamPart>();
 
-            var commentId = await _commentService.CreateAsync(createDto);
+            if (files?.Any() == true)
+            {
+                foreach (var file in files)
+                {
+                    var stream = file.OpenReadStream(maxAllowedSize: 10 * 1024 * 1024); // 10MB limit
+                    var streamPart = new StreamPart(stream, file.Name, file.ContentType);
+                    streamParts.Add(streamPart);
+                }
+            }
+
+            var commentId = await _commentService.CreateAsync(
+                cardId.ToString(),
+                userId.ToString(),
+                content,
+                username,
+                streamParts
+            );
+
+            foreach (var part in streamParts)
+            {
+                part.Value?.Dispose();
+            }
+
             return commentId;
         }
         catch (ApiException apiEx)

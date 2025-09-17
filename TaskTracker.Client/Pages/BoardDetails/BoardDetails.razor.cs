@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Components;
+using TaskTracker.Client.Components.Comment;
 using TaskTracker.Client.DTOs.Card;
 using TaskTracker.Client.DTOs.Column;
 using TaskTracker.Client.DTOs.Member;
@@ -17,6 +18,7 @@ namespace TaskTracker.Client.Pages.BoardDetails
         [Inject] private ICardModalService CardModalService { get; set; } = default!;
         [Inject] private IAuthStateService AuthStateService { get; set; } = default!;
         [Inject] private IBoardRoleService BoardRoleService { get; set; } = default!;
+        [Inject] private ICommentService CommentService { get; set; } = default!;
         [Inject] private IUserService UserService { get; set; } = default!;
         [Inject] private NavigationManager NavigationManager { get; set; } = default!;
 
@@ -121,7 +123,8 @@ namespace TaskTracker.Client.Pages.BoardDetails
                 () => _boardState,
                 () => _cardModalState,
                 (boardState) => { _boardState = boardState; StateHasChanged(); },
-                (cardState) => { _cardModalState = cardState; StateHasChanged(); });
+                (cardState) => { _cardModalState = cardState; StateHasChanged(); },
+                CommentService);
 
             _memberManager = new MemberManager(
                 BoardRoleService,
@@ -200,6 +203,9 @@ namespace TaskTracker.Client.Pages.BoardDetails
 
         private async Task OnCardMove(MoveCardDto card) =>
             await _cardManager.OnCardMoveAsync(card);
+
+        private async Task OnCommentSubmit(CommentSubmissionData submissionData) =>
+            await _cardManager.OnCommentSubmitAsync(submissionData);
 
         private async Task OnCommentSubmit(string commentContent) =>
             await _cardManager.OnCommentSubmitAsync(commentContent);

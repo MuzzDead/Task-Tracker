@@ -76,4 +76,24 @@ public partial class CommentCard : ComponentBase
     {
         return System.Net.WebUtility.HtmlEncode(content).Replace("\n", "<br />");
     }
+
+    private string FormatFileSize(long size)
+    {
+        if (size < 1024) return $"{size} B";
+        if (size < 1024 * 1024) return $"{size / 1024.0:F1} KB";
+        return $"{size / 1024.0 / 1024.0:F1} MB";
+    }
+
+    private string GetFileIcon(string fileName)
+    {
+        var ext = Path.GetExtension(fileName).ToLower();
+        return ext switch
+        {
+            ".pdf" => "file-pdf",
+            ".doc" or ".docx" => "file-word",
+            ".xls" or ".xlsx" => "file-excel",
+            ".png" or ".jpg" or ".jpeg" or ".gif" => "file-image",
+            _ => "file"
+        };
+    }
 }

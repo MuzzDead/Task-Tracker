@@ -1,4 +1,6 @@
 ﻿using AntDesign;
+using Microsoft.AspNetCore.Components.Forms;
+using TaskTracker.Client.Components.Comment;
 using TaskTracker.Client.DTOs.Card;
 using TaskTracker.Client.DTOs.Comment;
 using TaskTracker.Client.Services.Interfaces;
@@ -16,6 +18,7 @@ public class CardManager
     private readonly Func<CardModalState> _getCardModalState;
     private readonly Action<BoardPageState> _setBoardState;
     private readonly Action<CardModalState> _setCardModalState;
+    private readonly ICommentService _commentService;
 
     public CardManager(
         IBoardPageService boardPageService,
@@ -25,7 +28,8 @@ public class CardManager
         Func<BoardPageState> getBoardState,
         Func<CardModalState> getCardModalState,
         Action<BoardPageState> setBoardState,
-        Action<CardModalState> setCardModalState)
+        Action<CardModalState> setCardModalState,
+        ICommentService commentService)
     {
         _boardPageService = boardPageService;
         _cardModalService = cardModalService;
@@ -35,6 +39,7 @@ public class CardManager
         _getCardModalState = getCardModalState;
         _setBoardState = setBoardState;
         _setCardModalState = setCardModalState;
+        _commentService = commentService;
     }
 
     public async Task OnAddCardAsync((string title, Guid columnId) data)
@@ -215,10 +220,11 @@ public class CardManager
     }
 
 
-    public async Task OnCommentSubmitAsync(string commentContent)
+    public async Task OnCommentSubmitAsync(CommentSubmissionData submissionData)
     {
         var cardModalState = _getCardModalState();
-        if (cardModalState.SelectedCard == null || string.IsNullOrWhiteSpace(commentContent))
+        if (cardModalState.SelectedCard == null ||
+            (string.IsNullOrWhiteSpace(submissionData.Text) && !submissionData.Files.Any()))
             return;
 
         var currentUserId = _getCurrentUserId();
@@ -234,29 +240,51 @@ public class CardManager
         try
         {
             var username = _authStateService.CurrentUser?.Username ?? "Unknown";
+
+            var browserFiles = submissionData.Files
+                .Where(f => f != null)
+                .Select(f => f!)
+                .ToList();
+
             var commentId = await _cardModalService.CreateCommentAsync(
-                cardModalState.SelectedCard.Id, commentContent, currentUserId, username);
+                cardModalState.SelectedCard.Id,
+                submissionData.Text,
+                currentUserId,
+                username,
+                browserFiles);
+            
+            var createdComment = await _commentService.GetByCardIdAsync(cardModalState.SelectedCard.Id);
+            var newComment = createdComment.FirstOrDefault(c => c.Id == commentId);
 
-            if (commentId != Guid.Empty)
+            if (newComment != null)
             {
-                var newComment = new CommentDto
-                {
-                    Id = commentId,
-                    Text = commentContent,
-                    CardId = cardModalState.SelectedCard.Id,
-                    UserId = currentUserId,
-                    CreatedAt = DateTimeOffset.Now,
-                    CreatedBy = username
-                };
-
-                cardModalState.AddComment(newComment);
+                var currentCardModalState = _getCardModalState();
+                currentCardModalState.AddComment(newComment);
+                _setCardModalState(currentCardModalState);
             }
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Error submitting comment: {ex.Message}");
         }
         finally
         {
-            cardModalState.IsCommentSubmitting = false;
-            _setCardModalState(cardModalState);
+            var finalCardModalState = _getCardModalState();
+            finalCardModalState.IsCommentSubmitting = false;
+            _setCardModalState(finalCardModalState);
         }
+    }
+
+    public async Task OnCommentSubmitAsync(string commentContent)
+    {
+        var submissionData = new CommentSubmissionData
+        {
+            Text = commentContent,
+            Files = new List<IBrowserFile>()
+        };
+
+        await OnCommentSubmitAsync(submissionData);
+
     }
 
     public async Task OnCommentEditAsync((Guid commentId, string newContent) data)
