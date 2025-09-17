@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using TaskTracker.Client.DTOs.Comment;
+using TaskTracker.Client.Services.Interfaces;
 
 namespace TaskTracker.Client.Components.Comment;
 
@@ -10,15 +11,19 @@ public partial class CommentCard : ComponentBase
     [Parameter] public CommentDto Comment { get; set; } = default!;
     [Parameter] public EventCallback<string> OnEdit { get; set; }
     [Parameter] public EventCallback OnDelete { get; set; }
+    [Inject]
+    public IUserService UserService { get; set; } = default!;
 
     private TextArea EditTextAreaRef;
     private bool IsEditing = false;
     private bool IsSaving = false;
     private string EditContent = string.Empty;
+    private string? UserAvatar;
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
         EditContent = Comment.Text;
+        await LoadAvatar();
     }
 
     private void StartEdit()
@@ -31,6 +36,44 @@ public partial class CommentCard : ComponentBase
     {
         IsEditing = false;
         EditContent = Comment.Text;
+    }
+
+    private async Task LoadAvatar()
+    {
+        string? avatarResponse = null;
+
+        try
+        {
+            avatarResponse = await UserService.GetAvatarUrlAsync(Comment.UserId);
+
+            if (!string.IsNullOrEmpty(avatarResponse))
+            {
+                var jsonDoc = System.Text.Json.JsonDocument.Parse(avatarResponse);
+                if (jsonDoc.RootElement.TryGetProperty("avatarUrl", out var avatarUrlElement))
+                    avatarResponse = avatarUrlElement.GetString();
+            }
+
+            if (!string.IsNullOrEmpty(avatarResponse) && avatarResponse.Contains("sig="))
+            {
+                var separator = avatarResponse.Contains('?') ? '&' : '?';
+                avatarResponse = $"{avatarResponse}{separator}t={DateTime.UtcNow.Ticks}";
+            }
+
+            UserAvatar = string.IsNullOrEmpty(avatarResponse)
+                ? GeneratePlaceholderAvatar()
+                : avatarResponse;
+        }
+        catch
+        {
+            UserAvatar = GeneratePlaceholderAvatar();
+        }
+
+        StateHasChanged();
+    }
+
+    private string GeneratePlaceholderAvatar()
+    {
+        return $"https://api.dicebear.com/7.x/identicon/svg?seed={Comment?.CreatedBy ?? "user"}&t={DateTime.UtcNow.Ticks}";
     }
 
     private async Task SaveEdit()
