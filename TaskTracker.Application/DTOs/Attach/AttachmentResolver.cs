@@ -5,8 +5,7 @@ namespace TaskTracker.Application.DTOs.Attach;
 
 public class AttachmentResolver : IValueResolver<CreateCommentRequest, CreateCommentCommand, ICollection<AttachmentUpload>>
 {
-    public ICollection<AttachmentUpload> Resolve(CreateCommentRequest source, CreateCommentCommand destination,
-        ICollection<AttachmentUpload> destMember, ResolutionContext context)
+    public ICollection<AttachmentUpload> Resolve(CreateCommentRequest source, CreateCommentCommand destination, ICollection<AttachmentUpload> destMember, ResolutionContext context)
     {
         var attachments = new List<AttachmentUpload>();
 
@@ -16,13 +15,18 @@ public class AttachmentResolver : IValueResolver<CreateCommentRequest, CreateCom
             {
                 if (file.Length > 0)
                 {
-                    var stream = new MemoryStream();
-                    file.CopyTo(stream);
-                    stream.Position = 0;
+                    var memoryStream = new MemoryStream();
+
+                    using (var fileStream = file.OpenReadStream())
+                    {
+                        fileStream.CopyTo(memoryStream);
+                    }
+
+                    memoryStream.Position = 0;
 
                     attachments.Add(new AttachmentUpload
                     {
-                        Content = stream,
+                        Content = memoryStream,
                         FileName = file.FileName,
                         ContentType = file.ContentType,
                         Size = file.Length
