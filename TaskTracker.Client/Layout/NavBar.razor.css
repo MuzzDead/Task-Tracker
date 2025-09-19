@@ -132,7 +132,7 @@
         color: #5a67d8;
     }
 
-@@media (max-width: 768px) {
+@media (max-width: 768px) {
     .navbar-container {
         width: 100%;
         height: auto;
