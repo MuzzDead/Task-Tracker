@@ -11,17 +11,21 @@ public partial class Assistant : ComponentBase
     [Inject] private IAssistantService AssistantService { get; set; } = null!;
     [Inject] private IMessageService MessageService { get; set; } = null!;
     [Inject] private ISessionStorageService SessionStorageService { get; set; } = null!;
+    [Inject] private IUserService UserService { get; set; } = default!;
+    [Inject] private IAuthStateService AuthStateService { get; set; } = default!;
 
     private string UserInput { get; set; } = string.Empty;
     private List<ChatMessage> Messages { get; set; } = new();
     private bool IsLoading { get; set; } = false;
     private string? CurrentSessionId { get; set; }
     private bool IsLoadingHistory { get; set; } = false;
+    private string? UserAvatar;
 
     protected override async Task OnInitializedAsync()
     {
         await LoadInitialHistory();
         await base.OnInitializedAsync();
+        await LoadAvatar();
     }
 
     private async Task LoadInitialHistory()
@@ -136,6 +140,53 @@ public partial class Assistant : ComponentBase
             IsLoading = false;
             StateHasChanged();
         }
+    }
+
+    private async Task LoadAvatar()
+    {
+        string? avatarResponse = null;
+        Guid? userId = AuthStateService.CurrentUser?.Id;
+        string? userName = AuthStateService.CurrentUser?.Username;
+
+        try
+        {
+            if (userId == null)
+            {
+                UserAvatar = GeneratePlaceholderAvatar(userName);
+                return;
+            }
+
+            avatarResponse = await UserService.GetAvatarUrlAsync(userId.Value);
+
+            if (!string.IsNullOrEmpty(avatarResponse))
+            {
+                var jsonDoc = System.Text.Json.JsonDocument.Parse(avatarResponse);
+                if (jsonDoc.RootElement.TryGetProperty("avatarUrl", out var avatarUrlElement))
+                {
+                    avatarResponse = avatarUrlElement.GetString();
+                }
+            }
+
+            if (!string.IsNullOrEmpty(avatarResponse) && avatarResponse.Contains("sig="))
+            {
+                var separator = avatarResponse.Contains('?') ? '&' : '?';
+                avatarResponse = $"{avatarResponse}{separator}t={DateTime.UtcNow.Ticks}";
+            }
+
+            UserAvatar = string.IsNullOrEmpty(avatarResponse)
+                ? GeneratePlaceholderAvatar(userName)
+                : avatarResponse;
+        }
+        catch
+        {
+            UserAvatar = GeneratePlaceholderAvatar(userName);
+        }
+    }
+
+    private string GeneratePlaceholderAvatar(string? userName)
+    {
+        var seed = string.IsNullOrWhiteSpace(userName) ? "user" : userName;
+        return $"https://api.dicebear.com/7.x/identicon/svg?seed={seed}&t={DateTime.UtcNow.Ticks}";
     }
 
     private async Task ClearChat()
