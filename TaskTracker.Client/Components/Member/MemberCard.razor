@@ -9,8 +9,10 @@
               Style="width: 100%;">
             <Flex Align=@FlexAlign.Center
                   Gap=@FlexGap.Middle>
-                <Avatar Src=@($"https://api.dicebear.com/7.x/identicon/svg?seed={Member.Username}")
-                        Size=@AvatarSize.Large />
+                <Avatar Size=@AvatarSize.Large
+                        Shape=@AvatarShape.Circle
+                        Src=@UserAvatar
+                        Class="my-custom-avatar-class" />
                 <div>
                     <Text Strong Style="font-size: 16px; display: block; line-height: 1.2;">
                         @Member.Username
