@@ -12,11 +12,18 @@ public interface ICommentService
     [Get("/comment/card/{cardId}")]
     Task<List<CommentDto>> GetByCardIdAsync(Guid cardId);
 
-    
-    [Post("/comment")]
-    Task<Guid> CreateAsync([Body] CreateCommentDto command);
 
-    
+    [Multipart]
+    [Post("/comment")]
+    Task<Guid> CreateAsync(
+        [AliasAs("CardId")] string cardId,
+        [AliasAs("UserId")] string userId,
+        [AliasAs("Text")] string text,
+        [AliasAs("CreatedBy")] string createdBy,
+        [AliasAs("Files")] IEnumerable<StreamPart>? files
+    );
+
+
     [Put("/comment/{id}")]
     Task UpdateAsync(Guid id, [Body] UpdateCommentDto command);
 

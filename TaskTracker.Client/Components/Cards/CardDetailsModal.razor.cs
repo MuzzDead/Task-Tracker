@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Components;
+using TaskTracker.Client.Components.Comment;
 using TaskTracker.Client.DTOs.Card;
 using TaskTracker.Client.DTOs.Column;
 using TaskTracker.Client.DTOs.Comment;
@@ -20,7 +21,7 @@ public partial class CardDetailsModal : ComponentBase
     [Parameter] public EventCallback<string> OnTitleSave { get; set; }
     [Parameter] public bool IsCommentsLoading { get; set; }
     [Parameter] public bool IsCommentSubmitting { get; set; }
-    [Parameter] public EventCallback<string> OnCommentSubmit { get; set; }
+    [Parameter] public EventCallback<CommentSubmissionData> OnCommentSubmit { get; set; }
     [Parameter] public EventCallback<(Guid commentId, string newContent)> OnCommentEdit { get; set; }
     [Parameter] public EventCallback<Guid> OnCommentDelete { get; set; }
     [Parameter] public bool IsDeleting { get; set; }
