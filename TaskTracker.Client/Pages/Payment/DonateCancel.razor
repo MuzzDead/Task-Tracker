@@ -1,0 +1,54 @@
+﻿@page "/donate/cancel"
+@using AntDesign
+@inject NavigationManager Navigation
+
+<PageTitle>Payment Cancelled</PageTitle>
+
+<div class="result-container-cancel">
+    <Row Justify=@RowJustify.Center Style="min-height: 80vh;" Align=@RowAlign.Middle>
+        <Col Xs="24" Sm="20" Md="16" Lg="12" Xl="10">
+        <Card Class="result-card">
+            <Result Status=@ResultStatus.Warning
+                    Title="Payment was cancelled"
+                    SubTitle="No worries! You can try again or come back later.">
+                <Extra>
+                    <Space Size=SpaceSize.Middle>
+                        <Button Type=@ButtonType.Primary
+                                Size=@ButtonSize.Large
+                                OnClick="TryAgain"
+                                Icon=@IconType.Outline.Redo>
+                            Try again
+                        </Button>
+                        <Button Type=@ButtonType.Default
+                                Size=@ButtonSize.Large
+                                OnClick="GoHome"
+                                Icon=@IconType.Outline.Home>
+                            Go to Home
+                        </Button>
+                    </Space>
+                </Extra>
+            </Result>
+        </Card>
+        </Col>
+    </Row>
+</div>
+
+<style>
+    .result-container-cancel {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 20px;
+    }
+</style>
+
+@code {
+    private void TryAgain()
+    {
+        Navigation.NavigateTo("/donate");
+    }
+
+    private void GoHome()
+    {
+        Navigation.NavigateTo("/");
+    }
+}

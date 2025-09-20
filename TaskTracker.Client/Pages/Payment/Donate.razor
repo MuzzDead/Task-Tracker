@@ -1,0 +1,125 @@
+﻿@page "/donate"
+@using AntDesign
+
+<PageTitle>Support the Project</PageTitle>
+
+<div class="donate-container">
+    <Row Justify=@RowJustify.Center Align=@RowAlign.Middle Style="min-height: 80vh;">
+        <Col Xs="24" Sm="20" Md="16" Lg="12" Xl="10">
+        <Card Class="donate-card" Hoverable="true">
+            <div class="donate-header">
+                <div class="donate-icon">
+                    <Icon Type="heart"
+                          Theme=@IconThemeType.Fill
+                          Style="font-size: 48px; color: #ff4d4f;" />
+                </div>
+                <Title Level="2"
+                       Style="text-align: center; margin-bottom: 8px; color: #1890ff;">
+                    Support the Project
+                </Title>
+                <Paragraph Style="text-align: center; font-size: 16px; color: #666; margin-bottom: 32px;">
+                    Your support helps us develop and improve the project.
+                    Every donation is appreciated! ❤️
+                </Paragraph>
+            </div>
+
+            <Form Model=@donationForm
+                  OnFinish=@OnFinish
+                  OnFinishFailed=@OnFinishFailed
+                  Layout="@FormLayout.Vertical">
+                <FormItem Label="Donation amount">
+                    <Row Gutter="8">
+                        <Col Span="18">
+                        <AntDesign.InputNumber @bind-Value=@donationForm.Amount
+                                               Min="1"
+                                               Max="99999"
+                                               Step="1"
+                                               Placeholder="Input the amount"
+                                               Size=@InputSize.Large
+                                               Style="width: 100%;"
+                                               AddonAfter="$" />
+                        </Col>
+                    </Row>
+                </FormItem>
+
+                <div class="quick-amounts">
+                    <Text Strong
+                          Style="margin-bottom: 8px; display: block;">
+                        Quick select:
+                    </Text>
+                    <Space Size=@SpaceSize.Middle>
+                        @foreach (var amount in quickAmounts)
+                        {
+                            <Button Size=@ButtonSize.Small
+                                    Type=@(donationForm.Amount == amount ? ButtonType.Primary : ButtonType.Default)
+                                    OnClick="() => SetQuickAmount(amount)"
+                                    Class=@(donationForm.Amount == amount ? "quick-amount-selected" : "quick-amount")>
+                                $@amount
+                            </Button>
+                        }
+                    </Space>
+                </div>
+
+                <FormItem Style="margin-top: 32px;">
+                    <Button Type=@ButtonType.Primary
+                            HtmlType="submit"
+                            Size=@ButtonSize.Large
+                            Loading=isProcessing
+                            Block="true"
+                            Icon=@IconType.Outline.CreditCard
+                            Class="donate-button">
+                        @if (isProcessing)
+                        {
+                            <span>Processing payment...</span>
+                        }
+                        else
+                        {
+                            <span>Donate $@donationForm.Amount</span>
+                        }
+                    </Button>
+                </FormItem>
+            </Form>
+
+            <Divider Style="margin: 24px 0;" />
+
+            <div class="donation-info">
+                <Row Gutter="16">
+                    <Col Span="8" Style="text-align: center;">
+                    <Icon Type="safety-certificate"
+                          Style="font-size: 24px; color: #52c41a; margin-bottom: 8px;" />
+                    <div>
+                        <Text Strong>Secure</Text><br />
+                        <Text Type=@TextElementType.Secondary
+                              Style="font-size: 12px;">
+                            Stripe protection
+                        </Text>
+                    </div>
+                    </Col>
+                    <Col Span="8" Style="text-align: center;">
+                    <Icon Type="global"
+                          Style="font-size: 24px; color: #1890ff; margin-bottom: 8px;" />
+                    <div>
+                        <Text Strong>Fast</Text><br />
+                        <Text Type=@TextElementType.Secondary
+                              Style="font-size: 12px;">
+                            Instant payment
+                        </Text>
+                    </div>
+                    </Col>
+                    <Col Span="8" Style="text-align: center;">
+                    <Icon Type="heart"
+                          Style="font-size: 24px; color: #ff4d4f; margin-bottom: 8px;" />
+                    <div>
+                        <Text Strong>Grateful</Text><br />
+                        <Text Type=@TextElementType.Secondary
+                              Style="font-size: 12px;">
+                            Every dollar counts
+                        </Text>
+                    </div>
+                    </Col>
+                </Row>
+            </div>
+        </Card>
+        </Col>
+    </Row>
+</div>

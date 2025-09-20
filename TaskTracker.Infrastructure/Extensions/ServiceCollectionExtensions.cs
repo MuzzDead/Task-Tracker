@@ -11,6 +11,7 @@ using TaskTracker.Application.Archice;
 using TaskTracker.Application.Common.Interfaces.Auth;
 using TaskTracker.Application.Common.Interfaces.Services;
 using TaskTracker.Application.OpenAi;
+using TaskTracker.Application.Payment;
 using TaskTracker.Application.Storage;
 using TaskTracker.Domain.Options;
 using TaskTracker.Infrastructure.Auth;
@@ -94,6 +95,8 @@ public static class ServiceCollectionExtensions
         services.Configure<AzureOpenAIOptions>(configuration.GetSection(AzureOpenAIOptions.SectionName));
         services.AddSingleton<IChatSessionStore, MemoryChatSessionStore>();
         services.AddScoped<IChatService, AzureOpenAIChatService>();
+
+        services.AddScoped<IPaymentService, StripePaymentService>();
 
         services.AddHostedService<CleanupExpiredTokensService>();
 
