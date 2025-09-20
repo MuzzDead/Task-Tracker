@@ -6,6 +6,7 @@ using TaskTracker.Client.DTOs.Comment;
 using TaskTracker.Client.DTOs.Member;
 using TaskTracker.Client.DTOs.State;
 using TaskTracker.Client.DTOs.User;
+using TaskTracker.Client.Services.Interfaces;
 
 namespace TaskTracker.Client.Components.Cards;
 
@@ -47,8 +48,117 @@ public partial class CardDetailsModal : ComponentBase
     [Parameter] public List<ColumnDto>? BoardColumns { get; set; }
     [Parameter] public EventCallback<MoveCardDto> OnCardMove { get; set; }
 
+    [Inject] public IUserService UserService { get; set; } = default!;
+
     private CardStateEditModal StateEditModal = default!;
     private MoveCard moveCardModal = default!;
+
+    private string? AssignedUserAvatar;
+    private Dictionary<Guid, string> MemberAvatars = new();
+    private bool IsAvatarLoading = false;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await base.OnParametersSetAsync();
+
+        if (AssignedUser != null && !IsAssigneeLoading)
+        {
+            await LoadAssignedUserAvatar();
+        }
+
+        if (IsAssignModalVisible && BoardMembers?.Any() == true)
+        {
+            await LoadMemberAvatars();
+        }
+    }
+
+    private async Task LoadAssignedUserAvatar()
+    {
+        if (AssignedUser == null) return;
+
+        IsAvatarLoading = true;
+        try
+        {
+            AssignedUserAvatar = await GetUserAvatarUrl(AssignedUser.Id, AssignedUser.Username);
+        }
+        catch
+        {
+            AssignedUserAvatar = GeneratePlaceholderAvatar(AssignedUser.Username);
+        }
+        finally
+        {
+            IsAvatarLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task LoadMemberAvatars()
+    {
+        if (BoardMembers?.Any() != true) return;
+
+        var tasks = BoardMembers.Select(async member =>
+        {
+            if (!MemberAvatars.ContainsKey(member.UserId))
+            {
+                try
+                {
+                    var avatarUrl = await GetUserAvatarUrl(member.UserId, member.Username);
+                    MemberAvatars[member.UserId] = avatarUrl;
+                }
+                catch
+                {
+                    MemberAvatars[member.UserId] = GeneratePlaceholderAvatar(member.Username);
+                }
+            }
+        });
+
+        await Task.WhenAll(tasks);
+        StateHasChanged();
+    }
+
+    private async Task<string> GetUserAvatarUrl(Guid userId, string username)
+    {
+        string? avatarResponse = null;
+        try
+        {
+            avatarResponse = await UserService.GetAvatarUrlAsync(userId);
+
+            if (!string.IsNullOrEmpty(avatarResponse))
+            {
+                var jsonDoc = System.Text.Json.JsonDocument.Parse(avatarResponse);
+                if (jsonDoc.RootElement.TryGetProperty("avatarUrl", out var avatarUrlElement))
+                {
+                    avatarResponse = avatarUrlElement.GetString();
+                }
+            }
+
+            if (!string.IsNullOrEmpty(avatarResponse) && avatarResponse.Contains("sig="))
+            {
+                var separator = avatarResponse.Contains('?') ? '&' : '?';
+                avatarResponse = $"{avatarResponse}{separator}t={DateTime.UtcNow.Ticks}";
+            }
+
+            return string.IsNullOrEmpty(avatarResponse)
+                ? GeneratePlaceholderAvatar(username)
+                : avatarResponse;
+        }
+        catch
+        {
+            return GeneratePlaceholderAvatar(username);
+        }
+    }
+
+    private string GeneratePlaceholderAvatar(string username)
+    {
+        return $"https://api.dicebear.com/7.x/identicon/svg?seed={username ?? "user"}&t={DateTime.UtcNow.Ticks}";
+    }
+
+    private string GetMemberAvatarUrl(Guid userId, string username)
+    {
+        return MemberAvatars.TryGetValue(userId, out var avatarUrl)
+            ? avatarUrl
+            : GeneratePlaceholderAvatar(username);
+    }
 
     private async Task HandleDelete()
     {

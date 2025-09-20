@@ -1,33 +1,56 @@
 ﻿@using AntDesign
 @using Microsoft.AspNetCore.Components
-<div class="board-card" @onclick=@(() => OnBoardClick.InvokeAsync(Board.Id))>
-    <div class="board-header" style="background: #667eea;">
-        <TypographyTitle Level="4" Class="board-title">
-            @Board.Title
-        </TypographyTitle>
-    </div>
-    <div class="board-body">
-        <TypographyText Class="board-description">
-            @GetDescription()
-        </TypographyText>
-        <div class="board-stats">
-            <div class="stat-item">
-                <Icon Type="bars" />
-                <TypographyText Class="stat-text">
-                    @TasksCount tasks
-                </TypographyText>
+
+<div class="board-card" @onclick="@(() => OnBoardClick.InvokeAsync(Board.Id))">
+    <Card Hoverable="true"
+          Style="border-radius: 12px; box-shadow: 0 4px 16px rgba(0,0,0,0.08); transition: all 0.3s ease; margin-bottom: 16px;">
+
+        <div class="board-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                                     border-radius: 8px; padding: 16px; margin: -24px -24px 16px -24px;
+                                     position: relative; overflow: hidden;">
+            <div style="position: absolute; top: 0; right: 0; opacity: 0.1; font-size: 60px;">
+                <Icon Type="project" />
             </div>
-            <div class="stat-item">
-                <Icon Type="team" />
-                <TypographyText Class="stat-text">
-                    @MembersCount members
-                </TypographyText>
+            <Title Level="4" Style="color: white; margin: 0; font-weight: 600;">
+                @Board.Title
+            </Title>
+            <div style="display: flex; align-items: center; margin-top: 8px;">
+                <Avatar Size=@AvatarSize.Small Style="background-color: rgba(255,255,255,0.2); margin-right: 8px;">
+                    <Icon Type="user" Style="color: white;" />
+                </Avatar>
+                <Text Style="color: rgba(255,255,255,0.8); font-size: 12px;">
+                    Created @Board.CreatedAt.ToString("dd MMM yyyy", System.Globalization.CultureInfo.InvariantCulture)
+                </Text>
             </div>
         </div>
-    </div>
-    <div class="board-footer">
-        <TypographyText Class="last-activity">
-            @Board.CreatedAt.ToString("MMM dd")
-        </TypographyText>
-    </div>
+
+        <div style="margin-bottom: 20px;">
+            <Paragraph Ellipsis="true" Style="color: #666; line-height: 1.6; margin: 0;">
+                @GetDescription()
+            </Paragraph>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center;
+                border-top: 1px solid #f0f0f0; padding-top: 12px; margin-top: 16px;">
+
+            <div style="display: flex; align-items: center;">
+                <AvatarGroup MaxCount="3">
+                    @for (int i = 0; i < Math.Min(MembersCount, 5); i++)
+                    {
+                        <Avatar @AvatarSize.Small
+                                Style="@($"background-color: {GetRandomColor(i)}; font-size: 10px;")">
+                            @GetUserInitials(i)
+                        </Avatar>
+                    }
+                </AvatarGroup>
+            </div>
+
+            <div style="display: flex; align-items: center;">
+                <Badge Status=@GetActivityStatus() />
+                <Text Style="font-size: 12px; color: #999; margin-left: 4px;">
+                    @GetLastActivityText()
+                </Text>
+            </div>
+        </div>
+    </Card>
 </div>

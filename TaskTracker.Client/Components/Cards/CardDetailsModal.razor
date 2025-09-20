@@ -33,10 +33,10 @@
                                 <Icon Type="edit" />
                                 <span style="margin-left: 8px;">Edit state</span>
                             </MenuItem>
-   <MenuItem Key="move" OnClick=@HandleMove>
-    <Icon Type="swap" />
-    Move
-</MenuItem>
+                            <MenuItem Key="move" OnClick=@HandleMove>
+                                <Icon Type="swap" />
+                                Move
+                            </MenuItem>
                         </Menu>
                     </Overlay>
                     <ChildContent>
@@ -75,8 +75,17 @@
                     {
                         <Card BodyStyle="padding: 8px 12px; margin-right: 8px;">
                             <Flex Align=@FlexAlign.Center Gap=@FlexGap.Small>
-                                <Avatar Src=@($"https://api.dicebear.com/7.x/identicon/svg?seed={AssignedUser.Username}")
-                                        Size=@AvatarSize.Small />
+                                @if (IsAvatarLoading)
+                                {
+                                    <div style="width: 24px; height: 24px; display: flex; align-items: center; justify-content: center;">
+                                        <Spin Size=@SpinSize.Small />
+                                    </div>
+                                }
+                                else
+                                {
+                                    <Avatar Src=@AssignedUserAvatar
+                                            Size=@AvatarSize.Small />
+                                }
                                 <div>
                                     <Text Strong Style="font-size: 16px; display: block; line-height: 1.2;">
                                         @AssignedUser.Username
@@ -124,7 +133,7 @@
                                             <MenuItem Key=@member.UserId.ToString()
                                                       OnClick=@(() => HandleAssignMember(member.UserId))>
                                                 <Flex Align=@FlexAlign.Center Gap=@FlexGap.Small>
-                                                    <Avatar Src=@($"https://api.dicebear.com/7.x/identicon/svg?seed={member.Username}")
+                                                    <Avatar Src=@GetMemberAvatarUrl(member.UserId, member.Username)
                                                             Size=@AvatarSize.Small />
                                                     <div>
                                                         <div style="font-weight: 500;">@member.Username</div>
