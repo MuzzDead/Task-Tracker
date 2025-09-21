@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.JSInterop;
+using TaskTracker.Client.Services.Interfaces;
 
 namespace TaskTracker.Client.Pages.VideoChat;
 
@@ -10,6 +11,7 @@ public partial class VideoChat : ComponentBase, IAsyncDisposable
     [Inject] private IJSRuntime JS { get; set; } = default!;
     [Inject] private NavigationManager Navigation { get; set; } = default!;
     [Inject] private IMessageService MessageService { get; set; } = default!;
+    [Inject] private IAuthStateService AuthStateService { get; set; } = default!;
 
     [Parameter] public Guid BoardId { get; set; }
 
@@ -58,10 +60,13 @@ public partial class VideoChat : ComponentBase, IAsyncDisposable
                 await _hubConnection.StartAsync();
                 _myUserId = _hubConnection.ConnectionId;
 
+                var username = AuthStateService.CurrentUser?.Username
+               ?? "Unknown User";
+
                 var mediaState = await _module.InvokeAsync<MediaState>("getMediaState");
                 await _hubConnection.InvokeAsync("JoinConference",
                     BoardId.ToString(),
-                    "Current User",
+                    username,
                     mediaState.IsCameraEnabled,
                     mediaState.IsMicEnabled);
             }
