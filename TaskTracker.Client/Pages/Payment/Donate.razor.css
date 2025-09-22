@@ -1,0 +1,103 @@
+﻿.donate-container {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.donate-card {
+    border-radius: 16px !important;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.1) !important;
+    border: none !important;
+    overflow: hidden;
+}
+
+.donate-header {
+    text-align: center;
+    padding: 20px 0;
+}
+
+.donate-icon {
+    margin-bottom: 16px;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.05);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+.quick-amounts {
+    margin: 16px 0;
+}
+
+.quick-amount {
+    border-radius: 20px !important;
+    transition: all 0.3s ease;
+}
+
+    .quick-amount:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(24, 144, 255, 0.3);
+    }
+
+.quick-amount-selected {
+    background: #1890ff !important;
+    color: white !important;
+    border-color: #1890ff !important;
+    border-radius: 20px !important;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(24, 144, 255, 0.5);
+}
+
+.donate-button {
+    border-radius: 8px !important;
+    height: 48px !important;
+    font-size: 16px !important;
+    font-weight: 600 !important;
+    background: linear-gradient(45deg, #1890ff, #722ed1) !important;
+    border: none !important;
+    box-shadow: 0 4px 15px rgba(24, 144, 255, 0.4) !important;
+    transition: all 0.3s ease !important;
+}
+
+    .donate-button:hover {
+        transform: translateY(-2px) !important;
+        box-shadow: 0 6px 20px rgba(24, 144, 255, 0.6) !important;
+    }
+
+    .donate-button:disabled {
+        transform: none !important;
+        opacity: 0.7;
+    }
+
+.donation-info {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 12px;
+    margin-top: 16px;
+}
+
+.ant-input-number-lg {
+    border-radius: 8px !important;
+}
+
+.ant-select-lg .ant-select-selector {
+    border-radius: 8px !important;
+}
+
+.ant-input {
+    border-radius: 8px !important;
+}
+
+.ant-input-lg {
+    border-radius: 8px !important;
+}

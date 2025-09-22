@@ -27,4 +27,8 @@
     <ProjectReference Include="..\TaskTracker.Database\TaskTracker.Database.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="wwwroot\js\" />
+  </ItemGroup>
+
 </Project>

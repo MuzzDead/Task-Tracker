@@ -30,6 +30,10 @@
             <Icon Type="question-circle" class="menu-icon" />
             <TypographyText Class="menu-text">Assistant[AI]</TypographyText>
         </div>
+        <div class="menu-item @(IsActive("/donate") ? "active" : "")" @onclick="@(() => NavigateTo("/donate"))">
+            <Icon Type="dollar" class="menu-icon" />
+            <TypographyText Class="menu-text">Donate</TypographyText>
+        </div>
     </div>
 
     <div class="navbar-footer">
