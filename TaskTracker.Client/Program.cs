@@ -16,6 +16,8 @@ builder.Services.AddAntDesign();
 builder.Services.AddBlazoredLocalStorage();
 
 var apiBaseUrl = builder.Configuration["ApiBaseUrl"];
+builder.Configuration
+       .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
 
 builder.Services.AddScoped<IAuthStateService, AuthStateService>();
 builder.Services.AddScoped<ISessionStorageService, SessionStorageService>();

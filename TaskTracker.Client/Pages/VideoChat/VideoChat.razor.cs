@@ -12,6 +12,7 @@ public partial class VideoChat : ComponentBase, IAsyncDisposable
     [Inject] private NavigationManager Navigation { get; set; } = default!;
     [Inject] private IMessageService MessageService { get; set; } = default!;
     [Inject] private IAuthStateService AuthStateService { get; set; } = default!;
+    [Inject] private IConfiguration Configuration { get; set; } = default!;
 
     [Parameter] public Guid BoardId { get; set; }
 
@@ -36,6 +37,8 @@ public partial class VideoChat : ComponentBase, IAsyncDisposable
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
+        var apiRoot = Configuration["ApiRootUrl"]!;
+
         if (firstRender)
         {
             _isInitializing = true;
@@ -49,7 +52,7 @@ public partial class VideoChat : ComponentBase, IAsyncDisposable
                 DotNetObjectReference.Create(this));
 
             _hubConnection = new HubConnectionBuilder()
-                .WithUrl("https://localhost:7045/videoHub")
+                .WithUrl($"{apiRoot}/videoHub")
                 .WithAutomaticReconnect()
                 .Build();
 
