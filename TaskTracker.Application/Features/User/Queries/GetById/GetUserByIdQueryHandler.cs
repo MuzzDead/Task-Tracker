@@ -31,7 +31,7 @@ public class GetUserByIdQueryHandler : IRequestHandler<GetUserByIdQuery, UserDto
 
         if (user.AvatarId.HasValue)
         {
-            userDto.AvatarUrl = _blobService.GenerateSasToken(user.AvatarId.Value);
+            userDto.AvatarUrl = _blobService.GenerateSasToken(user.AvatarId.Value, "avatars");
         }
 
         return userDto;

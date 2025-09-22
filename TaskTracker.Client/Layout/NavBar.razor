@@ -46,8 +46,13 @@
             <div class="user-section" @onclick=@ToggleLogout>
                 @if (isAuthenticated)
                 {
-                    <Avatar Size=@AvatarSize.Small Icon="user" />
+                    <Avatar Size=@AvatarSize.Large
+                            Shape=@AvatarShape.Circle
+                            Src=@userAvatarUrl
+                            Class="my-custom-avatar-class" />
                     <TypographyText Class="user-name">@userDisplayName</TypographyText>
+                    
+                    <Icon Type="@(showLogout ? "down" : "up")" Class="logout-indicator" />
                 }
                 else
                 {

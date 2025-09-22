@@ -12,6 +12,7 @@ public interface IUnitOfWork : IDisposable
     IStateRepository States { get; }
     IUserRepository Users { get; }
     IRefreshTokenRepository RefreshTokens { get; }
+    ICommentAttachmentRepository CommentAttachments { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
     Task BeginTransactionAsync();

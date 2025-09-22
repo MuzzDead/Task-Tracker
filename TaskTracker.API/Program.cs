@@ -1,6 +1,7 @@
 ﻿using Hangfire;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.OpenApi.Models;
+using TaskTracker.API.Hubs;
 using TaskTracker.API.Middlewares;
 using TaskTracker.Application.Archice;
 using TaskTracker.Application.Extensions;
@@ -33,6 +34,8 @@ builder.Services.AddApplicationServices();
 builder.Services.AddInfrastructureServices(builder.Configuration);
 builder.Services.AddFunctionServices(builder.Configuration);
 builder.Services.AddPersistenceServices(builder.Configuration);
+
+builder.Services.AddSignalR().AddAzureSignalR(builder.Configuration["AzureSignalR:ConnectionString"]);
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(opt =>
@@ -95,5 +98,7 @@ RecurringJob.AddOrUpdate<IArchiveBoardsJob>(
     Cron.Daily(2, 0));
 
 app.MapControllers();
+
+app.MapHub<VideoHub>("/videoHub");
 
 app.Run();

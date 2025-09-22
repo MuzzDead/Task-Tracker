@@ -24,6 +24,6 @@ public class GetAvatarQueryHandler : IRequestHandler<GetAvatarQuery, string>
         var user = await uow.Users.GetByIdAsync(request.UserId);
         if (user?.AvatarId == null) return null;
 
-        return _blobService.GenerateSasToken(user.AvatarId.Value);
+        return _blobService.GenerateSasToken(user.AvatarId.Value, "avatars");
     }
 }

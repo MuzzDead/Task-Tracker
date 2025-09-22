@@ -38,9 +38,10 @@
                         <div class="message-avatar">
                             @if (msg.IsUser)
                             {
-                                <Avatar Size=@AvatarSize.Default Style="background-color: #1677ff; color: white;">
-                                    <Icon Type="user" Theme=@IconThemeType.Outline />
-                                </Avatar>
+                                <Avatar Size=@AvatarSize.Large
+                                        Shape=@AvatarShape.Circle
+                                        Src=@UserAvatar
+                                        Class="my-custom-avatar-class" />
                             }
                             else
                             {
