@@ -31,6 +31,11 @@ namespace TaskTracker.Client.Pages.BoardDetails
         private MemberManager _memberManager = default!;
         private CardStateManager _cardStateManager = default!;
 
+        private void GoToVideoconference()
+        {
+            NavigationManager.NavigateTo($"/boards/{boardId}/videoconference");
+        }
+
         public void OpenMembersDrawer() => _memberManager.OpenMembersDrawer();
 
         private void OnMembersDrawerClose() => _memberManager.OnMembersDrawerClose();
