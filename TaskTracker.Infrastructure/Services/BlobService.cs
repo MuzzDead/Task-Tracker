@@ -1,9 +1,11 @@
-﻿using Azure;
-using Azure.Storage;
+﻿using Azure.Storage;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using Azure.Storage.Sas;
 using Microsoft.Extensions.Options;
+using System.Text;
+using System.Text.Json;
+using TaskTracker.Application.DTOs;
 using TaskTracker.Application.Storage;
 using TaskTracker.Domain.Options;
 
@@ -12,30 +14,28 @@ namespace TaskTracker.Infrastructure.Services;
 public class BlobService : IBlobService
 {
     private readonly BlobServiceClient _blobServiceClient;
-    private readonly string _containerName;
     private readonly string _accountName;
     private readonly string _accountKey;
 
     public BlobService(IOptions<BlobStorageOptions> options)
     {
-        _containerName = options.Value.ContainerName;
         _accountName = options.Value.AccountName;
         _accountKey = options.Value.AccountKey;
         _blobServiceClient = new BlobServiceClient(options.Value.ConnectionString);
     }
 
-    public async Task DeleteAsync(Guid blobId)
+    public async Task DeleteAsync(Guid blobId, string containerName)
     {
-        var containerClient = _blobServiceClient.GetBlobContainerClient(_containerName);
+        var containerClient = _blobServiceClient.GetBlobContainerClient(containerName);
         var blobClient = containerClient.GetBlobClient(blobId.ToString());
         await blobClient.DeleteIfExistsAsync(DeleteSnapshotsOption.IncludeSnapshots);
     }
 
-    public string GenerateSasToken(Guid blobId, int expiresInMinutes = 5)
+    public string GenerateSasToken(Guid blobId, string containerName, int expiresInMinutes = 5)
     {
         var blobSasBuilder = new BlobSasBuilder
         {
-            BlobContainerName = _containerName,
+            BlobContainerName = containerName,
             BlobName = blobId.ToString(),
             Resource = "b",
             ExpiresOn = DateTimeOffset.UtcNow.AddMinutes(expiresInMinutes)
@@ -46,12 +46,12 @@ public class BlobService : IBlobService
             new StorageSharedKeyCredential(_accountName, _accountKey)).ToString();
 
         var baseUrl = $"https://{_accountName}.blob.core.windows.net";
-        return $"{baseUrl}/{_containerName}/{blobId}?{sasToken}";
+        return $"{baseUrl}/{containerName}/{blobId}?{sasToken}";
     }
-    
-    public async Task<Guid> UploadAsync(Stream content, string contentType)
+
+    public async Task<Guid> UploadAsync(Stream content, string contentType, string containerName)
     {
-        var containerClient = _blobServiceClient.GetBlobContainerClient(_containerName);
+        var containerClient = _blobServiceClient.GetBlobContainerClient(containerName);
         await containerClient.CreateIfNotExistsAsync();
 
         var blobId = Guid.NewGuid();
@@ -59,5 +59,40 @@ public class BlobService : IBlobService
 
         await blobClient.UploadAsync(content, new BlobHttpHeaders { ContentType = contentType });
         return blobId;
+    }
+
+    public async Task<string> UploadBoardJsonAsync(
+     BoardDto board,
+     string containerName = "archived-boards")
+    {
+        var containerClient = _blobServiceClient
+            .GetBlobContainerClient(containerName);
+
+        await containerClient.CreateIfNotExistsAsync();
+
+        var fileName = $"{board.Id}.json";
+        var blobClient = containerClient.GetBlobClient(fileName);
+
+        var json = JsonSerializer.Serialize(
+            board,
+            new JsonSerializerOptions
+            {
+                WriteIndented = true,
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            });
+
+        var uploadOptions = new BlobUploadOptions
+        {
+            HttpHeaders = new BlobHttpHeaders
+            {
+                ContentType = "application/json"
+            }
+        };
+
+        using var stream = new MemoryStream(Encoding.UTF8.GetBytes(json));
+
+        await blobClient.UploadAsync(stream, uploadOptions);
+
+        return blobClient.Uri.ToString();
     }
 }

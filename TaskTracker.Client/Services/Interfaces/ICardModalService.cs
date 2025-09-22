@@ -1,4 +1,6 @@
-﻿using TaskTracker.Client.DTOs.Card;
+﻿using AntDesign;
+using Microsoft.AspNetCore.Components.Forms;
+using TaskTracker.Client.DTOs.Card;
 using TaskTracker.Client.DTOs.State;
 using TaskTracker.Client.DTOs.User;
 using TaskTracker.Client.States;
@@ -9,7 +11,7 @@ public interface ICardModalService
 {
     Task<CardModalState> LoadCardDetailsAsync(Guid cardId);
     Task<bool> UpdateCardTitleAsync(Guid cardId, string title, Guid columnId, int rowIndex, Guid userId);
-    Task<Guid> CreateCommentAsync(Guid cardId, string content, Guid userId, string username);
+    Task<Guid> CreateCommentAsync(Guid cardId, string content, Guid userId, string username, List<IBrowserFile>? files = null);
     Task<bool> UpdateCommentAsync(Guid commentId, string content, Guid userId);
     Task<bool> DeleteCommentAsync(Guid commentId);
     Task<bool> DeleteCardAsync(Guid cardId);

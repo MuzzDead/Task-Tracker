@@ -1,9 +1,13 @@
 ﻿using Azure.Storage.Blobs;
+using Hangfire;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using TaskTracker.Application.Archice;
 using TaskTracker.Application.Common.Interfaces.Auth;
 using TaskTracker.Application.Common.Interfaces.Services;
 using TaskTracker.Application.OpenAi;
@@ -66,13 +70,25 @@ public static class ServiceCollectionExtensions
 
         services.AddAuthorization();
 
+        var hangfireConn = configuration.GetConnectionString("HangfireConnection");
+
+        services.AddHangfire(configuration => configuration
+            .SetDataCompatibilityLevel(CompatibilityLevel.Version_170)
+            .UseSimpleAssemblyNameTypeSerializer()
+            .UseRecommendedSerializerSettings()
+            .UseSqlServerStorage(hangfireConn));
+
+        services.AddScoped<IArchiveBoardsJob, ArchiveBoardsJob>();
+
+        services.AddHangfireServer();
+
+
+        services.AddSingleton<IServiceBusService>(provider =>
+            new ServiceBusService(configuration["ServiceBus:ConnectionString"]));
+
         services.AddScoped<IJwtTokenProvider, JwtTokenProvider>();
         services.AddScoped<IPasswordHasher, PasswordHasher>();
         services.AddScoped<ICurrentUserService, CurrentUserService>();
-
-
-        services.Configure<BlobStorageOptions>(configuration.GetSection("AzureBlobStorage"));
-        services.AddScoped<IBlobService, BlobService>();
 
         services.AddMemoryCache();
         services.Configure<AzureOpenAIOptions>(configuration.GetSection(AzureOpenAIOptions.SectionName));
@@ -82,6 +98,25 @@ public static class ServiceCollectionExtensions
         services.AddHostedService<CleanupExpiredTokensService>();
 
         services.AddHttpContextAccessor();
+
+        return services;
+    }
+
+    public static IServiceCollection AddFunctionServices(
+    this IServiceCollection services,
+    IConfiguration configuration)
+    {
+        services.Configure<CosmosDbOptions>(configuration.GetSection("CosmosDb"));
+        services.AddSingleton<CosmosClient>(sp =>
+        {
+            var opts = sp.GetRequiredService<IOptions<CosmosDbOptions>>().Value;
+            return new CosmosClient(opts.ConnectionString);
+        });
+
+        services.AddScoped<ICosmosDbService, CosmosDbService>();
+
+        services.Configure<BlobStorageOptions>(configuration.GetSection("AzureBlobStorage"));
+        services.AddScoped<IBlobService, BlobService>();
 
         return services;
     }

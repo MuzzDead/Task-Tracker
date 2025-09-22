@@ -27,11 +27,11 @@ public class UploadAvatarCommandHandler : IRequestHandler<UploadAvatarCommand, G
 
         if (user.AvatarId.HasValue)
         {
-            await _blobService.DeleteAsync(user.AvatarId.Value);
+            await _blobService.DeleteAsync(user.AvatarId.Value, "avatars");
         }
 
         var newAvatarId = await _blobService.UploadAsync(
-            request.FileStream, request.ContentType);
+            request.FileStream, request.ContentType, "avatars");
 
         user.AvatarId = newAvatarId;
         await uow.SaveChangesAsync(cancellationToken);

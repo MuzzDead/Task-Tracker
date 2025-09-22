@@ -1,26 +1,83 @@
 ﻿@using AntDesign
 @using Microsoft.AspNetCore.Components
+@using Microsoft.AspNetCore.Components.Forms
 
 <div class="comment-input-container">
     <div class="comment-input-form">
-<TextArea @bind-Value="CommentText"
-          Placeholder="Write a comment..."
-          AutoSize="true"
-          MinRows="2"
-          MaxRows="6"
-          MaxLength="256"
-          ShowCount="true"
-          @onkeydown=@HandleKeyDown
-          Class="comment-textarea" />
+        <TextArea @bind-Value="CommentText"
+                  Placeholder="Write a comment..."
+                  AutoSize="true"
+                  MinRows="2"
+                  MaxRows="6"
+                  MaxLength="256"
+                  ShowCount="true"
+                  @onkeydown=@HandleKeyDown
+                  Class="comment-textarea" />
 
+        @if (ValidationErrors.Any())
+        {
+            <div class="validation-errors" style="margin-top: 8px;">
+                @foreach (var error in ValidationErrors)
+                {
+                    <Alert Type=@AlertType.Error
+                           Message=@error
+                           ShowIcon="true"
+                           Style="margin-bottom: 4px; font-size: 12px; padding: 4px 8px;" />
+                }
+            </div>
+        }
 
+        @if (SelectedFiles.Any())
+        {
+            <div class="selected-files" style="margin-top: 8px; padding: 8px; background: #fafafa; border-radius: 6px;">
+                <div style="font-size: 12px; color: #666; margin-bottom: 6px;">
+                    <Icon Type="paperclip" /> Attached files (@SelectedFiles.Count/5):
+                </div>
+                @foreach (var file in SelectedFiles)
+                {
+                    <div class="file-item" style="display: flex; align-items: center; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid #f0f0f0;">
+                        <div style="display: flex; align-items: center; gap: 6px; flex: 1; min-width: 0;">
+                            <Icon Type=@GetFileIcon(file.Name) Style="color: #1890ff;" />
+                            <Tooltip Title=@file.Name>
+                                <Text Style="font-size: 12px; color: #333; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                    @file.Name
+                                </Text>
+                            </Tooltip>
+                            <Text Type=@TextElementType.Secondary Style="font-size: 10px; white-space: nowrap;">
+                                (@FormatFileSize(file.Size))
+                            </Text>
+                        </div>
+                        <Button Type=@ButtonType.Text
+                                Icon="close"
+                                Size=@ButtonSize.Small
+                                OnClick=@(() => RemoveFile(file))
+                                Style="color: #ff4d4f; padding: 0; width: 20px; height: 20px;" />
+                    </div>
+                }
+            </div>
+        }
 
         <div class="comment-actions">
+            <InputFile id="fileUpload"
+                       OnChange=@OnFilesSelected
+                       multiple
+                       style="display: none;" />
+
+            <InputFile id="fileInput" OnChange=@OnFilesSelected multiple style="display: none;" />
+
+            <Upload>
+                <label class="ant-btn" for="fileInput">
+                    <Icon Type=@IconType.Outline.PaperClip />
+                </label>
+            </Upload>
+
             <Button Type=@ButtonType.Primary
-                    Size=@ButtonSize.Small
+                    Size=@ButtonSize.Default
                     Icon="send"
+                    class="ant-btn"
                     @onclick=@SubmitComment
-                    Loading=@IsSubmitting>
+                    Loading=@IsSubmitting
+                    Disabled=@(string.IsNullOrWhiteSpace(CommentText) && !SelectedFiles.Any())>
                 Comment
             </Button>
         </div>

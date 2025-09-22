@@ -18,6 +18,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<State> States { get; set; }
     public DbSet<BoardRole> BoardRoles { get; set; }
     public DbSet<RefreshToken> RefreshTokens { get; set; }
+    public DbSet<CommentAttachment> CommentAttachments { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

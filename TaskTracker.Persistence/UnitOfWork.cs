@@ -19,6 +19,7 @@ public class UnitOfWork : IUnitOfWork
     private IStateRepository _states;
     private IUserRepository _users;
     private IRefreshTokenRepository _refreshToken;
+    private ICommentAttachmentRepository _commentAttachments;
     public UnitOfWork(ApplicationDbContext context)
     {
         _context = context;
@@ -45,8 +46,12 @@ public class UnitOfWork : IUnitOfWork
     public IUserRepository Users =>
         _users ??= new UserRepository(_context);
 
-    public IRefreshTokenRepository RefreshTokens => 
+    public IRefreshTokenRepository RefreshTokens =>
         _refreshToken ??= new RefreshTokenRepository(_context);
+
+
+    public ICommentAttachmentRepository CommentAttachments =>
+        _commentAttachments ??= new CommentAttachmentRepository(_context);
 
     public async Task BeginTransactionAsync()
     {

@@ -9,7 +9,7 @@ public class CommentRepository : BaseRepository<Comment, Guid>, ICommentReposito
 {
     public CommentRepository(ApplicationDbContext context) : base(context) { }
 
-    public async Task<IEnumerable<Comment>> GetByCardId(Guid cardId)
+    public async Task<IEnumerable<Comment>> GetByCardIdAsync(Guid cardId)
     {
         var comments = await _dbSet
             .Where(c => c.CardId == cardId)

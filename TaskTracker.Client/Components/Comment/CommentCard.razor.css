@@ -89,3 +89,32 @@
     .delete-menu-item:hover {
         background-color: #fff2f0;
     }
+
+.comment-files {
+    margin-top: 5px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.comment-file {
+    display: flex;
+    align-items: center;
+    font-size: 0.9rem;
+}
+
+    .comment-file .anticon {
+        margin-right: 6px;
+        color: #888;
+    }
+
+    .comment-file a {
+        margin-right: 6px;
+        color: #1890ff;
+        text-decoration: none;
+    }
+
+.file-size {
+    color: #aaa;
+    font-size: 0.8rem;
+}

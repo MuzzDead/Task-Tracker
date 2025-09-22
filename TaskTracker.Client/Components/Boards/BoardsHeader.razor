@@ -1,4 +1,9 @@
-﻿<div class="boards-header">
+﻿@using AntDesign
+@using Microsoft.AspNetCore.Components
+
+<link href="css/BoardsHeader.css" rel="stylesheet" />
+
+<div class="boards-header">
     <div class="header-left">
         @if (EnableTitleEdit)
         {
@@ -10,9 +15,21 @@
         }
         else
         {
-            <TypographyTitle Level="2" Class="boards-title">
-                @Title
-            </TypographyTitle>
+            <div class="title-container">
+                <div class="title-icon">
+                    <Icon Type="appstore" />
+                </div>
+                <div class="title-content">
+                    <Title Level="2" Class="boards-title">
+                        @Title
+                    </Title>
+                    <div class="title-subtitle">
+                        <Text Type=@TextElementType.Secondary>
+                            Manage and organize your projects
+                        </Text>
+                    </div>
+                </div>
+            </div>
         }
     </div>
     <div class="header-right">
@@ -37,24 +54,35 @@
         }
         @if (ShowMembersButton)
         {
-            <Button Size=@ButtonSize.Large Type=@ButtonType.Default @onclick=@OpenMembersDrawer>
-                <Icon Type="team" />
-                @("Members")
-            </Button>
-            <Button Size=@ButtonSize.Large Type=@ButtonType.Default @onclick=@ArchiveBoard>
-                <Text Type=@TextElementType.Danger>
-                    <Icon Type="file-zip" />
-                </Text>
-            </Button>
-            <Button Size=@ButtonSize.Large
+            <Tooltip Title="View Members">
+                <Button Size=@ButtonSize.Large
+                        Type=@ButtonType.Default
+                        Class="action-button"
+                        @onclick=@OpenMembersDrawer>
+                    <Icon Type="team" />
+                    Members
+                </Button>
+            </Tooltip>
+            <Tooltip Title="Archive Board">
+                <Button Size=@ButtonSize.Large
+                        Type=@ButtonType.Default
+                        Class="action-button archive-button"
+                        @onclick=@ArchiveBoard>
+                    <Icon Type="inbox" />
+                </Button>
+            </Tooltip>
+            <Tooltip Title="Videoconference">
+              <Button Size=@ButtonSize.Large
                     Type=@ButtonType.Default
                     Icon="video-camera"
                     @onclick=@OnGoToVideoconference>
                 Videoconference
             </Button>
+            </Tooltip>
         }
         <Button Type=@ButtonType.Primary
                 Size=@ButtonSize.Large
+                Class="create-button"
                 Icon="plus"
                 @onclick=@OnCreateClick>
             @ButtonText

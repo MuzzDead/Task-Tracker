@@ -5,7 +5,7 @@
     <div class="comment-header">
         <div class="author-info">
             <Avatar Size=@AvatarSize.Small
-                    Icon="user"
+                    Src=@UserAvatar
                     Class="author-avatar" />
             <div class="author-details">
                 <span class="author-name">@Comment.CreatedBy</span>
@@ -73,6 +73,23 @@
         {
             <div class="comment-text">
                 @((MarkupString)FormatContent(Comment.Text))
+                @if (Comment.Attachments.Any())
+                {
+                    <div class="comment-attachments" style="margin-top: 8px;">
+                        @foreach (var file in Comment.Attachments)
+                        {
+                            <div style="margin-bottom: 6px;">
+                                <a href=@file.DownloadUrl
+                                   target="_blank"
+                                   rel="noopener noreferrer"
+                                   style="font-size: 14px; color: #1890ff; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
+                                    <Icon Type=@GetFileIcon(file.FileName) />
+                                    <span>@file.FileName (@FormatFileSize(file.Size))</span>
+                                </a>
+                            </div>
+                        }
+                    </div>
+                }
             </div>
         }
     </div>
